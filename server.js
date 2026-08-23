@@ -5,130 +5,120 @@ const path = require("path");
 
 const app = express();
 
-
-// ==========================================
-// CONFIGURAÇÕES
-// ==========================================
-
 app.use(cors());
 app.use(express.json());
 
 
-// ==========================================
-// FRONTEND
-// ==========================================
+// ===============================
+// SITE
+// ===============================
 
 const publicPath = path.join(__dirname, "public");
 
 app.use(express.static(publicPath));
 
+app.get("/", (req, res) => {
+    res.sendFile(
+        path.join(publicPath, "index.html")
+    );
+});
 
-// ==========================================
-// BANCO DE DADOS
-// ==========================================
 
-const dbPath = path.join(__dirname, "banco.db");
+// ===============================
+// BANCO
+// ===============================
 
-const db = new sqlite3.Database(dbPath, (err) => {
+const dbPath = path.join(
+    __dirname,
+    "banco.db"
+);
 
-    if (err) {
-        console.error("Erro ao abrir banco:", err.message);
+const db = new sqlite3.Database(
+    dbPath,
+    (erro) => {
+
+        if (erro) {
+            console.error(
+                "Erro no banco:",
+                erro.message
+            );
+        } else {
+            console.log(
+                "Banco conectado!"
+            );
+        }
+
+    }
+);
+
+
+// ===============================
+// TABELA
+// ===============================
+
+db.run(`
+    CREATE TABLE IF NOT EXISTS pratos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        descricao TEXT,
+        preco REAL NOT NULL,
+        imagem TEXT,
+        categoria TEXT NOT NULL
+    )
+`, (erro) => {
+
+    if (erro) {
+        console.error(
+            "Erro na tabela:",
+            erro.message
+        );
     } else {
-        console.log("Banco de dados conectado!");
+        console.log(
+            "Tabela de pratos pronta!"
+        );
     }
 
 });
 
 
-// ==========================================
-// CRIAR TABELA
-// ==========================================
-
-db.serialize(() => {
-
-    db.run(`
-        CREATE TABLE IF NOT EXISTS pratos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL,
-            descricao TEXT,
-            preco REAL NOT NULL,
-            imagem TEXT,
-            categoria TEXT NOT NULL
-        )
-    `, (err) => {
-
-        if (err) {
-            console.error(
-                "Erro ao criar tabela:",
-                err.message
-            );
-        } else {
-            console.log(
-                "Tabela de pratos pronta!"
-            );
-        }
-
-    });
-
-});
-
-
-// ==========================================
-// PÁGINA PRINCIPAL
-// ==========================================
-
-app.get("/", (req, res) => {
-
-    res.sendFile(
-        path.join(
-            publicPath,
-            "index.html"
-        )
-    );
-
-});
-
-
-// ==========================================
-// TESTE
-// ==========================================
+// ===============================
+// API TESTE
+// ===============================
 
 app.get("/api", (req, res) => {
 
     res.json({
         sucesso: true,
-        mensagem: "API do restaurante funcionando!"
+        mensagem:
+            "API do restaurante funcionando!"
     });
 
 });
 
 
-// ==========================================
+// ===============================
 // LISTAR PRATOS
-// ==========================================
+// ===============================
 
 app.get("/pratos", (req, res) => {
 
     db.all(
         "SELECT * FROM pratos ORDER BY id DESC",
         [],
-        (err, rows) => {
+        (erro, resultados) => {
 
-            if (err) {
+            if (erro) {
 
-                console.error(
-                    "Erro ao buscar pratos:",
-                    err.message
-                );
+                console.error(erro);
 
                 return res.status(500).json({
                     sucesso: false,
-                    erro: "Erro ao buscar pratos."
+                    erro: erro.message
                 });
 
             }
 
-            res.json(rows);
+            res.json(resultados);
 
         }
     );
@@ -136,9 +126,9 @@ app.get("/pratos", (req, res) => {
 });
 
 
-// ==========================================
-// CADASTRAR PRATO
-// ==========================================
+// ===============================
+// CADASTRAR
+// ===============================
 
 app.post("/pratos", (req, res) => {
 
@@ -160,7 +150,7 @@ app.post("/pratos", (req, res) => {
         return res.status(400).json({
             sucesso: false,
             erro:
-                "Nome, preço e categoria são obrigatórios."
+                "Preencha nome, preço e categoria."
         });
 
     }
@@ -183,7 +173,8 @@ app.post("/pratos", (req, res) => {
     }
 
 
-    const sql = `
+    db.run(
+        `
         INSERT INTO pratos
         (
             nome,
@@ -193,11 +184,7 @@ app.post("/pratos", (req, res) => {
             categoria
         )
         VALUES (?, ?, ?, ?, ?)
-    `;
-
-
-    db.run(
-        sql,
+        `,
         [
             nome.trim(),
             descricao || "",
@@ -205,18 +192,15 @@ app.post("/pratos", (req, res) => {
             imagem || "",
             categoria.trim()
         ],
-        function (err) {
+        function (erro) {
 
-            if (err) {
+            if (erro) {
 
-                console.error(
-                    "Erro ao cadastrar:",
-                    err.message
-                );
+                console.error(erro);
 
                 return res.status(500).json({
                     sucesso: false,
-                    erro: err.message
+                    erro: erro.message
                 });
 
             }
@@ -246,15 +230,14 @@ app.post("/pratos", (req, res) => {
 });
 
 
-// ==========================================
-// EDITAR PRATO
-// ==========================================
+// ===============================
+// EDITAR
+// ===============================
 
 app.put("/pratos/:id", (req, res) => {
 
     const id =
         Number(req.params.id);
-
 
     const {
         nome,
@@ -274,7 +257,7 @@ app.put("/pratos/:id", (req, res) => {
         return res.status(400).json({
             sucesso: false,
             erro:
-                "Nome, preço e categoria são obrigatórios."
+                "Preencha os campos obrigatórios."
         });
 
     }
@@ -294,7 +277,8 @@ app.put("/pratos/:id", (req, res) => {
     }
 
 
-    const sql = `
+    db.run(
+        `
         UPDATE pratos
         SET
             nome = ?,
@@ -303,11 +287,7 @@ app.put("/pratos/:id", (req, res) => {
             imagem = ?,
             categoria = ?
         WHERE id = ?
-    `;
-
-
-    db.run(
-        sql,
+        `,
         [
             nome.trim(),
             descricao || "",
@@ -316,18 +296,15 @@ app.put("/pratos/:id", (req, res) => {
             categoria.trim(),
             id
         ],
-        function (err) {
+        function (erro) {
 
-            if (err) {
+            if (erro) {
 
-                console.error(
-                    "Erro ao editar:",
-                    err.message
-                );
+                console.error(erro);
 
                 return res.status(500).json({
                     sucesso: false,
-                    erro: err.message
+                    erro: erro.message
                 });
 
             }
@@ -345,12 +322,9 @@ app.put("/pratos/:id", (req, res) => {
 
 
             res.json({
-
                 sucesso: true,
-
                 mensagem:
                     "Prato atualizado com sucesso!"
-
             });
 
         }
@@ -359,9 +333,9 @@ app.put("/pratos/:id", (req, res) => {
 });
 
 
-// ==========================================
-// EXCLUIR PRATO
-// ==========================================
+// ===============================
+// EXCLUIR
+// ===============================
 
 app.delete("/pratos/:id", (req, res) => {
 
@@ -372,18 +346,15 @@ app.delete("/pratos/:id", (req, res) => {
     db.run(
         "DELETE FROM pratos WHERE id = ?",
         [id],
-        function (err) {
+        function (erro) {
 
-            if (err) {
+            if (erro) {
 
-                console.error(
-                    "Erro ao excluir:",
-                    err.message
-                );
+                console.error(erro);
 
                 return res.status(500).json({
                     sucesso: false,
-                    erro: err.message
+                    erro: erro.message
                 });
 
             }
@@ -401,12 +372,9 @@ app.delete("/pratos/:id", (req, res) => {
 
 
             res.json({
-
                 sucesso: true,
-
                 mensagem:
                     "Prato excluído com sucesso!"
-
             });
 
         }
@@ -415,17 +383,13 @@ app.delete("/pratos/:id", (req, res) => {
 });
 
 
-// ==========================================
-// PORTA
-// ==========================================
+// ===============================
+// SERVIDOR
+// ===============================
 
 const PORT =
     process.env.PORT || 3000;
 
-
-// ==========================================
-// INICIAR SERVIDOR
-// ==========================================
 
 app.listen(
     PORT,
