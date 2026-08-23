@@ -1,7 +1,9 @@
 // ========================================
-// CONFIGURAÇÃO DA API
+// CONFIGURAÇÃO
 // ========================================
 
+// Como o site e a API estão no mesmo Render,
+// deixamos vazio.
 const API_URL = "";
 
 
@@ -10,7 +12,9 @@ const API_URL = "";
 // ========================================
 
 let pratos = [];
+
 let categoriaAtual = "Todos";
+
 let pratoEditando = null;
 
 
@@ -18,22 +22,47 @@ let pratoEditando = null;
 // ELEMENTOS
 // ========================================
 
-const listaPratos = document.getElementById("listaPratos");
-const contador = document.getElementById("contador");
-const pesquisa = document.getElementById("pesquisa");
-const modal = document.getElementById("modal");
-const form = document.getElementById("formPrato");
+const listaPratos =
+    document.getElementById("listaPratos");
 
-const nome = document.getElementById("nome");
-const descricao = document.getElementById("descricao");
-const preco = document.getElementById("preco");
-const imagem = document.getElementById("imagem");
-const categoria = document.getElementById("categoria");
+const contador =
+    document.getElementById("contador");
 
-const preview = document.getElementById("preview");
-const tituloFormulario = document.getElementById("tituloFormulario");
-const textoBotao = document.getElementById("textoBotao");
-const toast = document.getElementById("toast");
+const pesquisa =
+    document.getElementById("pesquisa");
+
+const modal =
+    document.getElementById("modal");
+
+const form =
+    document.getElementById("formPrato");
+
+const nome =
+    document.getElementById("nome");
+
+const descricao =
+    document.getElementById("descricao");
+
+const preco =
+    document.getElementById("preco");
+
+const imagem =
+    document.getElementById("imagem");
+
+const categoria =
+    document.getElementById("categoria");
+
+const preview =
+    document.getElementById("preview");
+
+const tituloFormulario =
+    document.getElementById("tituloFormulario");
+
+const textoBotao =
+    document.getElementById("textoBotao");
+
+const toast =
+    document.getElementById("toast");
 
 
 // ========================================
@@ -42,46 +71,76 @@ const toast = document.getElementById("toast");
 
 async function carregarPratos() {
 
-    listaPratos.innerHTML = `
-        <div class="loading">
-            <div class="spinner"></div>
-            <p>Carregando cardápio...</p>
-        </div>
-    `;
-
     try {
 
-        const resposta = await fetch(`${API_URL}/pratos`);
+        listaPratos.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Carregando cardápio...</p>
+            </div>
+        `;
+
+
+        const resposta =
+            await fetch(
+                `${API_URL}/pratos`
+            );
+
 
         if (!resposta.ok) {
+
             throw new Error(
-                "Erro HTTP: " + resposta.status
+                `Erro HTTP: ${resposta.status}`
             );
+
         }
 
-        const tipo = resposta.headers.get("content-type") || "";
+
+        const tipo =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
 
         if (!tipo.includes("application/json")) {
+
             throw new Error(
-                "A API não retornou JSON. Verifique a rota /pratos no Render."
+                "A API não retornou JSON."
             );
+
         }
 
-        pratos = await resposta.json();
+
+        pratos =
+            await resposta.json();
+
 
         mostrarPratos();
 
     } catch (erro) {
 
-        console.error("Erro ao carregar pratos:", erro);
+        console.error(erro);
 
         listaPratos.innerHTML = `
             <div class="loading">
-                <p>❌ Erro ao carregar o cardápio.</p>
-                <small>${escaparHTML(erro.message)}</small>
+
+                <div style="font-size:50px;">
+                    ⚠️
+                </div>
+
+                <p>
+                    Erro ao carregar o cardápio.
+                </p>
+
+                <small>
+                    ${escaparHTML(erro.message)}
+                </small>
+
             </div>
         `;
+
     }
+
 }
 
 
@@ -91,32 +150,33 @@ async function carregarPratos() {
 
 function mostrarPratos() {
 
-    const textoBusca =
-        pesquisa.value.toLowerCase().trim();
+    const busca =
+        pesquisa.value
+            .toLowerCase()
+            .trim();
 
 
-    const filtrados = pratos.filter(prato => {
+    const filtrados =
+        pratos.filter(prato => {
 
-        const correspondeCategoria =
-            categoriaAtual === "Todos" ||
-            prato.categoria === categoriaAtual;
-
-
-        const correspondeBusca =
-            (prato.nome || "")
-                .toLowerCase()
-                .includes(textoBusca) ||
-
-            (prato.descricao || "")
-                .toLowerCase()
-                .includes(textoBusca);
+            const categoriaOK =
+                categoriaAtual === "Todos" ||
+                prato.categoria === categoriaAtual;
 
 
-        return (
-            correspondeCategoria &&
-            correspondeBusca
-        );
-    });
+            const buscaOK =
+                (prato.nome || "")
+                    .toLowerCase()
+                    .includes(busca) ||
+
+                (prato.descricao || "")
+                    .toLowerCase()
+                    .includes(busca);
+
+
+            return categoriaOK && buscaOK;
+
+        });
 
 
     contador.textContent =
@@ -144,11 +204,15 @@ function mostrarPratos() {
         `;
 
         return;
+
     }
 
 
     listaPratos.innerHTML =
-        filtrados.map(criarCard).join("");
+        filtrados
+            .map(criarCard)
+            .join("");
+
 }
 
 
@@ -159,32 +223,42 @@ function mostrarPratos() {
 function criarCard(prato) {
 
     const precoFormatado =
-        Number(prato.preco).toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
+        Number(prato.preco)
+            .toLocaleString(
+                "pt-BR",
+                {
+                    style: "currency",
+                    currency: "BRL"
+                }
+            );
 
 
-    const imagemHTML =
-        prato.imagem
-            ? `
-                <img
-                    src="${escaparHTML(prato.imagem)}"
-                    alt="${escaparHTML(prato.nome)}"
-                    onerror="this.parentElement.innerHTML='<div class=sem-imagem>🍽️</div>'"
-                >
-            `
-            : `
-                <div class="sem-imagem">
-                    🍽️
-                </div>
-            `;
+    let imagemHTML;
+
+
+    if (prato.imagem) {
+
+        imagemHTML = `
+            <img
+                src="${escaparHTML(prato.imagem)}"
+                alt="${escaparHTML(prato.nome)}"
+                onerror="this.parentElement.innerHTML='<div class=sem-imagem>🍽️</div>'"
+            >
+        `;
+
+    } else {
+
+        imagemHTML = `
+            <div class="sem-imagem">
+                🍽️
+            </div>
+        `;
+
+    }
 
 
     return `
+
         <article class="card">
 
             <div class="card-imagem">
@@ -193,7 +267,7 @@ function criarCard(prato) {
 
                 <span class="card-categoria">
                     ${escaparHTML(
-                        prato.categoria || "Outros"
+                        prato.categoria
                     )}
                 </span>
 
@@ -205,7 +279,9 @@ function criarCard(prato) {
                 <div class="card-topo">
 
                     <h3>
-                        ${escaparHTML(prato.nome)}
+                        ${escaparHTML(
+                            prato.nome
+                        )}
                     </h3>
 
                     <span class="preco">
@@ -216,12 +292,12 @@ function criarCard(prato) {
 
 
                 <p class="descricao">
-                    ${
-                        escaparHTML(
-                            prato.descricao ||
-                            "Delicioso prato da casa."
-                        )
-                    }
+
+                    ${escaparHTML(
+                        prato.descricao ||
+                        "Delicioso prato da casa."
+                    )}
+
                 </p>
 
 
@@ -233,6 +309,7 @@ function criarCard(prato) {
                     >
                         ✏️ Editar
                     </button>
+
 
                     <button
                         class="btn-excluir"
@@ -246,7 +323,9 @@ function criarCard(prato) {
             </div>
 
         </article>
+
     `;
+
 }
 
 
@@ -258,13 +337,15 @@ function abrirFormulario() {
 
     modal.classList.add("aberto");
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+        "hidden";
 
     limparFormulario();
 
     setTimeout(() => {
         nome.focus();
     }, 100);
+
 }
 
 
@@ -276,9 +357,11 @@ function fecharFormulario() {
 
     modal.classList.remove("aberto");
 
-    document.body.style.overflow = "auto";
+    document.body.style.overflow =
+        "auto";
 
     limparFormulario();
+
 }
 
 
@@ -298,15 +381,17 @@ function limparFormulario() {
     textoBotao.textContent =
         "Cadastrar prato";
 
+
     preview.innerHTML = `
         <span>🖼️</span>
         <p>A imagem aparecerá aqui</p>
     `;
+
 }
 
 
 // ========================================
-// PREVIEW DA IMAGEM
+// PREVIEW
 // ========================================
 
 imagem.addEventListener(
@@ -329,16 +414,18 @@ function atualizarPreview() {
         `;
 
         return;
+
     }
 
 
     preview.innerHTML = `
         <img
             src="${escaparHTML(url)}"
-            onerror="imagemInvalida()"
             alt="Preview"
+            onerror="imagemInvalida()"
         >
     `;
+
 }
 
 
@@ -348,6 +435,7 @@ function imagemInvalida() {
         <span>⚠️</span>
         <p>Não foi possível carregar a imagem.</p>
     `;
+
 }
 
 
@@ -378,6 +466,7 @@ form.addEventListener(
 
             categoria:
                 categoria.value
+
         };
 
 
@@ -392,6 +481,7 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -400,57 +490,44 @@ form.addEventListener(
             let resposta;
 
 
-            // ====================================
-            // EDITAR
-            // ====================================
-
             if (pratoEditando) {
 
-                resposta = await fetch(
-                    `${API_URL}/pratos/${pratoEditando}`,
-                    {
-                        method: "PUT",
+                resposta =
+                    await fetch(
+                        `${API_URL}/pratos/${pratoEditando}`,
+                        {
+                            method: "PUT",
 
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
 
-                        body:
-                            JSON.stringify(dados)
-                    }
-                );
+                            body:
+                                JSON.stringify(dados)
+                        }
+                    );
 
-            }
+            } else {
 
+                resposta =
+                    await fetch(
+                        `${API_URL}/pratos`,
+                        {
+                            method: "POST",
 
-            // ====================================
-            // CADASTRAR
-            // ====================================
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
 
-            else {
-
-                resposta = await fetch(
-                    `${API_URL}/pratos`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(dados)
-                    }
-                );
+                            body:
+                                JSON.stringify(dados)
+                        }
+                    );
 
             }
 
-
-            // ====================================
-            // VERIFICAR RESPOSTA
-            // ====================================
 
             const tipo =
                 resposta.headers.get(
@@ -464,13 +541,14 @@ form.addEventListener(
                     await resposta.text();
 
                 console.error(
-                    "Resposta recebida:",
+                    "Resposta do servidor:",
                     texto
                 );
 
                 throw new Error(
-                    "O servidor não retornou JSON. Verifique a API no Render."
+                    "O servidor não retornou JSON."
                 );
+
             }
 
 
@@ -484,6 +562,7 @@ form.addEventListener(
                     resultado.erro ||
                     "Erro ao salvar prato."
                 );
+
             }
 
 
@@ -491,30 +570,32 @@ form.addEventListener(
 
 
             mostrarToast(
-                resultado.mensagem ||
-                "Prato salvo com sucesso!"
+                resultado.mensagem
             );
 
 
-            await carregarPratos();
+            carregarPratos();
+
 
         } catch (erro) {
 
             console.error(
-                "Erro ao salvar:",
+                "Erro:",
                 erro
             );
 
             mostrarToast(
                 erro.message
             );
+
         }
+
     }
 );
 
 
 // ========================================
-// EDITAR PRATO
+// EDITAR
 // ========================================
 
 async function editarPrato(id) {
@@ -532,6 +613,7 @@ async function editarPrato(id) {
         );
 
         return;
+
     }
 
 
@@ -566,14 +648,16 @@ async function editarPrato(id) {
 
     modal.classList.add("aberto");
 
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow =
+        "hidden";
 
     nome.focus();
+
 }
 
 
 // ========================================
-// EXCLUIR PRATO
+// EXCLUIR
 // ========================================
 
 async function excluirPrato(id) {
@@ -622,6 +706,7 @@ async function excluirPrato(id) {
             throw new Error(
                 "O servidor não retornou JSON."
             );
+
         }
 
 
@@ -635,6 +720,7 @@ async function excluirPrato(id) {
                 resultado.erro ||
                 "Erro ao excluir prato."
             );
+
         }
 
 
@@ -643,19 +729,21 @@ async function excluirPrato(id) {
         );
 
 
-        await carregarPratos();
+        carregarPratos();
+
 
     } catch (erro) {
 
         console.error(
-            "Erro ao excluir:",
             erro
         );
 
         mostrarToast(
             erro.message
         );
+
     }
+
 }
 
 
@@ -702,8 +790,10 @@ document
 
 
                 mostrarPratos();
+
             }
         );
+
     });
 
 
@@ -720,13 +810,15 @@ modal.addEventListener(
         ) {
 
             fecharFormulario();
+
         }
+
     }
 );
 
 
 // ========================================
-// ESC FECHA MODAL
+// ESC
 // ========================================
 
 document.addEventListener(
@@ -739,7 +831,9 @@ document.addEventListener(
         ) {
 
             fecharFormulario();
+
         }
+
     }
 );
 
@@ -765,21 +859,43 @@ function mostrarToast(mensagem) {
         );
 
     }, 3000);
+
 }
 
 
 // ========================================
-// SEGURANÇA HTML
+// SEGURANÇA
 // ========================================
 
 function escaparHTML(texto) {
 
     return String(texto)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
 }
 
 
