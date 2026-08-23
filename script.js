@@ -1,11 +1,16 @@
 // ========================================
+// CONFIGURAÇÃO DA API
+// ========================================
+
+const API_URL = "";
+
+
+// ========================================
 // VARIÁVEIS
 // ========================================
 
 let pratos = [];
-
 let categoriaAtual = "Todos";
-
 let pratoEditando = null;
 
 
@@ -13,47 +18,22 @@ let pratoEditando = null;
 // ELEMENTOS
 // ========================================
 
-const listaPratos =
-    document.getElementById("listaPratos");
+const listaPratos = document.getElementById("listaPratos");
+const contador = document.getElementById("contador");
+const pesquisa = document.getElementById("pesquisa");
+const modal = document.getElementById("modal");
+const form = document.getElementById("formPrato");
 
-const contador =
-    document.getElementById("contador");
+const nome = document.getElementById("nome");
+const descricao = document.getElementById("descricao");
+const preco = document.getElementById("preco");
+const imagem = document.getElementById("imagem");
+const categoria = document.getElementById("categoria");
 
-const pesquisa =
-    document.getElementById("pesquisa");
-
-const modal =
-    document.getElementById("modal");
-
-const form =
-    document.getElementById("formPrato");
-
-const nome =
-    document.getElementById("nome");
-
-const descricao =
-    document.getElementById("descricao");
-
-const preco =
-    document.getElementById("preco");
-
-const imagem =
-    document.getElementById("imagem");
-
-const categoria =
-    document.getElementById("categoria");
-
-const preview =
-    document.getElementById("preview");
-
-const tituloFormulario =
-    document.getElementById("tituloFormulario");
-
-const textoBotao =
-    document.getElementById("textoBotao");
-
-const toast =
-    document.getElementById("toast");
+const preview = document.getElementById("preview");
+const tituloFormulario = document.getElementById("tituloFormulario");
+const textoBotao = document.getElementById("textoBotao");
+const toast = document.getElementById("toast");
 
 
 // ========================================
@@ -71,13 +51,19 @@ async function carregarPratos() {
 
     try {
 
-        const resposta =
-            await fetch("/pratos");
+        const resposta = await fetch(`${API_URL}/pratos`);
 
         if (!resposta.ok) {
-
             throw new Error(
                 "Erro HTTP: " + resposta.status
+            );
+        }
+
+        const tipo = resposta.headers.get("content-type") || "";
+
+        if (!tipo.includes("application/json")) {
+            throw new Error(
+                "A API não retornou JSON. Verifique a rota /pratos no Render."
             );
         }
 
@@ -87,11 +73,12 @@ async function carregarPratos() {
 
     } catch (erro) {
 
-        console.error(erro);
+        console.error("Erro ao carregar pratos:", erro);
 
         listaPratos.innerHTML = `
             <div class="loading">
                 <p>❌ Erro ao carregar o cardápio.</p>
+                <small>${escaparHTML(erro.message)}</small>
             </div>
         `;
     }
@@ -105,34 +92,31 @@ async function carregarPratos() {
 function mostrarPratos() {
 
     const textoBusca =
-        pesquisa.value
-            .toLowerCase()
-            .trim();
+        pesquisa.value.toLowerCase().trim();
 
 
-    const filtrados =
-        pratos.filter(prato => {
+    const filtrados = pratos.filter(prato => {
 
-            const correspondeCategoria =
-                categoriaAtual === "Todos" ||
-                prato.categoria === categoriaAtual;
-
-
-            const correspondeBusca =
-                prato.nome
-                    .toLowerCase()
-                    .includes(textoBusca) ||
-
-                (prato.descricao || "")
-                    .toLowerCase()
-                    .includes(textoBusca);
+        const correspondeCategoria =
+            categoriaAtual === "Todos" ||
+            prato.categoria === categoriaAtual;
 
 
-            return (
-                correspondeCategoria &&
-                correspondeBusca
-            );
-        });
+        const correspondeBusca =
+            (prato.nome || "")
+                .toLowerCase()
+                .includes(textoBusca) ||
+
+            (prato.descricao || "")
+                .toLowerCase()
+                .includes(textoBusca);
+
+
+        return (
+            correspondeCategoria &&
+            correspondeBusca
+        );
+    });
 
 
     contador.textContent =
@@ -192,12 +176,12 @@ function criarCard(prato) {
                     alt="${escaparHTML(prato.nome)}"
                     onerror="this.parentElement.innerHTML='<div class=sem-imagem>🍽️</div>'"
                 >
-              `
+            `
             : `
                 <div class="sem-imagem">
                     🍽️
                 </div>
-              `;
+            `;
 
 
     return `
@@ -208,7 +192,9 @@ function criarCard(prato) {
                 ${imagemHTML}
 
                 <span class="card-categoria">
-                    ${escaparHTML(prato.categoria)}
+                    ${escaparHTML(
+                        prato.categoria || "Outros"
+                    )}
                 </span>
 
             </div>
@@ -378,7 +364,8 @@ form.addEventListener(
 
         const dados = {
 
-            nome: nome.value.trim(),
+            nome:
+                nome.value.trim(),
 
             descricao:
                 descricao.value.trim(),
@@ -413,41 +400,77 @@ form.addEventListener(
             let resposta;
 
 
+            // ====================================
+            // EDITAR
+            // ====================================
+
             if (pratoEditando) {
 
-                resposta =
-                    await fetch(
-                        `/pratos/${pratoEditando}`,
-                        {
-                            method: "PUT",
+                resposta = await fetch(
+                    `${API_URL}/pratos/${pratoEditando}`,
+                    {
+                        method: "PUT",
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-                            body:
-                                JSON.stringify(dados)
-                        }
-                    );
+                        body:
+                            JSON.stringify(dados)
+                    }
+                );
 
-            } else {
+            }
 
-                resposta =
-                    await fetch(
-                        "/pratos",
-                        {
-                            method: "POST",
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
+            // ====================================
+            // CADASTRAR
+            // ====================================
 
-                            body:
-                                JSON.stringify(dados)
-                        }
-                    );
+            else {
+
+                resposta = await fetch(
+                    `${API_URL}/pratos`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(dados)
+                    }
+                );
+
+            }
+
+
+            // ====================================
+            // VERIFICAR RESPOSTA
+            // ====================================
+
+            const tipo =
+                resposta.headers.get(
+                    "content-type"
+                ) || "";
+
+
+            if (!tipo.includes("application/json")) {
+
+                const texto =
+                    await resposta.text();
+
+                console.error(
+                    "Resposta recebida:",
+                    texto
+                );
+
+                throw new Error(
+                    "O servidor não retornou JSON. Verifique a API no Render."
+                );
             }
 
 
@@ -466,15 +489,21 @@ form.addEventListener(
 
             fecharFormulario();
 
+
             mostrarToast(
-                resultado.mensagem
+                resultado.mensagem ||
+                "Prato salvo com sucesso!"
             );
 
-            carregarPratos();
+
+            await carregarPratos();
 
         } catch (erro) {
 
-            console.error(erro);
+            console.error(
+                "Erro ao salvar:",
+                erro
+            );
 
             mostrarToast(
                 erro.message
@@ -510,19 +539,19 @@ async function editarPrato(id) {
 
 
     nome.value =
-        prato.nome;
+        prato.nome || "";
 
     descricao.value =
         prato.descricao || "";
 
     preco.value =
-        prato.preco;
+        prato.preco || "";
 
     imagem.value =
         prato.imagem || "";
 
     categoria.value =
-        prato.categoria;
+        prato.categoria || "";
 
 
     tituloFormulario.textContent =
@@ -575,11 +604,25 @@ async function excluirPrato(id) {
 
         const resposta =
             await fetch(
-                `/pratos/${id}`,
+                `${API_URL}/pratos/${id}`,
                 {
                     method: "DELETE"
                 }
             );
+
+
+        const tipo =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        if (!tipo.includes("application/json")) {
+
+            throw new Error(
+                "O servidor não retornou JSON."
+            );
+        }
 
 
         const resultado =
@@ -600,11 +643,14 @@ async function excluirPrato(id) {
         );
 
 
-        carregarPratos();
+        await carregarPratos();
 
     } catch (erro) {
 
-        console.error(erro);
+        console.error(
+            "Erro ao excluir:",
+            erro
+        );
 
         mostrarToast(
             erro.message
@@ -662,7 +708,7 @@ document
 
 
 // ========================================
-// FECHAR MODAL CLICANDO FORA
+// FECHAR MODAL
 // ========================================
 
 modal.addEventListener(
