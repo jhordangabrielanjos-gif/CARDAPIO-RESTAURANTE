@@ -3,6 +3,7 @@ const API_URL = "https://cardapio-restaurante-2cun.onrender.com";
 let pratos = [];
 let categoriaAtual = "Todos";
 let pratoEditando = null;
+let imagemAtual = "";
 
 const listaPratos = document.getElementById("listaPratos");
 const contador = document.getElementById("contador");
@@ -18,6 +19,7 @@ const imagem = document.getElementById("imagem");
 const categoria = document.getElementById("categoria");
 
 const preview = document.getElementById("preview");
+
 const tituloFormulario =
     document.getElementById("tituloFormulario");
 
@@ -61,8 +63,7 @@ async function carregarPratos() {
             );
         }
 
-        pratos =
-            await resposta.json();
+        pratos = await resposta.json();
 
         mostrarPratos();
 
@@ -72,20 +73,22 @@ async function carregarPratos() {
 
         listaPratos.innerHTML = `
             <div class="loading">
+
                 <div style="font-size:50px;">
                     ⚠️
                 </div>
+
                 <p>
                     Erro ao carregar o cardápio.
                 </p>
+
                 <small>
                     ${escaparHTML(erro.message)}
                 </small>
+
             </div>
         `;
-
     }
-
 }
 
 
@@ -100,14 +103,12 @@ function mostrarPratos() {
             .toLowerCase()
             .trim();
 
-
     const filtrados =
         pratos.filter(prato => {
 
             const categoriaOK =
                 categoriaAtual === "Todos" ||
                 prato.categoria === categoriaAtual;
-
 
             const buscaOK =
                 (prato.nome || "")
@@ -118,9 +119,7 @@ function mostrarPratos() {
                     .toLowerCase()
                     .includes(busca);
 
-
             return categoriaOK && buscaOK;
-
         });
 
 
@@ -136,12 +135,15 @@ function mostrarPratos() {
 
         listaPratos.innerHTML = `
             <div class="loading">
+
                 <div style="font-size:50px;">
                     🍽️
                 </div>
+
                 <p>
                     Nenhum prato encontrado.
                 </p>
+
             </div>
         `;
 
@@ -153,7 +155,6 @@ function mostrarPratos() {
         filtrados
             .map(criarCard)
             .join("");
-
 }
 
 
@@ -180,6 +181,7 @@ function criarCard(prato) {
                 <img
                     src="${escaparHTML(prato.imagem)}"
                     alt="${escaparHTML(prato.nome)}"
+                    loading="lazy"
                 >
             `
             : `
@@ -252,7 +254,6 @@ function criarCard(prato) {
 
         </article>
     `;
-
 }
 
 
@@ -272,7 +273,6 @@ function abrirFormulario() {
     setTimeout(() => {
         nome.focus();
     }, 100);
-
 }
 
 
@@ -288,7 +288,6 @@ function fecharFormulario() {
         "auto";
 
     limparFormulario();
-
 }
 
 
@@ -302,6 +301,8 @@ function limparFormulario() {
 
     pratoEditando = null;
 
+    imagemAtual = "";
+
     tituloFormulario.textContent =
         "Novo prato";
 
@@ -313,56 +314,101 @@ function limparFormulario() {
         <span>🖼️</span>
         <p>A imagem aparecerá aqui</p>
     `;
-
 }
+
+
+// ========================================
+// ESCOLHER IMAGEM
+// ========================================
+
+imagem.addEventListener(
+    "change",
+    function () {
+
+        const arquivo = imagem.files[0];
+
+        if (!arquivo) {
+
+            if (imagemAtual) {
+
+                mostrarPreview(imagemAtual);
+
+            } else {
+
+                preview.innerHTML = `
+                    <span>🖼️</span>
+                    <p>A imagem aparecerá aqui</p>
+                `;
+            }
+
+            return;
+        }
+
+
+        // Limite de 5 MB
+        if (arquivo.size > 5 * 1024 * 1024) {
+
+            imagem.value = "";
+
+            mostrarToast(
+                "A imagem deve ter no máximo 5 MB."
+            );
+
+            return;
+        }
+
+
+        if (!arquivo.type.startsWith("image/")) {
+
+            imagem.value = "";
+
+            mostrarToast(
+                "Escolha um arquivo de imagem."
+            );
+
+            return;
+        }
+
+
+        const leitor = new FileReader();
+
+
+        leitor.onload = function (evento) {
+
+            imagemAtual =
+                evento.target.result;
+
+            mostrarPreview(imagemAtual);
+
+        };
+
+
+        leitor.onerror = function () {
+
+            mostrarToast(
+                "Não foi possível carregar a imagem."
+            );
+
+        };
+
+
+        leitor.readAsDataURL(arquivo);
+    }
+);
 
 
 // ========================================
 // PREVIEW
 // ========================================
 
-imagem.addEventListener(
-    "input",
-    atualizarPreview
-);
-
-
-function atualizarPreview() {
-
-    const url =
-        imagem.value.trim();
-
-
-    if (!url) {
-
-        preview.innerHTML = `
-            <span>🖼️</span>
-            <p>A imagem aparecerá aqui</p>
-        `;
-
-        return;
-
-    }
-
+function mostrarPreview(src) {
 
     preview.innerHTML = `
         <img
-            src="${escaparHTML(url)}"
-            alt="Preview"
-            onerror="imagemInvalida()"
+            src="${escaparHTML(src)}"
+            alt="Preview da imagem"
         >
     `;
-
-}
-
-
-function imagemInvalida() {
-
-    preview.innerHTML = `
-        <span>⚠️</span>
-        <p>Não foi possível carregar a imagem.</p>
-    `;
-
 }
 
 
@@ -372,7 +418,7 @@ function imagemInvalida() {
 
 form.addEventListener(
     "submit",
-    async function(evento) {
+    async function (evento) {
 
         evento.preventDefault();
 
@@ -389,11 +435,10 @@ form.addEventListener(
                 Number(preco.value),
 
             imagem:
-                imagem.value.trim(),
+                imagemAtual || "",
 
             categoria:
                 categoria.value
-
         };
 
 
@@ -408,14 +453,21 @@ form.addEventListener(
             );
 
             return;
-
         }
 
 
         try {
 
+            textoBotao.textContent =
+                "Salvando...";
+
+
             let resposta;
 
+
+            // ==================================
+            // EDITAR
+            // ==================================
 
             if (pratoEditando) {
 
@@ -435,7 +487,13 @@ form.addEventListener(
                         }
                     );
 
-            } else {
+            }
+
+            // ==================================
+            // CADASTRAR
+            // ==================================
+
+            else {
 
                 resposta =
                     await fetch(
@@ -452,7 +510,6 @@ form.addEventListener(
                                 JSON.stringify(dados)
                         }
                     );
-
             }
 
 
@@ -467,7 +524,6 @@ form.addEventListener(
                 throw new Error(
                     "O servidor não retornou JSON."
                 );
-
             }
 
 
@@ -481,7 +537,6 @@ form.addEventListener(
                     resultado.erro ||
                     "Erro ao salvar prato."
                 );
-
             }
 
 
@@ -500,12 +555,16 @@ form.addEventListener(
 
             console.error(erro);
 
+            textoBotao.textContent =
+                pratoEditando
+                    ? "Salvar alterações"
+                    : "Cadastrar prato";
+
+
             mostrarToast(
                 erro.message
             );
-
         }
-
     }
 );
 
@@ -529,6 +588,10 @@ async function editarPrato(id) {
 
     pratoEditando = id;
 
+    imagemAtual =
+        prato.imagem || "";
+
+
     nome.value =
         prato.nome || "";
 
@@ -538,28 +601,40 @@ async function editarPrato(id) {
     preco.value =
         prato.preco || "";
 
-    imagem.value =
-        prato.imagem || "";
-
     categoria.value =
         prato.categoria || "";
+
+
+    // Não tentamos colocar uma imagem
+    // diretamente no input file.
+    imagem.value = "";
 
 
     tituloFormulario.textContent =
         "Editar prato";
 
+
     textoBotao.textContent =
         "Salvar alterações";
 
 
-    atualizarPreview();
+    if (imagemAtual) {
+
+        mostrarPreview(imagemAtual);
+
+    } else {
+
+        preview.innerHTML = `
+            <span>🖼️</span>
+            <p>A imagem aparecerá aqui</p>
+        `;
+    }
 
 
     modal.classList.add("aberto");
 
     document.body.style.overflow =
         "hidden";
-
 }
 
 
@@ -611,7 +686,6 @@ async function excluirPrato(id) {
             throw new Error(
                 "O servidor não retornou JSON."
             );
-
         }
 
 
@@ -625,7 +699,6 @@ async function excluirPrato(id) {
                 resultado.erro ||
                 "Erro ao excluir."
             );
-
         }
 
 
@@ -644,9 +717,7 @@ async function excluirPrato(id) {
         mostrarToast(
             erro.message
         );
-
     }
-
 }
 
 
@@ -670,7 +741,7 @@ document
 
         botao.addEventListener(
             "click",
-            function() {
+            function () {
 
                 document
                     .querySelectorAll(".categoria")
@@ -693,7 +764,6 @@ document
 
 
                 mostrarPratos();
-
             }
         );
 
@@ -706,14 +776,13 @@ document
 
 modal.addEventListener(
     "click",
-    function(evento) {
+    function (evento) {
 
         if (
             evento.target === modal
         ) {
 
             fecharFormulario();
-
         }
 
     }
@@ -726,7 +795,7 @@ modal.addEventListener(
 
 document.addEventListener(
     "keydown",
-    function(evento) {
+    function (evento) {
 
         if (
             evento.key === "Escape" &&
@@ -734,7 +803,6 @@ document.addEventListener(
         ) {
 
             fecharFormulario();
-
         }
 
     }
@@ -762,7 +830,6 @@ function mostrarToast(mensagem) {
         );
 
     }, 3000);
-
 }
 
 
@@ -778,7 +845,6 @@ function escaparHTML(texto) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
 }
 
 
