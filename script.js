@@ -1,6 +1,29 @@
 const API_URL = "https://cardapio-restaurante-za9s.onrender.com";
 
 const WHATSAPP = "5579981021378";
+// ========================================
+// SENHA ADMINISTRATIVA
+// ========================================
+
+const SENHA_ADMIN = "1234";
+
+function verificarSenhaAdmin() {
+
+    const senha = prompt("🔐 Digite a senha administrativa:");
+
+    if (senha === null) {
+        return false;
+    }
+
+    if (senha !== SENHA_ADMIN) {
+
+        mostrarToast("❌ Senha incorreta!");
+
+        return false;
+    }
+
+    return true;
+}
 
 // ========================================
 // VARIÁVEIS
@@ -1058,7 +1081,14 @@ const abrirFormularioBtn =
 
 abrirFormularioBtn.addEventListener(
     "click",
-    abrirFormulario
+    () => {
+
+        if (!verificarSenhaAdmin()) {
+            return;
+        }
+
+        abrirFormulario();
+    }
 );
 
 
@@ -1371,6 +1401,11 @@ form.addEventListener(
 
 function editarPrato(id) {
 
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+ 
+
     const prato =
         pratos.find(
             item =>
@@ -1460,13 +1495,16 @@ function editarPrato(id) {
 
 async function excluirPrato(id) {
 
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+
     const prato =
         pratos.find(
             item =>
                 Number(item.id) ===
                 Number(id)
         );
-
 
     if (!prato) {
 
@@ -1477,18 +1515,14 @@ async function excluirPrato(id) {
         return;
     }
 
-
     const confirmar =
         confirm(
             `Deseja excluir "${prato.nome}"?`
         );
 
-
     if (!confirmar) {
-
         return;
     }
-
 
     try {
 
