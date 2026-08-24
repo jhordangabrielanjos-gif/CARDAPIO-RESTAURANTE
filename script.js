@@ -1,9 +1,22 @@
 const API_URL = "https://cardapio-restaurante-2cun.onrender.com";
 
+const WHATSAPP = "5579981021378";
+
 let pratos = [];
 let categoriaAtual = "Todos";
 let pratoEditando = null;
 let imagemAtual = "";
+
+// ========================================
+// CARRINHO
+// ========================================
+
+let carrinho = [];
+
+
+// ========================================
+// ELEMENTOS
+// ========================================
 
 const listaPratos = document.getElementById("listaPratos");
 const contador = document.getElementById("contador");
@@ -31,6 +44,588 @@ const toast =
 
 
 // ========================================
+// CRIAR CARRINHO NA TELA
+// ========================================
+
+function criarInterfaceCarrinho() {
+
+    if (document.getElementById("botaoCarrinho")) {
+        return;
+    }
+
+    const botao = document.createElement("button");
+
+    botao.id = "botaoCarrinho";
+    botao.className = "botao-carrinho";
+
+    botao.innerHTML = `
+        <span class="icone-carrinho">🛒</span>
+
+        <span>
+            Meu pedido
+        </span>
+
+        <strong id="quantidadeCarrinho">
+            0
+        </strong>
+    `;
+
+    botao.onclick = abrirCarrinho;
+
+    document.body.appendChild(botao);
+
+
+    const modalCarrinho = document.createElement("div");
+
+    modalCarrinho.id = "modalCarrinho";
+    modalCarrinho.className = "modal-carrinho";
+
+    modalCarrinho.innerHTML = `
+
+        <div class="carrinho-conteudo">
+
+            <button
+                class="fechar-carrinho"
+                onclick="fecharCarrinho()"
+            >
+                ×
+            </button>
+
+            <div class="carrinho-header">
+
+                <div class="carrinho-titulo">
+
+                    <span>
+                        🛒
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Meu pedido
+                        </h2>
+
+                        <p>
+                            Confira seus itens antes de enviar
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="listaCarrinho"
+                class="lista-carrinho"
+            ></div>
+
+
+            <div class="carrinho-footer">
+
+                <div class="total-carrinho">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="totalCarrinho">
+                        R$ 0,00
+                    </strong>
+
+                </div>
+
+
+                <button
+                    class="btn-whatsapp"
+                    onclick="enviarPedidoWhatsApp()"
+                >
+                    <span>
+                        📱
+                    </span>
+
+                    Fazer pedido pelo WhatsApp
+                </button>
+
+
+                <button
+                    class="btn-limpar-carrinho"
+                    onclick="limparCarrinho()"
+                >
+                    🗑️ Limpar pedido
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(modalCarrinho);
+
+
+    modalCarrinho.addEventListener(
+        "click",
+        function (evento) {
+
+            if (
+                evento.target === modalCarrinho
+            ) {
+
+                fecharCarrinho();
+
+            }
+
+        }
+    );
+}
+
+
+// ========================================
+// ADICIONAR AO CARRINHO
+// ========================================
+
+function adicionarAoCarrinho(id) {
+
+    const prato =
+        pratos.find(
+            item => Number(item.id) === Number(id)
+        );
+
+    if (!prato) {
+        mostrarToast("Prato não encontrado.");
+        return;
+    }
+
+
+    const itemExistente =
+        carrinho.find(
+            item =>
+                Number(item.id) === Number(id)
+        );
+
+
+    if (itemExistente) {
+
+        itemExistente.quantidade++;
+
+    } else {
+
+        carrinho.push({
+
+            id: prato.id,
+
+            nome: prato.nome,
+
+            preco: Number(prato.preco),
+
+            quantidade: 1
+
+        });
+
+    }
+
+
+    atualizarCarrinho();
+
+    mostrarToast(
+        `${prato.nome} adicionado ao pedido!`
+    );
+}
+
+
+// ========================================
+// AUMENTAR QUANTIDADE
+// ========================================
+
+function aumentarQuantidade(id) {
+
+    const item =
+        carrinho.find(
+            produto =>
+                Number(produto.id) === Number(id)
+        );
+
+    if (!item) {
+        return;
+    }
+
+    item.quantidade++;
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// DIMINUIR QUANTIDADE
+// ========================================
+
+function diminuirQuantidade(id) {
+
+    const item =
+        carrinho.find(
+            produto =>
+                Number(produto.id) === Number(id)
+        );
+
+    if (!item) {
+        return;
+    }
+
+
+    item.quantidade--;
+
+
+    if (item.quantidade <= 0) {
+
+        carrinho =
+            carrinho.filter(
+                produto =>
+                    Number(produto.id) !== Number(id)
+            );
+
+    }
+
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// ATUALIZAR CARRINHO
+// ========================================
+
+function atualizarCarrinho() {
+
+    const quantidadeElemento =
+        document.getElementById(
+            "quantidadeCarrinho"
+        );
+
+    const lista =
+        document.getElementById(
+            "listaCarrinho"
+        );
+
+    const totalElemento =
+        document.getElementById(
+            "totalCarrinho"
+        );
+
+
+    const quantidadeTotal =
+        carrinho.reduce(
+            (total, item) =>
+                total + item.quantidade,
+            0
+        );
+
+
+    const valorTotal =
+        carrinho.reduce(
+            (total, item) =>
+                total +
+                item.preco *
+                item.quantidade,
+            0
+        );
+
+
+    if (quantidadeElemento) {
+
+        quantidadeElemento.textContent =
+            quantidadeTotal;
+
+    }
+
+
+    if (totalElemento) {
+
+        totalElemento.textContent =
+            formatarPreco(valorTotal);
+
+    }
+
+
+    if (!lista) {
+        return;
+    }
+
+
+    if (carrinho.length === 0) {
+
+        lista.innerHTML = `
+
+            <div class="carrinho-vazio">
+
+                <div>
+                    🛒
+                </div>
+
+                <h3>
+                    Seu pedido está vazio
+                </h3>
+
+                <p>
+                    Adicione alguns pratos deliciosos
+                    ao seu pedido.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    lista.innerHTML =
+        carrinho
+            .map(item => {
+
+                const subtotal =
+                    item.preco *
+                    item.quantidade;
+
+
+                return `
+
+                    <div class="item-carrinho">
+
+                        <div class="item-info">
+
+                            <h3>
+                                ${escaparHTML(
+                                    item.nome
+                                )}
+                            </h3>
+
+                            <p>
+                                ${formatarPreco(
+                                    item.preco
+                                )}
+                                cada
+                            </p>
+
+                        </div>
+
+
+                        <div class="item-direita">
+
+                            <div class="controle-quantidade">
+
+                                <button
+                                    onclick="diminuirQuantidade(${item.id})"
+                                >
+                                    −
+                                </button>
+
+                                <strong>
+                                    ${item.quantidade}
+                                </strong>
+
+                                <button
+                                    onclick="aumentarQuantidade(${item.id})"
+                                >
+                                    +
+                                </button>
+
+                            </div>
+
+
+                            <strong class="subtotal">
+                                ${formatarPreco(
+                                    subtotal
+                                )}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            })
+            .join("");
+}
+
+
+// ========================================
+// ABRIR CARRINHO
+// ========================================
+
+function abrirCarrinho() {
+
+    const modalCarrinho =
+        document.getElementById(
+            "modalCarrinho"
+        );
+
+    if (!modalCarrinho) {
+        return;
+    }
+
+    modalCarrinho.classList.add(
+        "aberto"
+    );
+
+    document.body.style.overflow =
+        "hidden";
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// FECHAR CARRINHO
+// ========================================
+
+function fecharCarrinho() {
+
+    const modalCarrinho =
+        document.getElementById(
+            "modalCarrinho"
+        );
+
+    if (!modalCarrinho) {
+        return;
+    }
+
+    modalCarrinho.classList.remove(
+        "aberto"
+    );
+
+    document.body.style.overflow =
+        "auto";
+}
+
+
+// ========================================
+// LIMPAR CARRINHO
+// ========================================
+
+function limparCarrinho() {
+
+    if (carrinho.length === 0) {
+        return;
+    }
+
+
+    const confirmar =
+        confirm(
+            "Deseja realmente limpar o pedido?"
+        );
+
+
+    if (!confirmar) {
+        return;
+    }
+
+
+    carrinho = [];
+
+    atualizarCarrinho();
+
+    mostrarToast(
+        "Pedido limpo."
+    );
+}
+
+
+// ========================================
+// ENVIAR PARA WHATSAPP
+// ========================================
+
+function enviarPedidoWhatsApp() {
+
+    if (carrinho.length === 0) {
+
+        mostrarToast(
+            "Adicione pelo menos um prato ao pedido."
+        );
+
+        return;
+    }
+
+
+    let mensagem =
+        "🍽️ *NOVO PEDIDO*\n\n";
+
+
+    mensagem +=
+        "Olá! Gostaria de fazer este pedido:\n\n";
+
+
+    carrinho.forEach(item => {
+
+        const subtotal =
+            item.preco *
+            item.quantidade;
+
+
+        mensagem +=
+            `🍴 *${item.nome}*\n`;
+
+        mensagem +=
+            `Quantidade: ${item.quantidade}\n`;
+
+        mensagem +=
+            `Valor: ${formatarPreco(subtotal)}\n\n`;
+
+    });
+
+
+    const total =
+        carrinho.reduce(
+            (soma, item) =>
+                soma +
+                item.preco *
+                item.quantidade,
+            0
+        );
+
+
+    mensagem +=
+        "━━━━━━━━━━━━━━━━━━\n";
+
+    mensagem +=
+        `💰 *TOTAL: ${formatarPreco(total)}*\n\n`;
+
+    mensagem +=
+        "Aguardo a confirmação do pedido. 😊";
+
+
+    const url =
+        `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+            mensagem
+        )}`;
+
+
+    window.open(
+        url,
+        "_blank"
+    );
+}
+
+
+// ========================================
+// FORMATAR PREÇO
+// ========================================
+
+function formatarPreco(valor) {
+
+    return Number(valor)
+        .toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
+}
+
+
+// ========================================
 // CARREGAR PRATOS
 // ========================================
 
@@ -45,25 +640,40 @@ async function carregarPratos() {
             </div>
         `;
 
+
         const resposta =
-            await fetch(`${API_URL}/pratos`);
+            await fetch(
+                `${API_URL}/pratos`
+            );
+
 
         if (!resposta.ok) {
+
             throw new Error(
                 `Erro HTTP ${resposta.status}`
             );
+
         }
 
+
         const tipo =
-            resposta.headers.get("content-type") || "";
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
 
         if (!tipo.includes("application/json")) {
+
             throw new Error(
                 "A API não retornou JSON."
             );
+
         }
 
-        pratos = await resposta.json();
+
+        pratos =
+            await resposta.json();
+
 
         mostrarPratos();
 
@@ -71,7 +681,9 @@ async function carregarPratos() {
 
         console.error(erro);
 
+
         listaPratos.innerHTML = `
+
             <div class="loading">
 
                 <div style="font-size:50px;">
@@ -83,10 +695,13 @@ async function carregarPratos() {
                 </p>
 
                 <small>
-                    ${escaparHTML(erro.message)}
+                    ${escaparHTML(
+                        erro.message
+                    )}
                 </small>
 
             </div>
+
         `;
     }
 }
@@ -103,12 +718,14 @@ function mostrarPratos() {
             .toLowerCase()
             .trim();
 
+
     const filtrados =
         pratos.filter(prato => {
 
             const categoriaOK =
                 categoriaAtual === "Todos" ||
                 prato.categoria === categoriaAtual;
+
 
             const buscaOK =
                 (prato.nome || "")
@@ -119,7 +736,9 @@ function mostrarPratos() {
                     .toLowerCase()
                     .includes(busca);
 
-            return categoriaOK && buscaOK;
+
+            return categoriaOK &&
+                buscaOK;
         });
 
 
@@ -134,6 +753,7 @@ function mostrarPratos() {
     if (filtrados.length === 0) {
 
         listaPratos.innerHTML = `
+
             <div class="loading">
 
                 <div style="font-size:50px;">
@@ -145,6 +765,7 @@ function mostrarPratos() {
                 </p>
 
             </div>
+
         `;
 
         return;
@@ -159,28 +780,27 @@ function mostrarPratos() {
 
 
 // ========================================
-// CARD
+// CRIAR CARD
 // ========================================
 
 function criarCard(prato) {
 
     const precoFormatado =
-        Number(prato.preco)
-            .toLocaleString(
-                "pt-BR",
-                {
-                    style: "currency",
-                    currency: "BRL"
-                }
-            );
+        formatarPreco(
+            prato.preco
+        );
 
 
     const imagemHTML =
         prato.imagem
             ? `
                 <img
-                    src="${escaparHTML(prato.imagem)}"
-                    alt="${escaparHTML(prato.nome)}"
+                    src="${escaparHTML(
+                        prato.imagem
+                    )}"
+                    alt="${escaparHTML(
+                        prato.nome
+                    )}"
                     loading="lazy"
                 >
             `
@@ -192,6 +812,7 @@ function criarCard(prato) {
 
 
     return `
+
         <article class="card">
 
             <div class="card-imagem">
@@ -225,12 +846,28 @@ function criarCard(prato) {
 
 
                 <p class="descricao">
+
                     ${escaparHTML(
                         prato.descricao ||
                         "Delicioso prato da casa."
                     )}
+
                 </p>
 
+
+                <!-- ADICIONAR PEDIDO -->
+
+                <button
+                    class="btn-adicionar-pedido"
+                    onclick="adicionarAoCarrinho(${prato.id})"
+                >
+
+                    🛒 Adicionar ao pedido
+
+                </button>
+
+
+                <!-- ADMINISTRAÇÃO -->
 
                 <div class="acoes">
 
@@ -240,6 +877,7 @@ function criarCard(prato) {
                     >
                         ✏️ Editar
                     </button>
+
 
                     <button
                         class="btn-excluir"
@@ -253,6 +891,7 @@ function criarCard(prato) {
             </div>
 
         </article>
+
     `;
 }
 
@@ -265,24 +904,31 @@ function abrirFormulario() {
 
     limparFormulario();
 
-    modal.classList.add("aberto");
+    modal.classList.add(
+        "aberto"
+    );
 
     document.body.style.overflow =
         "hidden";
 
+
     setTimeout(() => {
+
         nome.focus();
+
     }, 100);
 }
 
 
 // ========================================
-// FECHAR
+// FECHAR FORMULÁRIO
 // ========================================
 
 function fecharFormulario() {
 
-    modal.classList.remove("aberto");
+    modal.classList.remove(
+        "aberto"
+    );
 
     document.body.style.overflow =
         "auto";
@@ -292,7 +938,7 @@ function fecharFormulario() {
 
 
 // ========================================
-// LIMPAR
+// LIMPAR FORMULÁRIO
 // ========================================
 
 function limparFormulario() {
@@ -303,16 +949,25 @@ function limparFormulario() {
 
     imagemAtual = "";
 
+
     tituloFormulario.textContent =
         "Novo prato";
+
 
     textoBotao.textContent =
         "Cadastrar prato";
 
 
     preview.innerHTML = `
-        <span>🖼️</span>
-        <p>A imagem aparecerá aqui</p>
+
+        <span>
+            🖼️
+        </span>
+
+        <p>
+            A imagem aparecerá aqui
+        </p>
+
     `;
 }
 
@@ -325,28 +980,42 @@ imagem.addEventListener(
     "change",
     function () {
 
-        const arquivo = imagem.files[0];
+        const arquivo =
+            imagem.files[0];
+
 
         if (!arquivo) {
 
             if (imagemAtual) {
 
-                mostrarPreview(imagemAtual);
+                mostrarPreview(
+                    imagemAtual
+                );
 
             } else {
 
                 preview.innerHTML = `
-                    <span>🖼️</span>
-                    <p>A imagem aparecerá aqui</p>
+
+                    <span>
+                        🖼️
+                    </span>
+
+                    <p>
+                        A imagem aparecerá aqui
+                    </p>
+
                 `;
+
             }
 
             return;
         }
 
 
-        // Limite de 5 MB
-        if (arquivo.size > 5 * 1024 * 1024) {
+        if (
+            arquivo.size >
+            5 * 1024 * 1024
+        ) {
 
             imagem.value = "";
 
@@ -358,7 +1027,11 @@ imagem.addEventListener(
         }
 
 
-        if (!arquivo.type.startsWith("image/")) {
+        if (
+            !arquivo.type.startsWith(
+                "image/"
+            )
+        ) {
 
             imagem.value = "";
 
@@ -370,29 +1043,36 @@ imagem.addEventListener(
         }
 
 
-        const leitor = new FileReader();
+        const leitor =
+            new FileReader();
 
 
-        leitor.onload = function (evento) {
+        leitor.onload =
+            function (evento) {
 
-            imagemAtual =
-                evento.target.result;
+                imagemAtual =
+                    evento.target.result;
 
-            mostrarPreview(imagemAtual);
+                mostrarPreview(
+                    imagemAtual
+                );
 
-        };
-
-
-        leitor.onerror = function () {
-
-            mostrarToast(
-                "Não foi possível carregar a imagem."
-            );
-
-        };
+            };
 
 
-        leitor.readAsDataURL(arquivo);
+        leitor.onerror =
+            function () {
+
+                mostrarToast(
+                    "Não foi possível carregar a imagem."
+                );
+
+            };
+
+
+        leitor.readAsDataURL(
+            arquivo
+        );
     }
 );
 
@@ -404,10 +1084,12 @@ imagem.addEventListener(
 function mostrarPreview(src) {
 
     preview.innerHTML = `
+
         <img
             src="${escaparHTML(src)}"
             alt="Preview da imagem"
         >
+
     `;
 }
 
@@ -439,6 +1121,7 @@ form.addEventListener(
 
             categoria:
                 categoria.value
+
         };
 
 
@@ -465,16 +1148,13 @@ form.addEventListener(
             let resposta;
 
 
-            // ==================================
-            // EDITAR
-            // ==================================
-
             if (pratoEditando) {
 
                 resposta =
                     await fetch(
                         `${API_URL}/pratos/${pratoEditando}`,
                         {
+
                             method: "PUT",
 
                             headers: {
@@ -483,22 +1163,20 @@ form.addEventListener(
                             },
 
                             body:
-                                JSON.stringify(dados)
+                                JSON.stringify(
+                                    dados
+                                )
+
                         }
                     );
 
-            }
-
-            // ==================================
-            // CADASTRAR
-            // ==================================
-
-            else {
+            } else {
 
                 resposta =
                     await fetch(
                         `${API_URL}/pratos`,
                         {
+
                             method: "POST",
 
                             headers: {
@@ -507,7 +1185,10 @@ form.addEventListener(
                             },
 
                             body:
-                                JSON.stringify(dados)
+                                JSON.stringify(
+                                    dados
+                                )
+
                         }
                     );
             }
@@ -519,11 +1200,16 @@ form.addEventListener(
                 ) || "";
 
 
-            if (!tipo.includes("application/json")) {
+            if (
+                !tipo.includes(
+                    "application/json"
+                )
+            ) {
 
                 throw new Error(
                     "O servidor não retornou JSON."
                 );
+
             }
 
 
@@ -537,6 +1223,7 @@ form.addEventListener(
                     resultado.erro ||
                     "Erro ao salvar prato."
                 );
+
             }
 
 
@@ -555,6 +1242,7 @@ form.addEventListener(
 
             console.error(erro);
 
+
             textoBotao.textContent =
                 pratoEditando
                     ? "Salvar alterações"
@@ -564,7 +1252,9 @@ form.addEventListener(
             mostrarToast(
                 erro.message
             );
+
         }
+
     }
 );
 
@@ -577,7 +1267,9 @@ async function editarPrato(id) {
 
     const prato =
         pratos.find(
-            item => item.id === id
+            item =>
+                Number(item.id) ===
+                Number(id)
         );
 
 
@@ -586,7 +1278,9 @@ async function editarPrato(id) {
     }
 
 
-    pratoEditando = id;
+    pratoEditando =
+        id;
+
 
     imagemAtual =
         prato.imagem || "";
@@ -595,18 +1289,19 @@ async function editarPrato(id) {
     nome.value =
         prato.nome || "";
 
+
     descricao.value =
         prato.descricao || "";
 
+
     preco.value =
         prato.preco || "";
+
 
     categoria.value =
         prato.categoria || "";
 
 
-    // Não tentamos colocar uma imagem
-    // diretamente no input file.
     imagem.value = "";
 
 
@@ -620,18 +1315,31 @@ async function editarPrato(id) {
 
     if (imagemAtual) {
 
-        mostrarPreview(imagemAtual);
+        mostrarPreview(
+            imagemAtual
+        );
 
     } else {
 
         preview.innerHTML = `
-            <span>🖼️</span>
-            <p>A imagem aparecerá aqui</p>
+
+            <span>
+                🖼️
+            </span>
+
+            <p>
+                A imagem aparecerá aqui
+            </p>
+
         `;
+
     }
 
 
-    modal.classList.add("aberto");
+    modal.classList.add(
+        "aberto"
+    );
+
 
     document.body.style.overflow =
         "hidden";
@@ -646,7 +1354,9 @@ async function excluirPrato(id) {
 
     const prato =
         pratos.find(
-            item => item.id === id
+            item =>
+                Number(item.id) ===
+                Number(id)
         );
 
 
@@ -660,6 +1370,7 @@ async function excluirPrato(id) {
             `Deseja excluir "${prato.nome}"?`
         )
     ) {
+
         return;
     }
 
@@ -681,11 +1392,16 @@ async function excluirPrato(id) {
             ) || "";
 
 
-        if (!tipo.includes("application/json")) {
+        if (
+            !tipo.includes(
+                "application/json"
+            )
+        ) {
 
             throw new Error(
                 "O servidor não retornou JSON."
             );
+
         }
 
 
@@ -699,6 +1415,7 @@ async function excluirPrato(id) {
                 resultado.erro ||
                 "Erro ao excluir."
             );
+
         }
 
 
@@ -714,9 +1431,11 @@ async function excluirPrato(id) {
 
         console.error(erro);
 
+
         mostrarToast(
             erro.message
         );
+
     }
 }
 
@@ -764,6 +1483,7 @@ document
 
 
                 mostrarPratos();
+
             }
         );
 
@@ -783,6 +1503,7 @@ modal.addEventListener(
         ) {
 
             fecharFormulario();
+
         }
 
     }
@@ -798,11 +1519,37 @@ document.addEventListener(
     function (evento) {
 
         if (
-            evento.key === "Escape" &&
-            modal.classList.contains("aberto")
+            evento.key === "Escape"
         ) {
 
-            fecharFormulario();
+            if (
+                modal.classList.contains(
+                    "aberto"
+                )
+            ) {
+
+                fecharFormulario();
+
+            }
+
+
+            const modalCarrinho =
+                document.getElementById(
+                    "modalCarrinho"
+                );
+
+
+            if (
+                modalCarrinho &&
+                modalCarrinho.classList.contains(
+                    "aberto"
+                )
+            ) {
+
+                fecharCarrinho();
+
+            }
+
         }
 
     }
@@ -817,6 +1564,7 @@ function mostrarToast(mensagem) {
 
     toast.textContent =
         mensagem;
+
 
     toast.classList.add(
         "mostrar"
@@ -840,16 +1588,40 @@ function mostrarToast(mensagem) {
 function escaparHTML(texto) {
 
     return String(texto)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
 
 // ========================================
 // INICIAR
 // ========================================
+
+criarInterfaceCarrinho();
+
+atualizarCarrinho();
 
 carregarPratos();
