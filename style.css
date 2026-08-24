@@ -1,2165 +1,1627 @@
-/* ========================================
-   RESET
-======================================== */
+const API_URL = "https://cardapio-restaurante-2cun.onrender.com";
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+const WHATSAPP = "5579981021378";
 
-html {
-    scroll-behavior: smooth;
-}
+let pratos = [];
+let categoriaAtual = "Todos";
+let pratoEditando = null;
+let imagemAtual = "";
 
-body {
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+// ========================================
+// CARRINHO
+// ========================================
 
-    background: #f8f8f8;
+let carrinho = [];
 
-    color: #222;
 
-    min-height: 100vh;
-}
+// ========================================
+// ELEMENTOS
+// ========================================
 
+const listaPratos = document.getElementById("listaPratos");
+const contador = document.getElementById("contador");
+const pesquisa = document.getElementById("pesquisa");
 
-/* ========================================
-   HEADER
-======================================== */
+const modal = document.getElementById("modal");
+const form = document.getElementById("formPrato");
 
-.header {
-    width: 100%;
+const nome = document.getElementById("nome");
+const descricao = document.getElementById("descricao");
+const preco = document.getElementById("preco");
+const imagem = document.getElementById("imagem");
+const categoria = document.getElementById("categoria");
 
-    padding: 18px 6%;
+const preview = document.getElementById("preview");
 
-    display: flex;
+const tituloFormulario =
+    document.getElementById("tituloFormulario");
 
-    align-items: center;
+const textoBotao =
+    document.getElementById("textoBotao");
 
-    justify-content: space-between;
+const toast =
+    document.getElementById("toast");
 
-    background: #ffffff;
 
-    border-bottom: 1px solid #eeeeee;
+// ========================================
+// CRIAR CARRINHO NA TELA
+// ========================================
 
-    position: sticky;
+function criarInterfaceCarrinho() {
 
-    top: 0;
+    if (document.getElementById("botaoCarrinho")) {
+        return;
+    }
 
-    z-index: 100;
-}
+    const botao = document.createElement("button");
 
-.logo {
-    display: flex;
+    botao.id = "botaoCarrinho";
+    botao.className = "botao-carrinho";
 
-    align-items: center;
+    botao.innerHTML = `
+        <span class="icone-carrinho">🛒</span>
 
-    gap: 12px;
-}
+        <span>
+            Meu pedido
+        </span>
 
-.logo-icon {
-    width: 48px;
-    height: 48px;
+        <strong id="quantidadeCarrinho">
+            0
+        </strong>
+    `;
 
-    display: flex;
+    botao.onclick = abrirCarrinho;
 
-    align-items: center;
+    document.body.appendChild(botao);
 
-    justify-content: center;
 
-    background: #ff6b35;
+    const modalCarrinho = document.createElement("div");
 
-    border-radius: 14px;
+    modalCarrinho.id = "modalCarrinho";
+    modalCarrinho.className = "modal-carrinho";
 
-    font-size: 24px;
+    modalCarrinho.innerHTML = `
 
-    box-shadow:
-        0 6px 18px rgba(255, 107, 53, 0.22);
-}
+        <div class="carrinho-conteudo">
 
-.logo h1 {
-    font-size: 20px;
+            <button
+                class="fechar-carrinho"
+                onclick="fecharCarrinho()"
+            >
+                ×
+            </button>
 
-    font-weight: 800;
+            <div class="carrinho-header">
 
-    color: #222;
-}
+                <div class="carrinho-titulo">
 
-.logo p {
-    margin-top: 3px;
+                    <span>
+                        🛒
+                    </span>
 
-    font-size: 13px;
+                    <div>
 
-    color: #888;
-}
+                        <h2>
+                            Meu pedido
+                        </h2>
 
+                        <p>
+                            Confira seus itens antes de enviar
+                        </p>
 
-/* ========================================
-   BOTÃO NOVO PRATO
-======================================== */
+                    </div>
 
-.btn-novo {
-    border: none;
+                </div>
 
-    background: #ff6b35;
+            </div>
 
-    color: white;
 
-    padding: 12px 20px;
+            <div
+                id="listaCarrinho"
+                class="lista-carrinho"
+            ></div>
 
-    border-radius: 12px;
 
-    font-size: 14px;
+            <div class="carrinho-footer">
 
-    font-weight: 700;
+                <div class="total-carrinho">
 
-    cursor: pointer;
+                    <span>
+                        Total
+                    </span>
 
-    transition: 0.25s ease;
+                    <strong id="totalCarrinho">
+                        R$ 0,00
+                    </strong>
 
-    box-shadow:
-        0 6px 16px rgba(255, 107, 53, 0.22);
-}
+                </div>
 
-.btn-novo:hover {
-    background: #ed5724;
 
-    transform: translateY(-2px);
+                <button
+                    class="btn-whatsapp"
+                    onclick="enviarPedidoWhatsApp()"
+                >
+                    <span>
+                        📱
+                    </span>
 
-    box-shadow:
-        0 9px 22px rgba(255, 107, 53, 0.30);
-}
+                    Fazer pedido pelo WhatsApp
+                </button>
 
 
-/* ========================================
-   CONTAINER
-======================================== */
+                <button
+                    class="btn-limpar-carrinho"
+                    onclick="limparCarrinho()"
+                >
+                    🗑️ Limpar pedido
+                </button>
 
-.container {
-    width: 88%;
+            </div>
 
-    max-width: 1250px;
+        </div>
+    `;
 
-    margin: 0 auto;
+    document.body.appendChild(modalCarrinho);
 
-    padding-bottom: 70px;
-}
 
+    modalCarrinho.addEventListener(
+        "click",
+        function (evento) {
 
-/* ========================================
-   HERO COM FOTO DE FUNDO
-======================================== */
+            if (
+                evento.target === modalCarrinho
+            ) {
 
-.hero {
-    margin-top: 35px;
+                fecharCarrinho();
 
-    min-height: 300px;
+            }
 
-    display: flex;
-
-    align-items: center;
-
-    padding: 50px;
-
-    border-radius: 25px;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(0, 0, 0, 0.82),
-            rgba(0, 0, 0, 0.55),
-            rgba(0, 0, 0, 0.20)
-        ),
-        url("img/fundo-restaurante.jpg");
-
-    background-size: cover;
-
-    background-position: center;
-
-    overflow: hidden;
-
-    position: relative;
-
-    color: white;
+        }
+    );
 }
 
 
-/* brilho escuro */
+// ========================================
+// ADICIONAR AO CARRINHO
+// ========================================
 
-.hero::before {
-    content: "";
+function adicionarAoCarrinho(id) {
 
-    position: absolute;
-
-    inset: 0;
-
-    background:
-        linear-gradient(
-            180deg,
-            transparent,
-            rgba(0, 0, 0, 0.15)
+    const prato =
+        pratos.find(
+            item => Number(item.id) === Number(id)
         );
 
-    pointer-events: none;
-}
-
-
-/* emoji decorativo */
-
-.hero::after {
-    content: "🍔";
-
-    position: absolute;
-
-    right: 7%;
-
-    bottom: -25px;
-
-    font-size: 150px;
-
-    opacity: 0.12;
-
-    transform: rotate(-12deg);
-
-    pointer-events: none;
-}
-
-.hero > div {
-    position: relative;
-
-    z-index: 2;
-}
-
-.hero .tag {
-    display: inline-block;
-
-    padding: 8px 13px;
-
-    border-radius: 20px;
-
-    background: rgba(255, 255, 255, 0.95);
-
-    color: #ff6b35;
-
-    font-size: 12px;
-
-    font-weight: 800;
-
-    margin-bottom: 15px;
-
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.20);
-}
-
-.hero h2 {
-    max-width: 650px;
-
-    font-size: 42px;
-
-    line-height: 1.1;
-
-    margin-bottom: 15px;
-
-    color: white;
-}
-
-.hero h2 span {
-    color: #ff7b45;
-}
-
-.hero p {
-    color: #eeeeee;
-
-    font-size: 16px;
-}
-
-
-/* ========================================
-   CONTROLES
-======================================== */
-
-.controles {
-    margin-top: 35px;
-}
-
-
-/* ========================================
-   PESQUISA
-======================================== */
-
-.pesquisa {
-    width: 100%;
-
-    height: 52px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 0 17px;
-
-    background: white;
-
-    border: 1px solid #eeeeee;
-
-    border-radius: 14px;
-
-    box-shadow:
-        0 4px 15px rgba(0, 0, 0, 0.03);
-}
-
-.pesquisa span {
-    font-size: 18px;
-}
-
-.pesquisa input {
-    width: 100%;
-
-    border: none;
-
-    outline: none;
-
-    font-size: 14px;
-
-    background: transparent;
-
-    color: #222;
-}
-
-.pesquisa input::placeholder {
-    color: #aaa;
-}
-
-
-/* ========================================
-   CATEGORIAS
-======================================== */
-
-.categorias {
-    display: flex;
-
-    gap: 10px;
-
-    flex-wrap: wrap;
-
-    margin-top: 16px;
-}
-
-.categoria {
-    border: 1px solid #e8e8e8;
-
-    background: white;
-
-    color: #555;
-
-    padding: 10px 15px;
-
-    border-radius: 12px;
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-
-    transition: 0.25s ease;
-}
-
-.categoria:hover {
-    border-color: #ff6b35;
-
-    color: #ff6b35;
-
-    transform: translateY(-1px);
-}
-
-.categoria.ativa {
-    background: #ff6b35;
-
-    color: white;
-
-    border-color: #ff6b35;
-
-    box-shadow:
-        0 5px 14px rgba(255, 107, 53, 0.20);
-}
-
-
-/* ========================================
-   TÍTULO CARDÁPIO
-======================================== */
-
-.titulo-cardapio {
-    margin-top: 45px;
-
-    margin-bottom: 20px;
-}
-
-.titulo-cardapio h2 {
-    font-size: 25px;
-
-    color: #222;
-}
-
-.titulo-cardapio p {
-    margin-top: 5px;
-
-    color: #888;
-
-    font-size: 13px;
-}
-
-
-/* ========================================
-   GRID
-======================================== */
-
-.grid-pratos {
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fill,
-            minmax(270px, 1fr)
+    if (!prato) {
+        mostrarToast("Prato não encontrado.");
+        return;
+    }
+
+
+    const itemExistente =
+        carrinho.find(
+            item =>
+                Number(item.id) === Number(id)
         );
 
-    gap: 24px;
-}
 
+    if (itemExistente) {
 
-/* ========================================
-   CARD
-======================================== */
+        itemExistente.quantidade++;
 
-.card {
-    background: white;
+    } else {
 
-    border-radius: 20px;
+        carrinho.push({
 
-    overflow: hidden;
+            id: prato.id,
 
-    border: 1px solid #eeeeee;
+            nome: prato.nome,
 
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.05);
+            preco: Number(prato.preco),
 
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease;
-}
+            quantidade: 1
 
-.card:hover {
-    transform: translateY(-6px);
+        });
 
-    box-shadow:
-        0 15px 35px rgba(0, 0, 0, 0.10);
-}
-
-
-/* ========================================
-   IMAGEM DO CARD
-======================================== */
-
-.card-imagem {
-    width: 100%;
-
-    height: 210px;
-
-    position: relative;
-
-    overflow: hidden;
-
-    background: #f1f1f1;
-}
-
-.card-imagem img {
-    width: 100%;
-
-    height: 100%;
-
-    object-fit: cover;
-
-    display: block;
-
-    transition: 0.4s ease;
-}
-
-.card:hover .card-imagem img {
-    transform: scale(1.05);
-}
-
-.sem-imagem {
-    width: 100%;
-
-    height: 100%;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 55px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #f4f4f4,
-            #e9e9e9
-        );
-}
-
-
-/* ========================================
-   CATEGORIA DO CARD
-======================================== */
-
-.card-categoria {
-    position: absolute;
-
-    top: 12px;
-
-    left: 12px;
-
-    padding: 7px 11px;
-
-    border-radius: 20px;
-
-    background: rgba(255, 255, 255, 0.94);
-
-    color: #ff6b35;
-
-    font-size: 11px;
-
-    font-weight: 800;
-
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.10);
-}
-
-
-/* ========================================
-   CORPO DO CARD
-======================================== */
-
-.card-corpo {
-    padding: 18px;
-}
-
-.card-topo {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: flex-start;
-
-    gap: 12px;
-}
-
-.card-topo h3 {
-    font-size: 18px;
-
-    line-height: 1.25;
-
-    color: #222;
-}
-
-.preco {
-    color: #ff6b35;
-
-    font-weight: 800;
-
-    font-size: 15px;
-
-    white-space: nowrap;
-}
-
-.descricao {
-    margin-top: 10px;
-
-    color: #777;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-
-    min-height: 42px;
-}
-
-
-/* ========================================
-   AÇÕES
-======================================== */
-
-.acoes {
-    display: flex;
-
-    gap: 8px;
-
-    margin-top: 18px;
-}
-
-.btn-editar,
-.btn-excluir {
-    flex: 1;
-
-    border: none;
-
-    padding: 10px;
-
-    border-radius: 10px;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-.btn-editar {
-    background: #fff3ed;
-
-    color: #ff6b35;
-}
-
-.btn-editar:hover {
-    background: #ff6b35;
-
-    color: white;
-}
-
-.btn-excluir {
-    background: #f5f5f5;
-
-    color: #777;
-}
-
-.btn-excluir:hover {
-    background: #e74c3c;
-
-    color: white;
-}
-
-
-/* ========================================
-   LOADING
-======================================== */
-
-.loading {
-    min-height: 220px;
-
-    grid-column: 1 / -1;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-    color: #888;
-
-    text-align: center;
-
-    gap: 12px;
-}
-
-.spinner {
-    width: 38px;
-
-    height: 38px;
-
-    border: 4px solid #eeeeee;
-
-    border-top-color: #ff6b35;
-
-    border-radius: 50%;
-
-    animation:
-        girar 0.8s linear infinite;
-}
-
-@keyframes girar {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-
-/* ========================================
-   MODAL
-======================================== */
-
-.modal {
-    position: fixed;
-
-    inset: 0;
-
-    background:
-        rgba(0, 0, 0, 0.55);
-
-    display: none;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 20px;
-
-    z-index: 1000;
-
-    backdrop-filter: blur(4px);
-}
-
-.modal.aberto {
-    display: flex;
-
-    animation:
-        aparecer 0.2s ease;
-}
-
-@keyframes aparecer {
-    from {
-        opacity: 0;
     }
 
-    to {
-        opacity: 1;
-    }
+
+    atualizarCarrinho();
+
+    mostrarToast(
+        `${prato.nome} adicionado ao pedido!`
+    );
 }
 
 
-/* ========================================
-   MODAL CONTEÚDO
-======================================== */
-
-.modal-conteudo {
-    width: 100%;
-
-    max-width: 600px;
-
-    max-height: 92vh;
-
-    overflow-y: auto;
-
-    background: white;
-
-    border-radius: 22px;
-
-    padding: 28px;
-
-    position: relative;
-
-    box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.20);
-
-    animation:
-        subir 0.25s ease;
-}
-
-@keyframes subir {
-    from {
-        opacity: 0;
-
-        transform:
-            translateY(20px)
-            scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-
-        transform:
-            translateY(0)
-            scale(1);
-    }
-}
-
-
-/* ========================================
-   FECHAR
-======================================== */
-
-.fechar {
-    position: absolute;
-
-    top: 16px;
-
-    right: 16px;
-
-    width: 36px;
-
-    height: 36px;
-
-    border: none;
-
-    border-radius: 50%;
-
-    background: #f4f4f4;
-
-    color: #555;
-
-    font-size: 23px;
-
-    line-height: 1;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-.fechar:hover {
-    background: #ff6b35;
-
-    color: white;
-
-    transform: rotate(90deg);
-}
-
-
-/* ========================================
-   MODAL HEADER
-======================================== */
-
-.modal-header {
-    display: flex;
-
-    align-items: center;
-
-    gap: 13px;
-
-    margin-bottom: 25px;
-
-    padding-right: 40px;
-}
-
-.modal-header > span {
-    width: 45px;
-
-    height: 45px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 13px;
-
-    background: #fff1eb;
-
-    font-size: 21px;
-}
-
-.modal-header h2 {
-    font-size: 21px;
-
-    color: #222;
-}
-
-.modal-header p {
-    margin-top: 4px;
-
-    font-size: 12px;
-
-    color: #888;
-}
-
-
-/* ========================================
-   FORMULÁRIO
-======================================== */
-
-.campo {
-    margin-bottom: 18px;
-}
-
-.campo label {
-    display: block;
-
-    margin-bottom: 8px;
-
-    font-size: 13px;
-
-    font-weight: 700;
-
-    color: #333;
-}
-
-.campo input[type="text"],
-.campo input[type="number"],
-.campo select,
-.campo textarea {
-    width: 100%;
-
-    border: 1px solid #dddddd;
-
-    border-radius: 12px;
-
-    padding: 13px 14px;
-
-    font-family: inherit;
-
-    font-size: 14px;
-
-    color: #222;
-
-    outline: none;
-
-    background: white;
-
-    transition: 0.2s ease;
-}
-
-.campo input[type="text"]:focus,
-.campo input[type="number"]:focus,
-.campo select:focus,
-.campo textarea:focus {
-    border-color: #ff6b35;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(255, 107, 53, 0.10);
-}
-
-.campo textarea {
-    resize: vertical;
-
-    min-height: 100px;
-}
-
-.campo small {
-    display: block;
-
-    margin-top: 7px;
-
-    color: #999;
-
-    font-size: 11px;
-
-    line-height: 1.4;
-}
-
-
-/* ========================================
-   LINHA
-======================================== */
-
-.linha {
-    display: grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
-    gap: 15px;
-}
-
-
-/* ========================================
-   PREÇO
-======================================== */
-
-.input-preco {
-    display: flex;
-
-    align-items: center;
-
-    border: 1px solid #dddddd;
-
-    border-radius: 12px;
-
-    overflow: hidden;
-
-    transition: 0.2s ease;
-}
-
-.input-preco:focus-within {
-    border-color: #ff6b35;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(255, 107, 53, 0.10);
-}
-
-.input-preco span {
-    padding-left: 13px;
-
-    font-size: 13px;
-
-    font-weight: 700;
-
-    color: #ff6b35;
-}
-
-.input-preco input {
-    width: 100%;
-
-    border: none !important;
-
-    box-shadow: none !important;
-
-    outline: none;
-
-    border-radius: 0 !important;
-}
-
-
-/* ========================================
-   BOTÃO ESCOLHER IMAGEM
-======================================== */
-
-.upload-imagem {
-    width: 100%;
-
-    margin-top: 5px;
-}
-
-.btn-escolher-imagem {
-    width: 100%;
-
-    min-height: 78px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 15px;
-
-    padding: 14px 17px;
-
-    border: 2px dashed #ddd7d1;
-
-    border-radius: 14px;
-
-    background: #fcfbfa;
-
-    cursor: pointer;
-
-    transition: 0.25s ease;
-
-    user-select: none;
-}
-
-.btn-escolher-imagem:hover {
-    border-color: #ff6b35;
-
-    background: #fff7f3;
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 8px 22px rgba(232, 93, 4, 0.10);
-}
-
-
-/* ========================================
-   ÍCONE
-======================================== */
-
-.upload-icone {
-    width: 48px;
-
-    height: 48px;
-
-    min-width: 48px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 13px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #ff7b22,
-            #d94700
+// ========================================
+// AUMENTAR QUANTIDADE
+// ========================================
+
+function aumentarQuantidade(id) {
+
+    const item =
+        carrinho.find(
+            produto =>
+                Number(produto.id) === Number(id)
         );
 
-    color: white;
-
-    font-size: 22px;
-
-    box-shadow:
-        0 7px 18px rgba(232, 93, 4, 0.22);
-
-    transition: 0.25s;
-}
-
-.btn-escolher-imagem:hover .upload-icone {
-    transform:
-        scale(1.05)
-        rotate(-3deg);
-}
-
-
-/* ========================================
-   TEXTO DO BOTÃO
-======================================== */
-
-.upload-texto {
-    flex: 1;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    gap: 4px;
-}
-
-.upload-texto strong {
-    color: #222;
-
-    font-size: 13px;
-
-    font-weight: 800;
-}
-
-.upload-texto small {
-    margin: 0;
-
-    color: #999;
-
-    font-size: 10px;
-}
-
-
-/* ========================================
-   SETA
-======================================== */
-
-.upload-seta {
-    width: 35px;
-
-    height: 35px;
-
-    min-width: 35px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: #eee9e5;
-
-    color: #625c57;
-
-    font-size: 18px;
-
-    transition: 0.25s;
-}
-
-.btn-escolher-imagem:hover .upload-seta {
-    background: #ff6b35;
-
-    color: white;
-
-    transform: translateX(3px);
-}
-
-
-/* ========================================
-   PREVIEW
-======================================== */
-
-.preview {
-    width: 100%;
-
-    min-height: 180px;
-
-    margin-top: 5px;
-
-    margin-bottom: 20px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-    overflow: hidden;
-
-    border: 2px dashed #ddd7d1;
-
-    border-radius: 12px;
-
-    color: #aaa;
-
-    background: #fcfbfa;
-
-    text-align: center;
-}
-
-.preview span {
-    font-size: 40px;
-
-    margin-bottom: 8px;
-}
-
-.preview p {
-    font-size: 12px;
-
-    color: #999;
-}
-
-.preview img {
-    width: 100%;
-
-    height: 260px;
-
-    object-fit: cover;
-
-    display: block;
-}
-
-
-/* ========================================
-   BOTÕES DO FORMULÁRIO
-======================================== */
-
-.botoes-form {
-    display: flex;
-
-    gap: 10px;
-
-    margin-top: 5px;
-}
-
-.btn-cancelar,
-.btn-salvar {
-    flex: 1;
-
-    border: none;
-
-    padding: 13px;
-
-    border-radius: 12px;
-
-    font-size: 13px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: 0.25s ease;
-}
-
-.btn-cancelar {
-    background: #f1f1f1;
-
-    color: #555;
-}
-
-.btn-cancelar:hover {
-    background: #e5e5e5;
-}
-
-.btn-salvar {
-    background: #ff6b35;
-
-    color: white;
-
-    box-shadow:
-        0 6px 15px
-        rgba(255, 107, 53, 0.20);
-}
-
-.btn-salvar:hover {
-    background: #ed5724;
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 9px 20px
-        rgba(255, 107, 53, 0.28);
-}
-
-
-/* ========================================
-   TOAST
-======================================== */
-
-.toast {
-    position: fixed;
-
-    bottom: 25px;
-
-    right: 25px;
-
-    max-width: 350px;
-
-    padding: 14px 18px;
-
-    border-radius: 12px;
-
-    background: #222;
-
-    color: white;
-
-    font-size: 13px;
-
-    font-weight: 600;
-
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.20);
-
-    transform:
-        translateY(100px);
-
-    opacity: 0;
-
-    pointer-events: none;
-
-    transition: 0.3s ease;
-
-    z-index: 2000;
-}
-
-.toast.mostrar {
-    transform:
-        translateY(0);
-
-    opacity: 1;
-}
-
-
-/* ========================================
-   SCROLLBAR
-======================================== */
-
-.modal-conteudo::-webkit-scrollbar {
-    width: 6px;
-}
-
-.modal-conteudo::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.modal-conteudo::-webkit-scrollbar-thumb {
-    background: #ddd;
-
-    border-radius: 10px;
-}
-
-
-/* ========================================
-   RESPONSIVIDADE
-======================================== */
-
-@media (max-width: 768px) {
-
-    .header {
-        padding: 15px 5%;
+    if (!item) {
+        return;
     }
 
-    .logo h1 {
-        font-size: 17px;
+    item.quantidade++;
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// DIMINUIR QUANTIDADE
+// ========================================
+
+function diminuirQuantidade(id) {
+
+    const item =
+        carrinho.find(
+            produto =>
+                Number(produto.id) === Number(id)
+        );
+
+    if (!item) {
+        return;
     }
 
-    .logo p {
-        font-size: 11px;
-    }
 
-    .logo-icon {
-        width: 42px;
-        height: 42px;
+    item.quantidade--;
 
-        font-size: 21px;
-    }
 
-    .btn-novo {
-        padding: 10px 13px;
+    if (item.quantidade <= 0) {
 
-        font-size: 12px;
-    }
-
-    .container {
-        width: 92%;
-    }
-
-    .hero {
-        padding: 35px 25px;
-
-        min-height: 250px;
-    }
-
-    .hero h2 {
-        font-size: 32px;
-    }
-
-    .hero p {
-        font-size: 14px;
-    }
-
-    .hero::after {
-        font-size: 100px;
-
-        right: 3%;
-    }
-
-    .grid-pratos {
-        grid-template-columns:
-            repeat(
-                auto-fill,
-                minmax(230px, 1fr)
+        carrinho =
+            carrinho.filter(
+                produto =>
+                    Number(produto.id) !== Number(id)
             );
 
-        gap: 16px;
     }
 
-    .modal-conteudo {
-        padding: 22px;
 
-        border-radius: 18px;
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// ATUALIZAR CARRINHO
+// ========================================
+
+function atualizarCarrinho() {
+
+    const quantidadeElemento =
+        document.getElementById(
+            "quantidadeCarrinho"
+        );
+
+    const lista =
+        document.getElementById(
+            "listaCarrinho"
+        );
+
+    const totalElemento =
+        document.getElementById(
+            "totalCarrinho"
+        );
+
+
+    const quantidadeTotal =
+        carrinho.reduce(
+            (total, item) =>
+                total + item.quantidade,
+            0
+        );
+
+
+    const valorTotal =
+        carrinho.reduce(
+            (total, item) =>
+                total +
+                item.preco *
+                item.quantidade,
+            0
+        );
+
+
+    if (quantidadeElemento) {
+
+        quantidadeElemento.textContent =
+            quantidadeTotal;
+
     }
 
-}
 
+    if (totalElemento) {
 
-@media (max-width: 520px) {
+        totalElemento.textContent =
+            formatarPreco(valorTotal);
 
-    .header {
-        gap: 10px;
     }
 
-    .logo {
-        gap: 8px;
+
+    if (!lista) {
+        return;
     }
 
-    .logo h1 {
-        font-size: 15px;
+
+    if (carrinho.length === 0) {
+
+        lista.innerHTML = `
+
+            <div class="carrinho-vazio">
+
+                <div>
+                    🛒
+                </div>
+
+                <h3>
+                    Seu pedido está vazio
+                </h3>
+
+                <p>
+                    Adicione alguns pratos deliciosos
+                    ao seu pedido.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
     }
 
-    .logo p {
-        font-size: 10px;
+
+    lista.innerHTML =
+        carrinho
+            .map(item => {
+
+                const subtotal =
+                    item.preco *
+                    item.quantidade;
+
+
+                return `
+
+                    <div class="item-carrinho">
+
+                        <div class="item-info">
+
+                            <h3>
+                                ${escaparHTML(
+                                    item.nome
+                                )}
+                            </h3>
+
+                            <p>
+                                ${formatarPreco(
+                                    item.preco
+                                )}
+                                cada
+                            </p>
+
+                        </div>
+
+
+                        <div class="item-direita">
+
+                            <div class="controle-quantidade">
+
+                                <button
+                                    onclick="diminuirQuantidade(${item.id})"
+                                >
+                                    −
+                                </button>
+
+                                <strong>
+                                    ${item.quantidade}
+                                </strong>
+
+                                <button
+                                    onclick="aumentarQuantidade(${item.id})"
+                                >
+                                    +
+                                </button>
+
+                            </div>
+
+
+                            <strong class="subtotal">
+                                ${formatarPreco(
+                                    subtotal
+                                )}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            })
+            .join("");
+}
+
+
+// ========================================
+// ABRIR CARRINHO
+// ========================================
+
+function abrirCarrinho() {
+
+    const modalCarrinho =
+        document.getElementById(
+            "modalCarrinho"
+        );
+
+    if (!modalCarrinho) {
+        return;
     }
 
-    .logo-icon {
-        width: 38px;
-        height: 38px;
+    modalCarrinho.classList.add(
+        "aberto"
+    );
 
-        border-radius: 11px;
+    document.body.style.overflow =
+        "hidden";
 
-        font-size: 19px;
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// FECHAR CARRINHO
+// ========================================
+
+function fecharCarrinho() {
+
+    const modalCarrinho =
+        document.getElementById(
+            "modalCarrinho"
+        );
+
+    if (!modalCarrinho) {
+        return;
     }
 
-    .btn-novo {
-        padding: 9px 11px;
+    modalCarrinho.classList.remove(
+        "aberto"
+    );
 
-        border-radius: 10px;
+    document.body.style.overflow =
+        "auto";
+}
 
-        font-size: 11px;
+
+// ========================================
+// LIMPAR CARRINHO
+// ========================================
+
+function limparCarrinho() {
+
+    if (carrinho.length === 0) {
+        return;
     }
 
-    .hero {
-        margin-top: 20px;
 
-        padding: 28px 20px;
+    const confirmar =
+        confirm(
+            "Deseja realmente limpar o pedido?"
+        );
 
-        border-radius: 20px;
 
-        min-height: 230px;
+    if (!confirmar) {
+        return;
     }
 
-    .hero h2 {
-        font-size: 27px;
+
+    carrinho = [];
+
+    atualizarCarrinho();
+
+    mostrarToast(
+        "Pedido limpo."
+    );
+}
+
+
+// ========================================
+// ENVIAR PARA WHATSAPP
+// ========================================
+
+function enviarPedidoWhatsApp() {
+
+    if (carrinho.length === 0) {
+
+        mostrarToast(
+            "Adicione pelo menos um prato ao pedido."
+        );
+
+        return;
     }
 
-    .hero p {
-        font-size: 13px;
-    }
 
-    .categorias {
-        overflow-x: auto;
+    let mensagem =
+        "🍽️ *NOVO PEDIDO*\n\n";
 
-        flex-wrap: nowrap;
 
-        padding-bottom: 5px;
-    }
+    mensagem +=
+        "Olá! Gostaria de fazer este pedido:\n\n";
 
-    .categoria {
-        white-space: nowrap;
-    }
 
-    .linha {
-        grid-template-columns: 1fr;
+    carrinho.forEach(item => {
 
-        gap: 0;
-    }
+        const subtotal =
+            item.preco *
+            item.quantidade;
 
-    .grid-pratos {
-        grid-template-columns: 1fr;
-    }
 
-    .modal {
-        padding: 10px;
-    }
+        mensagem +=
+            `🍴 *${item.nome}*\n`;
 
-    .modal-conteudo {
-        max-height: 95vh;
+        mensagem +=
+            `Quantidade: ${item.quantidade}\n`;
 
-        padding: 20px 17px;
-    }
+        mensagem +=
+            `Valor: ${formatarPreco(subtotal)}\n\n`;
 
-    .botoes-form {
-        flex-direction: column;
-    }
+    });
 
-    .btn-escolher-imagem {
-        min-height: 70px;
 
-        padding: 11px;
-    }
+    const total =
+        carrinho.reduce(
+            (soma, item) =>
+                soma +
+                item.preco *
+                item.quantidade,
+            0
+        );
 
-    .upload-icone {
-        width: 43px;
 
-        height: 43px;
+    mensagem +=
+        "━━━━━━━━━━━━━━━━━━\n";
 
-        min-width: 43px;
+    mensagem +=
+        `💰 *TOTAL: ${formatarPreco(total)}*\n\n`;
 
-        font-size: 19px;
-    }
+    mensagem +=
+        "Aguardo a confirmação do pedido. 😊";
 
-    .upload-texto strong {
-        font-size: 12px;
-    }
 
-    .upload-texto small {
-        font-size: 9px;
-    }
+    const url =
+        `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+            mensagem
+        )}`;
 
-    .upload-seta {
-        width: 31px;
 
-        height: 31px;
-
-        min-width: 31px;
-    }
-
-    .preview img {
-        height: 210px;
-    }
-
-    .toast {
-        left: 15px;
-
-        right: 15px;
-
-        bottom: 15px;
-
-        max-width: none;
-    }
-
-}
-/* ========================================
-   BOTÃO CARRINHO
-======================================== */
-
-.botao-carrinho {
-    position: fixed;
-
-    right: 25px;
-    bottom: 25px;
-
-    min-height: 58px;
-
-    padding: 0 20px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    border: none;
-
-    border-radius: 18px;
-
-    background: #25d366;
-
-    color: white;
-
-    font-size: 14px;
-
-    font-weight: 800;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 10px 30px rgba(37, 211, 102, 0.35);
-
-    z-index: 900;
-
-    transition: 0.25s ease;
-}
-
-.botao-carrinho:hover {
-    transform: translateY(-4px);
-
-    background: #20bd5a;
-
-    box-shadow:
-        0 15px 35px rgba(37, 211, 102, 0.45);
-}
-
-.icone-carrinho {
-    font-size: 22px;
-}
-
-#quantidadeCarrinho {
-    min-width: 25px;
-
-    height: 25px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: white;
-
-    color: #20bd5a;
-
-    font-size: 12px;
+    window.open(
+        url,
+        "_blank"
+    );
 }
 
 
-/* ========================================
-   BOTÃO ADICIONAR PEDIDO
-======================================== */
+// ========================================
+// FORMATAR PREÇO
+// ========================================
 
-.btn-adicionar-pedido {
-    width: 100%;
+function formatarPreco(valor) {
 
-    margin-top: 17px;
-
-    border: none;
-
-    padding: 13px;
-
-    border-radius: 12px;
-
-    background: #25d366;
-
-    color: white;
-
-    font-size: 13px;
-
-    font-weight: 800;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 6px 15px rgba(37, 211, 102, 0.18);
-
-    transition: 0.25s ease;
-}
-
-.btn-adicionar-pedido:hover {
-    background: #20bd5a;
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 9px 20px rgba(37, 211, 102, 0.28);
+    return Number(valor)
+        .toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
 }
 
 
-/* ========================================
-   MODAL CARRINHO
-======================================== */
+// ========================================
+// CARREGAR PRATOS
+// ========================================
 
-.modal-carrinho {
-    position: fixed;
+async function carregarPratos() {
 
-    inset: 0;
+    try {
 
-    display: none;
+        listaPratos.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Carregando cardápio...</p>
+            </div>
+        `;
 
-    align-items: center;
 
-    justify-content: center;
+        const resposta =
+            await fetch(
+                `${API_URL}/pratos`
+            );
 
-    padding: 20px;
 
-    background:
-        rgba(0, 0, 0, 0.60);
+        if (!resposta.ok) {
 
-    backdrop-filter: blur(5px);
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
 
-    z-index: 1500;
-}
+        }
 
-.modal-carrinho.aberto {
-    display: flex;
 
-    animation:
-        aparecer 0.2s ease;
-}
+        const tipo =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
 
 
-/* ========================================
-   CONTEÚDO CARRINHO
-======================================== */
+        if (!tipo.includes("application/json")) {
 
-.carrinho-conteudo {
-    width: 100%;
+            throw new Error(
+                "A API não retornou JSON."
+            );
 
-    max-width: 550px;
+        }
 
-    max-height: 90vh;
 
-    overflow-y: auto;
+        pratos =
+            await resposta.json();
 
-    padding: 28px;
 
-    background: white;
+        mostrarPratos();
 
-    border-radius: 24px;
+    } catch (erro) {
 
-    position: relative;
+        console.error(erro);
 
-    box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.25);
 
-    animation:
-        subir 0.25s ease;
-}
+        listaPratos.innerHTML = `
 
+            <div class="loading">
 
-/* ========================================
-   FECHAR CARRINHO
-======================================== */
+                <div style="font-size:50px;">
+                    ⚠️
+                </div>
 
-.fechar-carrinho {
-    position: absolute;
+                <p>
+                    Erro ao carregar o cardápio.
+                </p>
 
-    top: 16px;
+                <small>
+                    ${escaparHTML(
+                        erro.message
+                    )}
+                </small>
 
-    right: 16px;
+            </div>
 
-    width: 38px;
-
-    height: 38px;
-
-    border: none;
-
-    border-radius: 50%;
-
-    background: #f3f3f3;
-
-    color: #555;
-
-    font-size: 24px;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-.fechar-carrinho:hover {
-    background: #25d366;
-
-    color: white;
-
-    transform: rotate(90deg);
-}
-
-
-/* ========================================
-   HEADER CARRINHO
-======================================== */
-
-.carrinho-header {
-    padding-right: 45px;
-
-    margin-bottom: 22px;
-}
-
-.carrinho-titulo {
-    display: flex;
-
-    align-items: center;
-
-    gap: 13px;
-}
-
-.carrinho-titulo > span {
-    width: 48px;
-
-    height: 48px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    border-radius: 14px;
-
-    background: #eafff0;
-
-    font-size: 23px;
-}
-
-.carrinho-titulo h2 {
-    color: #222;
-
-    font-size: 22px;
-}
-
-.carrinho-titulo p {
-    margin-top: 4px;
-
-    color: #888;
-
-    font-size: 12px;
-}
-
-
-/* ========================================
-   CARRINHO VAZIO
-======================================== */
-
-.carrinho-vazio {
-    min-height: 220px;
-
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: center;
-
-    justify-content: center;
-
-    text-align: center;
-
-    padding: 25px;
-}
-
-.carrinho-vazio > div {
-    font-size: 55px;
-
-    margin-bottom: 10px;
-}
-
-.carrinho-vazio h3 {
-    font-size: 17px;
-
-    color: #333;
-}
-
-.carrinho-vazio p {
-    margin-top: 7px;
-
-    color: #999;
-
-    font-size: 13px;
-}
-
-
-/* ========================================
-   ITEM DO CARRINHO
-======================================== */
-
-.lista-carrinho {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 12px;
-}
-
-.item-carrinho {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 15px;
-
-    padding: 15px;
-
-    border: 1px solid #eeeeee;
-
-    border-radius: 15px;
-
-    background: #fafafa;
-}
-
-.item-info {
-    min-width: 0;
-
-    flex: 1;
-}
-
-.item-info h3 {
-    color: #222;
-
-    font-size: 14px;
-
-    margin-bottom: 5px;
-}
-
-.item-info p {
-    color: #999;
-
-    font-size: 11px;
-}
-
-.item-direita {
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: flex-end;
-
-    gap: 8px;
-}
-
-.controle-quantidade {
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
-}
-
-.controle-quantidade button {
-    width: 28px;
-
-    height: 28px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background: #eeeeee;
-
-    color: #333;
-
-    font-size: 18px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-.controle-quantidade button:hover {
-    background: #25d366;
-
-    color: white;
-}
-
-.controle-quantidade strong {
-    min-width: 20px;
-
-    text-align: center;
-
-    font-size: 13px;
-}
-
-.subtotal {
-    color: #25a85a;
-
-    font-size: 13px;
-}
-
-
-/* ========================================
-   FOOTER CARRINHO
-======================================== */
-
-.carrinho-footer {
-    margin-top: 22px;
-
-    padding-top: 20px;
-
-    border-top: 1px solid #eeeeee;
-}
-
-.total-carrinho {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    margin-bottom: 15px;
-}
-
-.total-carrinho span {
-    color: #666;
-
-    font-size: 14px;
-
-    font-weight: 700;
-}
-
-.total-carrinho strong {
-    color: #222;
-
-    font-size: 22px;
-}
-
-
-/* ========================================
-   BOTÃO WHATSAPP
-======================================== */
-
-.btn-whatsapp {
-    width: 100%;
-
-    min-height: 52px;
-
-    border: none;
-
-    border-radius: 13px;
-
-    background: #25d366;
-
-    color: white;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 9px;
-
-    font-size: 14px;
-
-    font-weight: 800;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 7px 18px rgba(37, 211, 102, 0.25);
-
-    transition: 0.25s ease;
-}
-
-.btn-whatsapp:hover {
-    background: #20bd5a;
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 10px 25px rgba(37, 211, 102, 0.35);
-}
-
-.btn-whatsapp span {
-    font-size: 21px;
-}
-
-
-/* ========================================
-   LIMPAR CARRINHO
-======================================== */
-
-.btn-limpar-carrinho {
-    width: 100%;
-
-    margin-top: 10px;
-
-    padding: 11px;
-
-    border: none;
-
-    border-radius: 11px;
-
-    background: #f3f3f3;
-
-    color: #777;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: 0.2s ease;
-}
-
-.btn-limpar-carrinho:hover {
-    background: #e74c3c;
-
-    color: white;
-}
-
-
-/* ========================================
-   RESPONSIVIDADE CARRINHO
-======================================== */
-
-@media (max-width: 520px) {
-
-    .botao-carrinho {
-        right: 15px;
-
-        bottom: 15px;
-
-        min-height: 54px;
-
-        padding: 0 16px;
-
-        border-radius: 16px;
-
-        font-size: 12px;
-    }
-
-    .icone-carrinho {
-        font-size: 19px;
-    }
-
-    .carrinho-conteudo {
-        max-height: 94vh;
-
-        padding: 22px 17px;
-
-        border-radius: 20px;
-    }
-
-    .item-carrinho {
-        align-items: flex-start;
-
-        padding: 12px;
-    }
-
-    .item-direita {
-        gap: 6px;
-    }
-
-    .total-carrinho strong {
-        font-size: 20px;
-    }
-
-    .btn-whatsapp {
-        font-size: 13px;
+        `;
     }
 }
+
+
+// ========================================
+// MOSTRAR PRATOS
+// ========================================
+
+function mostrarPratos() {
+
+    const busca =
+        pesquisa.value
+            .toLowerCase()
+            .trim();
+
+
+    const filtrados =
+        pratos.filter(prato => {
+
+            const categoriaOK =
+                categoriaAtual === "Todos" ||
+                prato.categoria === categoriaAtual;
+
+
+            const buscaOK =
+                (prato.nome || "")
+                    .toLowerCase()
+                    .includes(busca) ||
+
+                (prato.descricao || "")
+                    .toLowerCase()
+                    .includes(busca);
+
+
+            return categoriaOK &&
+                buscaOK;
+        });
+
+
+    contador.textContent =
+        `${filtrados.length} ${
+            filtrados.length === 1
+                ? "prato encontrado"
+                : "pratos encontrados"
+        }`;
+
+
+    if (filtrados.length === 0) {
+
+        listaPratos.innerHTML = `
+
+            <div class="loading">
+
+                <div style="font-size:50px;">
+                    🍽️
+                </div>
+
+                <p>
+                    Nenhum prato encontrado.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    listaPratos.innerHTML =
+        filtrados
+            .map(criarCard)
+            .join("");
+}
+
+
+// ========================================
+// CRIAR CARD
+// ========================================
+
+function criarCard(prato) {
+
+    const precoFormatado =
+        formatarPreco(
+            prato.preco
+        );
+
+
+    const imagemHTML =
+        prato.imagem
+            ? `
+                <img
+                    src="${escaparHTML(
+                        prato.imagem
+                    )}"
+                    alt="${escaparHTML(
+                        prato.nome
+                    )}"
+                    loading="lazy"
+                >
+            `
+            : `
+                <div class="sem-imagem">
+                    🍽️
+                </div>
+            `;
+
+
+    return `
+
+        <article class="card">
+
+            <div class="card-imagem">
+
+                ${imagemHTML}
+
+                <span class="card-categoria">
+                    ${escaparHTML(
+                        prato.categoria
+                    )}
+                </span>
+
+            </div>
+
+
+            <div class="card-corpo">
+
+                <div class="card-topo">
+
+                    <h3>
+                        ${escaparHTML(
+                            prato.nome
+                        )}
+                    </h3>
+
+                    <span class="preco">
+                        ${precoFormatado}
+                    </span>
+
+                </div>
+
+
+                <p class="descricao">
+
+                    ${escaparHTML(
+                        prato.descricao ||
+                        "Delicioso prato da casa."
+                    )}
+
+                </p>
+
+
+                <!-- ADICIONAR PEDIDO -->
+
+                <button
+                    class="btn-adicionar-pedido"
+                    onclick="adicionarAoCarrinho(${prato.id})"
+                >
+
+                    🛒 Adicionar ao pedido
+
+                </button>
+
+
+                <!-- ADMINISTRAÇÃO -->
+
+                <div class="acoes">
+
+                    <button
+                        class="btn-editar"
+                        onclick="editarPrato(${prato.id})"
+                    >
+                        ✏️ Editar
+                    </button>
+
+
+                    <button
+                        class="btn-excluir"
+                        onclick="excluirPrato(${prato.id})"
+                    >
+                        🗑️ Excluir
+                    </button>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    `;
+}
+
+
+// ========================================
+// ABRIR FORMULÁRIO
+// ========================================
+
+function abrirFormulario() {
+
+    limparFormulario();
+
+    modal.classList.add(
+        "aberto"
+    );
+
+    document.body.style.overflow =
+        "hidden";
+
+
+    setTimeout(() => {
+
+        nome.focus();
+
+    }, 100);
+}
+
+
+// ========================================
+// FECHAR FORMULÁRIO
+// ========================================
+
+function fecharFormulario() {
+
+    modal.classList.remove(
+        "aberto"
+    );
+
+    document.body.style.overflow =
+        "auto";
+
+    limparFormulario();
+}
+
+
+// ========================================
+// LIMPAR FORMULÁRIO
+// ========================================
+
+function limparFormulario() {
+
+    form.reset();
+
+    pratoEditando = null;
+
+    imagemAtual = "";
+
+
+    tituloFormulario.textContent =
+        "Novo prato";
+
+
+    textoBotao.textContent =
+        "Cadastrar prato";
+
+
+    preview.innerHTML = `
+
+        <span>
+            🖼️
+        </span>
+
+        <p>
+            A imagem aparecerá aqui
+        </p>
+
+    `;
+}
+
+
+// ========================================
+// ESCOLHER IMAGEM
+// ========================================
+
+imagem.addEventListener(
+    "change",
+    function () {
+
+        const arquivo =
+            imagem.files[0];
+
+
+        if (!arquivo) {
+
+            if (imagemAtual) {
+
+                mostrarPreview(
+                    imagemAtual
+                );
+
+            } else {
+
+                preview.innerHTML = `
+
+                    <span>
+                        🖼️
+                    </span>
+
+                    <p>
+                        A imagem aparecerá aqui
+                    </p>
+
+                `;
+
+            }
+
+            return;
+        }
+
+
+        if (
+            arquivo.size >
+            5 * 1024 * 1024
+        ) {
+
+            imagem.value = "";
+
+            mostrarToast(
+                "A imagem deve ter no máximo 5 MB."
+            );
+
+            return;
+        }
+
+
+        if (
+            !arquivo.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            imagem.value = "";
+
+            mostrarToast(
+                "Escolha um arquivo de imagem."
+            );
+
+            return;
+        }
+
+
+        const leitor =
+            new FileReader();
+
+
+        leitor.onload =
+            function (evento) {
+
+                imagemAtual =
+                    evento.target.result;
+
+                mostrarPreview(
+                    imagemAtual
+                );
+
+            };
+
+
+        leitor.onerror =
+            function () {
+
+                mostrarToast(
+                    "Não foi possível carregar a imagem."
+                );
+
+            };
+
+
+        leitor.readAsDataURL(
+            arquivo
+        );
+    }
+);
+
+
+// ========================================
+// PREVIEW
+// ========================================
+
+function mostrarPreview(src) {
+
+    preview.innerHTML = `
+
+        <img
+            src="${escaparHTML(src)}"
+            alt="Preview da imagem"
+        >
+
+    `;
+}
+
+
+// ========================================
+// CADASTRAR / EDITAR
+// ========================================
+
+form.addEventListener(
+    "submit",
+    async function (evento) {
+
+        evento.preventDefault();
+
+
+        const dados = {
+
+            nome:
+                nome.value.trim(),
+
+            descricao:
+                descricao.value.trim(),
+
+            preco:
+                Number(preco.value),
+
+            imagem:
+                imagemAtual || "",
+
+            categoria:
+                categoria.value
+
+        };
+
+
+        if (
+            !dados.nome ||
+            !dados.preco ||
+            !dados.categoria
+        ) {
+
+            mostrarToast(
+                "Preencha os campos obrigatórios."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            textoBotao.textContent =
+                "Salvando...";
+
+
+            let resposta;
+
+
+            if (pratoEditando) {
+
+                resposta =
+                    await fetch(
+                        `${API_URL}/pratos/${pratoEditando}`,
+                        {
+
+                            method: "PUT",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    dados
+                                )
+
+                        }
+                    );
+
+            } else {
+
+                resposta =
+                    await fetch(
+                        `${API_URL}/pratos`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    dados
+                                )
+
+                        }
+                    );
+            }
+
+
+            const tipo =
+                resposta.headers.get(
+                    "content-type"
+                ) || "";
+
+
+            if (
+                !tipo.includes(
+                    "application/json"
+                )
+            ) {
+
+                throw new Error(
+                    "O servidor não retornou JSON."
+                );
+
+            }
+
+
+            const resultado =
+                await resposta.json();
+
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    resultado.erro ||
+                    "Erro ao salvar prato."
+                );
+
+            }
+
+
+            fecharFormulario();
+
+
+            mostrarToast(
+                resultado.mensagem
+            );
+
+
+            await carregarPratos();
+
+
+        } catch (erro) {
+
+            console.error(erro);
+
+
+            textoBotao.textContent =
+                pratoEditando
+                    ? "Salvar alterações"
+                    : "Cadastrar prato";
+
+
+            mostrarToast(
+                erro.message
+            );
+
+        }
+
+    }
+);
+
+
+// ========================================
+// EDITAR
+// ========================================
+
+async function editarPrato(id) {
+
+    const prato =
+        pratos.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+
+    if (!prato) {
+        return;
+    }
+
+
+    pratoEditando =
+        id;
+
+
+    imagemAtual =
+        prato.imagem || "";
+
+
+    nome.value =
+        prato.nome || "";
+
+
+    descricao.value =
+        prato.descricao || "";
+
+
+    preco.value =
+        prato.preco || "";
+
+
+    categoria.value =
+        prato.categoria || "";
+
+
+    imagem.value = "";
+
+
+    tituloFormulario.textContent =
+        "Editar prato";
+
+
+    textoBotao.textContent =
+        "Salvar alterações";
+
+
+    if (imagemAtual) {
+
+        mostrarPreview(
+            imagemAtual
+        );
+
+    } else {
+
+        preview.innerHTML = `
+
+            <span>
+                🖼️
+            </span>
+
+            <p>
+                A imagem aparecerá aqui
+            </p>
+
+        `;
+
+    }
+
+
+    modal.classList.add(
+        "aberto"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+}
+
+
+// ========================================
+// EXCLUIR
+// ========================================
+
+async function excluirPrato(id) {
+
+    const prato =
+        pratos.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+
+    if (!prato) {
+        return;
+    }
+
+
+    if (
+        !confirm(
+            `Deseja excluir "${prato.nome}"?`
+        )
+    ) {
+
+        return;
+    }
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${API_URL}/pratos/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        const tipo =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        if (
+            !tipo.includes(
+                "application/json"
+            )
+        ) {
+
+            throw new Error(
+                "O servidor não retornou JSON."
+            );
+
+        }
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado.erro ||
+                "Erro ao excluir."
+            );
+
+        }
+
+
+        mostrarToast(
+            resultado.mensagem
+        );
+
+
+        await carregarPratos();
+
+
+    } catch (erro) {
+
+        console.error(erro);
+
+
+        mostrarToast(
+            erro.message
+        );
+
+    }
+}
+
+
+// ========================================
+// PESQUISA
+// ========================================
+
+pesquisa.addEventListener(
+    "input",
+    mostrarPratos
+);
+
+
+// ========================================
+// CATEGORIAS
+// ========================================
+
+document
+    .querySelectorAll(".categoria")
+    .forEach(botao => {
+
+        botao.addEventListener(
+            "click",
+            function () {
+
+                document
+                    .querySelectorAll(".categoria")
+                    .forEach(item => {
+
+                        item.classList.remove(
+                            "ativa"
+                        );
+
+                    });
+
+
+                this.classList.add(
+                    "ativa"
+                );
+
+
+                categoriaAtual =
+                    this.dataset.categoria;
+
+
+                mostrarPratos();
+
+            }
+        );
+
+    });
+
+
+// ========================================
+// FECHAR MODAL
+// ========================================
+
+modal.addEventListener(
+    "click",
+    function (evento) {
+
+        if (
+            evento.target === modal
+        ) {
+
+            fecharFormulario();
+
+        }
+
+    }
+);
+
+
+// ========================================
+// ESC
+// ========================================
+
+document.addEventListener(
+    "keydown",
+    function (evento) {
+
+        if (
+            evento.key === "Escape"
+        ) {
+
+            if (
+                modal.classList.contains(
+                    "aberto"
+                )
+            ) {
+
+                fecharFormulario();
+
+            }
+
+
+            const modalCarrinho =
+                document.getElementById(
+                    "modalCarrinho"
+                );
+
+
+            if (
+                modalCarrinho &&
+                modalCarrinho.classList.contains(
+                    "aberto"
+                )
+            ) {
+
+                fecharCarrinho();
+
+            }
+
+        }
+
+    }
+);
+
+
+// ========================================
+// TOAST
+// ========================================
+
+function mostrarToast(mensagem) {
+
+    toast.textContent =
+        mensagem;
+
+
+    toast.classList.add(
+        "mostrar"
+    );
+
+
+    setTimeout(() => {
+
+        toast.classList.remove(
+            "mostrar"
+        );
+
+    }, 3000);
+}
+
+
+// ========================================
+// SEGURANÇA
+// ========================================
+
+function escaparHTML(texto) {
+
+    return String(texto)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+// ========================================
+// INICIAR
+// ========================================
+
+criarInterfaceCarrinho();
+
+atualizarCarrinho();
+
+carregarPratos();
