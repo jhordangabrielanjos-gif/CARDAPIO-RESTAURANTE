@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap');
-
-/* ================================
+/* ========================================
    RESET
-================================ */
+======================================== */
 
 * {
     margin: 0;
@@ -10,55 +8,32 @@
     box-sizing: border-box;
 }
 
-:root {
-    --laranja: #e85d04;
-    --laranja-claro: #fff1e8;
-    --laranja-escuro: #b94400;
-
-    --preto: #171411;
-    --texto: #27221f;
-    --cinza: #77716d;
-    --cinza-claro: #f5f3f1;
-
-    --branco: #ffffff;
-    --borda: #ebe6e1;
-
-    --sombra:
-        0 12px 40px rgba(34, 25, 20, 0.08);
+html {
+    scroll-behavior: smooth;
 }
 
-/* ================================
-   BODY
-================================ */
-
 body {
-    font-family: "DM Sans", sans-serif;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
-    background:
-        radial-gradient(
-            circle at 10% 0%,
-            #fff1e5 0,
-            transparent 28%
-        ),
-        #faf9f7;
+    background: #f8f8f8;
 
-    color: var(--texto);
+    color: #222;
 
     min-height: 100vh;
 }
 
-/* ================================
+
+/* ========================================
    HEADER
-================================ */
+======================================== */
 
 .header {
-    position: sticky;
+    width: 100%;
 
-    top: 0;
-
-    z-index: 100;
-
-    height: 78px;
+    padding: 18px 6%;
 
     display: flex;
 
@@ -66,13 +41,15 @@ body {
 
     justify-content: space-between;
 
-    padding: 0 6%;
+    background: #ffffff;
 
-    background: rgba(255,255,255,.92);
+    border-bottom: 1px solid #eeeeee;
 
-    backdrop-filter: blur(18px);
+    position: sticky;
 
-    border-bottom: 1px solid rgba(0,0,0,.06);
+    top: 0;
+
+    z-index: 100;
 }
 
 .logo {
@@ -84,9 +61,8 @@ body {
 }
 
 .logo-icon {
-    width: 46px;
-
-    height: 46px;
+    width: 48px;
+    height: 48px;
 
     display: flex;
 
@@ -94,152 +70,161 @@ body {
 
     justify-content: center;
 
+    background: #ff6b35;
+
     border-radius: 14px;
 
-    background:
-        linear-gradient(
-            135deg,
-            #ff7b22,
-            #d94700
-        );
+    font-size: 24px;
 
     box-shadow:
-        0 8px 20px rgba(232,93,4,.25);
-
-    font-size: 23px;
+        0 6px 18px rgba(255, 107, 53, 0.22);
 }
 
 .logo h1 {
-    font-size: 18px;
+    font-size: 20px;
 
     font-weight: 800;
 
-    letter-spacing: -.3px;
+    color: #222;
 }
 
 .logo p {
-    font-size: 11px;
+    margin-top: 3px;
 
-    color: #999;
+    font-size: 13px;
 
-    margin-top: 1px;
+    color: #888;
 }
 
-.btn-novo {
-    border: 0;
 
-    background:
-        linear-gradient(
-            135deg,
-            var(--laranja),
-            #ff741b
-        );
+/* ========================================
+   BOTÃO NOVO PRATO
+======================================== */
+
+.btn-novo {
+    border: none;
+
+    background: #ff6b35;
 
     color: white;
 
-    padding: 12px 19px;
+    padding: 12px 20px;
 
-    border-radius: 11px;
+    border-radius: 12px;
 
-    font-family: inherit;
+    font-size: 14px;
 
     font-weight: 700;
 
     cursor: pointer;
 
-    box-shadow:
-        0 8px 20px rgba(232,93,4,.2);
+    transition: 0.25s ease;
 
-    transition: .25s;
+    box-shadow:
+        0 6px 16px rgba(255, 107, 53, 0.22);
 }
 
 .btn-novo:hover {
+    background: #ed5724;
+
     transform: translateY(-2px);
 
     box-shadow:
-        0 12px 25px rgba(232,93,4,.3);
+        0 9px 22px rgba(255, 107, 53, 0.30);
 }
 
-/* ================================
+
+/* ========================================
    CONTAINER
-================================ */
+======================================== */
 
 .container {
-    width: min(1200px, 92%);
+    width: 88%;
 
-    margin: auto;
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    padding-bottom: 70px;
 }
 
-/* ================================
-   HERO
-================================ */
+
+/* ========================================
+   HERO COM FOTO DE FUNDO
+======================================== */
 
 .hero {
-    position: relative;
-
-    overflow: hidden;
-
     margin-top: 35px;
 
-    min-height: 330px;
-
-    padding: 55px;
+    min-height: 300px;
 
     display: flex;
 
     align-items: center;
 
-    border-radius: 30px;
+    padding: 50px;
+
+    border-radius: 25px;
 
     background:
         linear-gradient(
-            105deg,
-            #181412 0%,
-            #29201b 55%,
-            #38271e 100%
-        );
+            90deg,
+            rgba(0, 0, 0, 0.82),
+            rgba(0, 0, 0, 0.55),
+            rgba(0, 0, 0, 0.20)
+        ),
+        url("img/fundo-restaurante.jpg");
 
-    box-shadow:
-        0 25px 60px rgba(35,25,20,.18);
+    background-size: cover;
+
+    background-position: center;
+
+    overflow: hidden;
+
+    position: relative;
+
+    color: white;
 }
+
+
+/* brilho escuro */
 
 .hero::before {
     content: "";
 
     position: absolute;
 
-    width: 430px;
-
-    height: 430px;
-
-    right: -130px;
-
-    top: -160px;
-
-    border-radius: 50%;
+    inset: 0;
 
     background:
-        radial-gradient(
-            circle,
-            rgba(232,93,4,.5),
-            transparent 65%
+        linear-gradient(
+            180deg,
+            transparent,
+            rgba(0, 0, 0, 0.15)
         );
+
+    pointer-events: none;
 }
 
+
+/* emoji decorativo */
+
 .hero::after {
-    content: "🍕";
+    content: "🍔";
 
     position: absolute;
 
     right: 7%;
 
-    bottom: -35px;
+    bottom: -25px;
 
-    font-size: 190px;
+    font-size: 150px;
 
-    opacity: .13;
+    opacity: 0.12;
 
-    transform: rotate(-15deg);
+    transform: rotate(-12deg);
+
+    pointer-events: none;
 }
 
 .hero > div {
@@ -248,276 +233,248 @@ body {
     z-index: 2;
 }
 
-.tag {
-    display: inline-flex;
-
-    align-items: center;
+.hero .tag {
+    display: inline-block;
 
     padding: 8px 13px;
 
-    border-radius: 30px;
+    border-radius: 20px;
 
-    background: rgba(232,93,4,.14);
+    background: rgba(255, 255, 255, 0.95);
 
-    border: 1px solid rgba(255,130,65,.2);
+    color: #ff6b35;
 
-    color: #ff9a5a;
-
-    font-size: 11px;
+    font-size: 12px;
 
     font-weight: 800;
 
-    letter-spacing: 1px;
+    margin-bottom: 15px;
 
-    margin-bottom: 18px;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.20);
 }
 
 .hero h2 {
-    max-width: 620px;
+    max-width: 650px;
 
-    font-family:
-        "Playfair Display",
-        serif;
+    font-size: 42px;
 
-    font-size:
-        clamp(38px, 6vw, 66px);
+    line-height: 1.1;
 
-    line-height: .98;
-
-    letter-spacing: -2px;
+    margin-bottom: 15px;
 
     color: white;
 }
 
 .hero h2 span {
-    color: #ff7623;
+    color: #ff7b45;
 }
 
 .hero p {
-    margin-top: 20px;
+    color: #eeeeee;
 
-    color: #bcb5b0;
-
-    font-size: 15px;
+    font-size: 16px;
 }
 
-/* ================================
+
+/* ========================================
    CONTROLES
-================================ */
+======================================== */
 
 .controles {
-    margin-top: 32px;
+    margin-top: 35px;
 }
+
+
+/* ========================================
+   PESQUISA
+======================================== */
 
 .pesquisa {
     width: 100%;
+
+    height: 52px;
 
     display: flex;
 
     align-items: center;
 
-    gap: 12px;
+    gap: 10px;
 
-    padding: 14px 17px;
+    padding: 0 17px;
 
     background: white;
 
-    border: 1px solid var(--borda);
+    border: 1px solid #eeeeee;
 
-    border-radius: 13px;
-
-    box-shadow:
-        0 5px 20px rgba(0,0,0,.025);
-
-    transition: .2s;
-}
-
-.pesquisa:focus-within {
-    border-color: #ff9a68;
+    border-radius: 14px;
 
     box-shadow:
-        0 0 0 4px rgba(232,93,4,.08);
+        0 4px 15px rgba(0, 0, 0, 0.03);
 }
 
 .pesquisa span {
-    font-size: 17px;
-
-    opacity: .65;
+    font-size: 18px;
 }
 
 .pesquisa input {
     width: 100%;
 
-    border: 0;
+    border: none;
 
-    outline: 0;
-
-    background: transparent;
-
-    font-family: inherit;
+    outline: none;
 
     font-size: 14px;
 
-    color: var(--texto);
+    background: transparent;
+
+    color: #222;
 }
+
+.pesquisa input::placeholder {
+    color: #aaa;
+}
+
+
+/* ========================================
+   CATEGORIAS
+======================================== */
 
 .categorias {
     display: flex;
 
-    gap: 9px;
+    gap: 10px;
 
-    overflow-x: auto;
+    flex-wrap: wrap;
 
-    padding: 15px 2px 5px;
-
-    scrollbar-width: none;
-}
-
-.categorias::-webkit-scrollbar {
-    display: none;
+    margin-top: 16px;
 }
 
 .categoria {
-    border: 1px solid var(--borda);
+    border: 1px solid #e8e8e8;
 
     background: white;
 
-    color: #716b67;
+    color: #555;
 
     padding: 10px 15px;
 
-    border-radius: 30px;
-
-    white-space: nowrap;
-
-    font-family: inherit;
-
-    font-size: 12px;
-
-    font-weight: 700;
-
-    cursor: pointer;
-
-    transition: .2s;
-}
-
-.categoria:hover {
-    color: var(--laranja);
-
-    border-color: #ffc2a0;
-
-    background: #fffaf7;
-}
-
-.categoria.ativa {
-    background: var(--preto);
-
-    color: white;
-
-    border-color: var(--preto);
-
-    box-shadow:
-        0 5px 15px rgba(0,0,0,.12);
-}
-
-/* ================================
-   TÍTULO CARDÁPIO
-================================ */
-
-.titulo-cardapio {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: end;
-
-    margin-top: 38px;
-
-    margin-bottom: 22px;
-}
-
-.titulo-cardapio h2 {
-    font-family:
-        "Playfair Display",
-        serif;
-
-    font-size: 31px;
-
-    letter-spacing: -.5px;
-}
-
-.titulo-cardapio p {
-    color: #999;
+    border-radius: 12px;
 
     font-size: 13px;
 
-    margin-top: 4px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.25s ease;
 }
 
-/* ================================
+.categoria:hover {
+    border-color: #ff6b35;
+
+    color: #ff6b35;
+
+    transform: translateY(-1px);
+}
+
+.categoria.ativa {
+    background: #ff6b35;
+
+    color: white;
+
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 5px 14px rgba(255, 107, 53, 0.20);
+}
+
+
+/* ========================================
+   TÍTULO CARDÁPIO
+======================================== */
+
+.titulo-cardapio {
+    margin-top: 45px;
+
+    margin-bottom: 20px;
+}
+
+.titulo-cardapio h2 {
+    font-size: 25px;
+
+    color: #222;
+}
+
+.titulo-cardapio p {
+    margin-top: 5px;
+
+    color: #888;
+
+    font-size: 13px;
+}
+
+
+/* ========================================
    GRID
-================================ */
+======================================== */
 
 .grid-pratos {
     display: grid;
 
     grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+        repeat(
+            auto-fill,
+            minmax(270px, 1fr)
+        );
 
     gap: 24px;
-
-    padding-bottom: 70px;
 }
 
-/* ================================
+
+/* ========================================
    CARD
-================================ */
+======================================== */
 
 .card {
-    position: relative;
-
-    overflow: hidden;
-
     background: white;
 
     border-radius: 20px;
 
-    border: 1px solid #eee9e5;
+    overflow: hidden;
+
+    border: 1px solid #eeeeee;
 
     box-shadow:
-        0 8px 30px rgba(32,24,20,.055);
+        0 8px 25px rgba(0, 0, 0, 0.05);
 
     transition:
-        transform .3s,
-        box-shadow .3s;
-
-    animation: aparecer .4s ease both;
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
 .card:hover {
-    transform: translateY(-7px);
+    transform: translateY(-6px);
 
     box-shadow:
-        0 22px 45px rgba(32,24,20,.12);
+        0 15px 35px rgba(0, 0, 0, 0.10);
 }
 
-/* ================================
-   IMAGEM
-================================ */
+
+/* ========================================
+   IMAGEM DO CARD
+======================================== */
 
 .card-imagem {
-    height: 230px;
+    width: 100%;
+
+    height: 210px;
 
     position: relative;
 
     overflow: hidden;
 
-    background:
-        linear-gradient(
-            135deg,
-            #f3eee9,
-            #e5ddd5
-        );
+    background: #f1f1f1;
 }
 
 .card-imagem img {
@@ -529,34 +486,11 @@ body {
 
     display: block;
 
-    transition:
-        transform .5s ease;
+    transition: 0.4s ease;
 }
 
 .card:hover .card-imagem img {
-    transform: scale(1.07);
-}
-
-.card-imagem::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-
-    right: 0;
-
-    bottom: 0;
-
-    height: 70px;
-
-    background:
-        linear-gradient(
-            transparent,
-            rgba(0,0,0,.18)
-        );
-
-    pointer-events: none;
+    transform: scale(1.05);
 }
 
 .sem-imagem {
@@ -570,165 +504,172 @@ body {
 
     justify-content: center;
 
-    font-size: 65px;
+    font-size: 55px;
 
     background:
         linear-gradient(
             135deg,
-            #f5eee8,
-            #e8ded5
+            #f4f4f4,
+            #e9e9e9
         );
 }
+
+
+/* ========================================
+   CATEGORIA DO CARD
+======================================== */
 
 .card-categoria {
     position: absolute;
 
-    z-index: 2;
+    top: 12px;
 
-    top: 14px;
-
-    left: 14px;
+    left: 12px;
 
     padding: 7px 11px;
 
-    border-radius: 30px;
+    border-radius: 20px;
 
-    background:
-        rgba(255,255,255,.93);
+    background: rgba(255, 255, 255, 0.94);
 
-    backdrop-filter: blur(10px);
+    color: #ff6b35;
 
-    color: var(--laranja);
-
-    font-size: 10px;
+    font-size: 11px;
 
     font-weight: 800;
 
     box-shadow:
-        0 4px 12px rgba(0,0,0,.08);
+        0 4px 12px rgba(0, 0, 0, 0.10);
 }
 
-/* ================================
-   CORPO CARD
-================================ */
+
+/* ========================================
+   CORPO DO CARD
+======================================== */
 
 .card-corpo {
-    padding: 19px;
+    padding: 18px;
 }
 
 .card-topo {
     display: flex;
 
-    align-items: flex-start;
-
     justify-content: space-between;
+
+    align-items: flex-start;
 
     gap: 12px;
 }
 
-.card h3 {
-    font-family:
-        "Playfair Display",
-        serif;
+.card-topo h3 {
+    font-size: 18px;
 
-    font-size: 20px;
+    line-height: 1.25;
 
-    line-height: 1.15;
-
-    color: #211c19;
+    color: #222;
 }
 
 .preco {
-    color: var(--laranja);
-
-    font-size: 16px;
+    color: #ff6b35;
 
     font-weight: 800;
+
+    font-size: 15px;
 
     white-space: nowrap;
 }
 
 .descricao {
-    color: #89827d;
+    margin-top: 10px;
 
-    font-size: 12.5px;
+    color: #777;
 
-    line-height: 1.55;
+    font-size: 13px;
 
-    margin-top: 9px;
+    line-height: 1.6;
 
-    min-height: 39px;
+    min-height: 42px;
 }
 
-/* ================================
+
+/* ========================================
    AÇÕES
-================================ */
+======================================== */
 
 .acoes {
     display: flex;
 
     gap: 8px;
 
-    margin-top: 17px;
-
-    padding-top: 14px;
-
-    border-top: 1px solid #f1ece8;
+    margin-top: 18px;
 }
 
 .btn-editar,
 .btn-excluir {
     flex: 1;
 
-    border: 0;
+    border: none;
 
-    padding: 9px;
+    padding: 10px;
 
-    border-radius: 9px;
+    border-radius: 10px;
 
-    font-family: inherit;
-
-    font-size: 11px;
+    font-size: 12px;
 
     font-weight: 700;
 
     cursor: pointer;
 
-    transition: .2s;
+    transition: 0.2s ease;
 }
 
 .btn-editar {
-    background: var(--laranja-claro);
+    background: #fff3ed;
 
-    color: var(--laranja);
+    color: #ff6b35;
 }
 
 .btn-editar:hover {
-    background: #ffe4d2;
+    background: #ff6b35;
+
+    color: white;
 }
 
 .btn-excluir {
-    background: #fff1f1;
+    background: #f5f5f5;
 
-    color: #d64545;
+    color: #777;
 }
 
 .btn-excluir:hover {
-    background: #ffe1e1;
+    background: #e74c3c;
+
+    color: white;
 }
 
-/* ================================
+
+/* ========================================
    LOADING
-================================ */
+======================================== */
 
 .loading {
+    min-height: 220px;
+
     grid-column: 1 / -1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #888;
 
     text-align: center;
 
-    padding: 80px 20px;
-
-    color: #999;
+    gap: 12px;
 }
 
 .spinner {
@@ -736,15 +677,14 @@ body {
 
     height: 38px;
 
-    margin: 0 auto 15px;
+    border: 4px solid #eeeeee;
 
-    border: 4px solid #eee;
-
-    border-top-color: var(--laranja);
+    border-top-color: #ff6b35;
 
     border-radius: 50%;
 
-    animation: girar .8s linear infinite;
+    animation:
+        girar 0.8s linear infinite;
 }
 
 @keyframes girar {
@@ -753,30 +693,18 @@ body {
     }
 }
 
-@keyframes aparecer {
-    from {
-        opacity: 0;
 
-        transform: translateY(15px);
-    }
-
-    to {
-        opacity: 1;
-
-        transform: translateY(0);
-    }
-}
-
-/* ================================
+/* ========================================
    MODAL
-================================ */
+======================================== */
 
 .modal {
     position: fixed;
 
     inset: 0;
 
-    z-index: 500;
+    background:
+        rgba(0, 0, 0, 0.55);
 
     display: none;
 
@@ -786,45 +714,64 @@ body {
 
     padding: 20px;
 
-    background:
-        rgba(17,13,11,.68);
+    z-index: 1000;
 
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
 }
 
 .modal.aberto {
     display: flex;
+
+    animation:
+        aparecer 0.2s ease;
 }
 
+@keyframes aparecer {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+
+/* ========================================
+   MODAL CONTEÚDO
+======================================== */
+
 .modal-conteudo {
-    width: min(600px, 100%);
+    width: 100%;
+
+    max-width: 600px;
 
     max-height: 92vh;
 
     overflow-y: auto;
 
-    position: relative;
-
-    padding: 30px;
-
     background: white;
 
     border-radius: 22px;
 
+    padding: 28px;
+
+    position: relative;
+
     box-shadow:
-        0 30px 80px rgba(0,0,0,.25);
+        0 25px 70px rgba(0, 0, 0, 0.20);
 
     animation:
-        modalEntrar .25s ease;
+        subir 0.25s ease;
 }
 
-@keyframes modalEntrar {
+@keyframes subir {
     from {
         opacity: 0;
 
         transform:
-            translateY(15px)
-            scale(.97);
+            translateY(20px)
+            scale(0.98);
     }
 
     to {
@@ -836,37 +783,51 @@ body {
     }
 }
 
+
+/* ========================================
+   FECHAR
+======================================== */
+
 .fechar {
     position: absolute;
 
-    right: 18px;
+    top: 16px;
 
-    top: 18px;
+    right: 16px;
 
-    width: 35px;
+    width: 36px;
 
-    height: 35px;
+    height: 36px;
 
-    border: 0;
+    border: none;
 
     border-radius: 50%;
 
-    background: #f3f1ef;
+    background: #f4f4f4;
 
     color: #555;
 
-    font-size: 22px;
+    font-size: 23px;
+
+    line-height: 1;
 
     cursor: pointer;
 
-    transition: .2s;
+    transition: 0.2s ease;
 }
 
 .fechar:hover {
-    background: #e8e4e0;
+    background: #ff6b35;
+
+    color: white;
 
     transform: rotate(90deg);
 }
+
+
+/* ========================================
+   MODAL HEADER
+======================================== */
 
 .modal-header {
     display: flex;
@@ -876,12 +837,14 @@ body {
     gap: 13px;
 
     margin-bottom: 25px;
+
+    padding-right: 40px;
 }
 
 .modal-header > span {
-    width: 47px;
+    width: 45px;
 
-    height: 47px;
+    height: 45px;
 
     display: flex;
 
@@ -889,71 +852,82 @@ body {
 
     justify-content: center;
 
-    background: var(--laranja-claro);
-
     border-radius: 13px;
 
-    font-size: 22px;
+    background: #fff1eb;
+
+    font-size: 21px;
 }
 
 .modal-header h2 {
-    font-family:
-        "Playfair Display",
-        serif;
+    font-size: 21px;
 
-    font-size: 26px;
+    color: #222;
 }
 
 .modal-header p {
-    color: #999;
+    margin-top: 4px;
 
     font-size: 12px;
 
-    margin-top: 3px;
+    color: #888;
 }
 
-/* ================================
+
+/* ========================================
    FORMULÁRIO
-================================ */
+======================================== */
 
 .campo {
-    margin-bottom: 17px;
+    margin-bottom: 18px;
 }
 
 .campo label {
     display: block;
 
-    margin-bottom: 7px;
+    margin-bottom: 8px;
 
-    font-size: 12px;
+    font-size: 13px;
 
-    font-weight: 800;
+    font-weight: 700;
 
-    color: #3b3531;
+    color: #333;
 }
 
-.campo input,
-.campo textarea,
-.campo select {
+.campo input[type="text"],
+.campo input[type="number"],
+.campo select,
+.campo textarea {
     width: 100%;
 
-    padding: 12px 13px;
+    border: 1px solid #dddddd;
 
-    border: 1px solid #ddd7d1;
+    border-radius: 12px;
 
-    border-radius: 10px;
+    padding: 13px 14px;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    color: #222;
 
     outline: none;
 
     background: white;
 
-    font-family: inherit;
+    transition: 0.2s ease;
+}
 
-    font-size: 13px;
+.campo input[type="text"]:focus,
+.campo input[type="number"]:focus,
+.campo select:focus,
+.campo textarea:focus {
+    border-color: #ff6b35;
 
-    color: var(--texto);
-
-    transition: .2s;
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
 }
 
 .campo textarea {
@@ -962,78 +936,253 @@ body {
     min-height: 100px;
 }
 
-.campo input:focus,
-.campo textarea:focus,
-.campo select:focus {
-    border-color: var(--laranja);
-
-    box-shadow:
-        0 0 0 3px rgba(232,93,4,.08);
-}
-
 .campo small {
     display: block;
 
-    margin-top: 5px;
+    margin-top: 7px;
 
-    color: #aaa;
+    color: #999;
 
-    font-size: 10px;
+    font-size: 11px;
+
+    line-height: 1.4;
 }
+
+
+/* ========================================
+   LINHA
+======================================== */
 
 .linha {
     display: grid;
 
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns:
+        1fr 1fr;
 
     gap: 15px;
 }
+
+
+/* ========================================
+   PREÇO
+======================================== */
 
 .input-preco {
     display: flex;
 
     align-items: center;
 
-    border: 1px solid #ddd7d1;
+    border: 1px solid #dddddd;
 
-    border-radius: 10px;
+    border-radius: 12px;
 
     overflow: hidden;
 
-    transition: .2s;
+    transition: 0.2s ease;
 }
 
 .input-preco:focus-within {
-    border-color: var(--laranja);
+    border-color: #ff6b35;
 
     box-shadow:
-        0 0 0 3px rgba(232,93,4,.08);
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
 }
 
 .input-preco span {
     padding-left: 13px;
 
-    color: #999;
+    font-size: 13px;
 
-    font-size: 12px;
+    font-weight: 700;
+
+    color: #ff6b35;
+}
+
+.input-preco input {
+    width: 100%;
+
+    border: none !important;
+
+    box-shadow: none !important;
+
+    outline: none;
+
+    border-radius: 0 !important;
+}
+
+
+/* ========================================
+   BOTÃO ESCOLHER IMAGEM
+======================================== */
+
+.upload-imagem {
+    width: 100%;
+
+    margin-top: 5px;
+}
+
+.btn-escolher-imagem {
+    width: 100%;
+
+    min-height: 78px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 14px 17px;
+
+    border: 2px dashed #ddd7d1;
+
+    border-radius: 14px;
+
+    background: #fcfbfa;
+
+    cursor: pointer;
+
+    transition: 0.25s ease;
+
+    user-select: none;
+}
+
+.btn-escolher-imagem:hover {
+    border-color: #ff6b35;
+
+    background: #fff7f3;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 22px rgba(232, 93, 4, 0.10);
+}
+
+
+/* ========================================
+   ÍCONE
+======================================== */
+
+.upload-icone {
+    width: 48px;
+
+    height: 48px;
+
+    min-width: 48px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff7b22,
+            #d94700
+        );
+
+    color: white;
+
+    font-size: 22px;
+
+    box-shadow:
+        0 7px 18px rgba(232, 93, 4, 0.22);
+
+    transition: 0.25s;
+}
+
+.btn-escolher-imagem:hover .upload-icone {
+    transform:
+        scale(1.05)
+        rotate(-3deg);
+}
+
+
+/* ========================================
+   TEXTO DO BOTÃO
+======================================== */
+
+.upload-texto {
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 4px;
+}
+
+.upload-texto strong {
+    color: #222;
+
+    font-size: 13px;
 
     font-weight: 800;
 }
 
-.input-preco input {
-    border: 0;
+.upload-texto small {
+    margin: 0;
 
-    box-shadow: none;
+    color: #999;
+
+    font-size: 10px;
 }
 
-/* ================================
+
+/* ========================================
+   SETA
+======================================== */
+
+.upload-seta {
+    width: 35px;
+
+    height: 35px;
+
+    min-width: 35px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #eee9e5;
+
+    color: #625c57;
+
+    font-size: 18px;
+
+    transition: 0.25s;
+}
+
+.btn-escolher-imagem:hover .upload-seta {
+    background: #ff6b35;
+
+    color: white;
+
+    transform: translateX(3px);
+}
+
+
+/* ========================================
    PREVIEW
-================================ */
+======================================== */
 
 .preview {
     width: 100%;
 
-    height: 155px;
+    min-height: 180px;
+
+    margin-top: 5px;
 
     margin-bottom: 20px;
 
@@ -1054,154 +1203,244 @@ body {
     color: #aaa;
 
     background: #fcfbfa;
+
+    text-align: center;
 }
 
 .preview span {
-    font-size: 35px;
+    font-size: 40px;
+
+    margin-bottom: 8px;
 }
 
 .preview p {
-    font-size: 11px;
+    font-size: 12px;
 
-    margin-top: 5px;
+    color: #999;
 }
 
 .preview img {
     width: 100%;
 
-    height: 100%;
-
-    display: block;
+    height: 260px;
 
     object-fit: cover;
+
+    display: block;
 }
 
-/* ================================
-   BOTÕES FORM
-================================ */
+
+/* ========================================
+   BOTÕES DO FORMULÁRIO
+======================================== */
 
 .botoes-form {
     display: flex;
 
     gap: 10px;
+
+    margin-top: 5px;
 }
 
-.botoes-form button {
+.btn-cancelar,
+.btn-salvar {
     flex: 1;
 
-    border: 0;
+    border: none;
 
     padding: 13px;
 
-    border-radius: 10px;
+    border-radius: 12px;
 
-    font-family: inherit;
+    font-size: 13px;
 
-    font-weight: 800;
+    font-weight: 700;
 
     cursor: pointer;
 
-    transition: .2s;
+    transition: 0.25s ease;
 }
 
 .btn-cancelar {
-    background: #f1efed;
+    background: #f1f1f1;
 
-    color: #625c57;
+    color: #555;
 }
 
 .btn-cancelar:hover {
-    background: #e6e2df;
+    background: #e5e5e5;
 }
 
 .btn-salvar {
+    background: #ff6b35;
+
     color: white;
 
-    background:
-        linear-gradient(
-            135deg,
-            #e85d04,
-            #ff741b
-        );
-
     box-shadow:
-        0 7px 18px rgba(232,93,4,.18);
+        0 6px 15px
+        rgba(255, 107, 53, 0.20);
 }
 
 .btn-salvar:hover {
-    transform: translateY(-1px);
+    background: #ed5724;
+
+    transform: translateY(-2px);
 
     box-shadow:
-        0 10px 22px rgba(232,93,4,.25);
+        0 9px 20px
+        rgba(255, 107, 53, 0.28);
 }
 
-/* ================================
+
+/* ========================================
    TOAST
-================================ */
+======================================== */
 
 .toast {
     position: fixed;
 
-    right: 25px;
-
     bottom: 25px;
 
-    z-index: 1000;
+    right: 25px;
 
     max-width: 350px;
 
     padding: 14px 18px;
 
-    border-radius: 11px;
+    border-radius: 12px;
 
-    background: #211d1a;
+    background: #222;
 
     color: white;
 
     font-size: 13px;
 
-    box-shadow:
-        0 15px 40px rgba(0,0,0,.2);
+    font-weight: 600;
 
-    transform: translateY(100px);
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.20);
+
+    transform:
+        translateY(100px);
 
     opacity: 0;
 
-    transition: .3s;
+    pointer-events: none;
+
+    transition: 0.3s ease;
+
+    z-index: 2000;
 }
 
 .toast.mostrar {
-    transform: translateY(0);
+    transform:
+        translateY(0);
 
     opacity: 1;
 }
 
-/* ================================
-   TABLET
-================================ */
 
-@media (max-width: 950px) {
+/* ========================================
+   SCROLLBAR
+======================================== */
 
-    .grid-pratos {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+.modal-conteudo::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-conteudo::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-conteudo::-webkit-scrollbar-thumb {
+    background: #ddd;
+
+    border-radius: 10px;
+}
+
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 768px) {
+
+    .header {
+        padding: 15px 5%;
+    }
+
+    .logo h1 {
+        font-size: 17px;
+    }
+
+    .logo p {
+        font-size: 11px;
+    }
+
+    .logo-icon {
+        width: 42px;
+        height: 42px;
+
+        font-size: 21px;
+    }
+
+    .btn-novo {
+        padding: 10px 13px;
+
+        font-size: 12px;
+    }
+
+    .container {
+        width: 92%;
     }
 
     .hero {
-        min-height: 290px;
+        padding: 35px 25px;
+
+        min-height: 250px;
     }
+
+    .hero h2 {
+        font-size: 32px;
+    }
+
+    .hero p {
+        font-size: 14px;
+    }
+
+    .hero::after {
+        font-size: 100px;
+
+        right: 3%;
+    }
+
+    .grid-pratos {
+        grid-template-columns:
+            repeat(
+                auto-fill,
+                minmax(230px, 1fr)
+            );
+
+        gap: 16px;
+    }
+
+    .modal-conteudo {
+        padding: 22px;
+
+        border-radius: 18px;
+    }
+
 }
 
-/* ================================
-   CELULAR
-================================ */
 
-@media (max-width: 650px) {
+@media (max-width: 520px) {
 
     .header {
-        height: 70px;
+        gap: 10px;
+    }
 
-        padding: 0 4%;
+    .logo {
+        gap: 8px;
     }
 
     .logo h1 {
@@ -1209,49 +1448,54 @@ body {
     }
 
     .logo p {
-        display: none;
+        font-size: 10px;
     }
 
     .logo-icon {
-        width: 40px;
+        width: 38px;
+        height: 38px;
 
-        height: 40px;
+        border-radius: 11px;
+
+        font-size: 19px;
     }
 
     .btn-novo {
-        padding: 10px 13px;
+        padding: 9px 11px;
+
+        border-radius: 10px;
 
         font-size: 11px;
     }
 
     .hero {
-        min-height: 270px;
+        margin-top: 20px;
 
-        padding: 32px;
+        padding: 28px 20px;
 
-        border-radius: 23px;
+        border-radius: 20px;
+
+        min-height: 230px;
     }
 
     .hero h2 {
-        font-size: 39px;
-
-        letter-spacing: -1.5px;
+        font-size: 27px;
     }
 
-    .hero::after {
-        font-size: 110px;
-
-        right: -10px;
+    .hero p {
+        font-size: 13px;
     }
 
-    .grid-pratos {
-        grid-template-columns: 1fr;
+    .categorias {
+        overflow-x: auto;
 
-        gap: 18px;
+        flex-wrap: nowrap;
+
+        padding-bottom: 5px;
     }
 
-    .card-imagem {
-        height: 240px;
+    .categoria {
+        white-space: nowrap;
     }
 
     .linha {
@@ -1260,10 +1504,58 @@ body {
         gap: 0;
     }
 
-    .modal-conteudo {
-        padding: 23px;
+    .grid-pratos {
+        grid-template-columns: 1fr;
+    }
 
-        border-radius: 18px;
+    .modal {
+        padding: 10px;
+    }
+
+    .modal-conteudo {
+        max-height: 95vh;
+
+        padding: 20px 17px;
+    }
+
+    .botoes-form {
+        flex-direction: column;
+    }
+
+    .btn-escolher-imagem {
+        min-height: 70px;
+
+        padding: 11px;
+    }
+
+    .upload-icone {
+        width: 43px;
+
+        height: 43px;
+
+        min-width: 43px;
+
+        font-size: 19px;
+    }
+
+    .upload-texto strong {
+        font-size: 12px;
+    }
+
+    .upload-texto small {
+        font-size: 9px;
+    }
+
+    .upload-seta {
+        width: 31px;
+
+        height: 31px;
+
+        min-width: 31px;
+    }
+
+    .preview img {
+        height: 210px;
     }
 
     .toast {
@@ -1275,4 +1567,5 @@ body {
 
         max-width: none;
     }
+
 }
