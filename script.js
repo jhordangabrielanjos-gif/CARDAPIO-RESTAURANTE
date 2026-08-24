@@ -1,644 +1,95 @@
-const API_URL = "https://cardapio-restaurante-2cun.onrender.com";
+/* ========================================
+   CONFIGURAÇÃO
+======================================== */
 
-const WHATSAPP = "5579981021378";
+const API_URL =
+    "https://cardapio-restaurante-2cun.onrender.com";
+
+
+/* ========================================
+   VARIÁVEIS
+======================================== */
 
 let pratos = [];
-let categoriaAtual = "Todos";
-let pratoEditando = null;
-let imagemAtual = "";
 
-// ========================================
-// CARRINHO
-// ========================================
+let categoriaAtual = "Todos";
 
 let carrinho = [];
 
 
-// ========================================
-// ELEMENTOS
-// ========================================
+/* ========================================
+   ELEMENTOS
+======================================== */
 
-const listaPratos = document.getElementById("listaPratos");
-const contador = document.getElementById("contador");
-const pesquisa = document.getElementById("pesquisa");
+const listaPratos =
+    document.getElementById("listaPratos");
 
-const modal = document.getElementById("modal");
-const form = document.getElementById("formPrato");
+const contador =
+    document.getElementById("contador");
 
-const nome = document.getElementById("nome");
-const descricao = document.getElementById("descricao");
-const preco = document.getElementById("preco");
-const imagem = document.getElementById("imagem");
-const categoria = document.getElementById("categoria");
+const pesquisa =
+    document.getElementById("pesquisa");
 
-const preview = document.getElementById("preview");
+const categorias =
+    document.getElementById("categorias");
 
-const tituloFormulario =
-    document.getElementById("tituloFormulario");
+const abrirCarrinho =
+    document.getElementById("abrirCarrinho");
 
-const textoBotao =
-    document.getElementById("textoBotao");
+const fecharCarrinho =
+    document.getElementById("fecharCarrinho");
 
-const toast =
-    document.getElementById("toast");
+const carrinhoElemento =
+    document.getElementById("carrinho");
 
+const overlayCarrinho =
+    document.getElementById("overlayCarrinho");
 
-// ========================================
-// CRIAR CARRINHO NA TELA
-// ========================================
+const listaCarrinho =
+    document.getElementById("listaCarrinho");
 
-function criarInterfaceCarrinho() {
+const contadorCarrinho =
+    document.getElementById("contadorCarrinho");
 
-    if (document.getElementById("botaoCarrinho")) {
-        return;
-    }
+const totalCarrinho =
+    document.getElementById("totalCarrinho");
 
-    const botao = document.createElement("button");
+const finalizarPedido =
+    document.getElementById("finalizarPedido");
 
-    botao.id = "botaoCarrinho";
-    botao.className = "botao-carrinho";
+const limparCarrinho =
+    document.getElementById("limparCarrinho");
 
-    botao.innerHTML = `
-        <span class="icone-carrinho">🛒</span>
+const continuarComprando =
+    document.getElementById("continuarComprando");
 
-        <span>
-            Meu pedido
-        </span>
 
-        <strong id="quantidadeCarrinho">
-            0
-        </strong>
-    `;
+/* ========================================
+   INICIAR
+======================================== */
 
-    botao.onclick = abrirCarrinho;
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-    document.body.appendChild(botao);
+        carregarPratos();
 
-
-    const modalCarrinho = document.createElement("div");
-
-    modalCarrinho.id = "modalCarrinho";
-    modalCarrinho.className = "modal-carrinho";
-
-    modalCarrinho.innerHTML = `
-
-        <div class="carrinho-conteudo">
-
-            <button
-                class="fechar-carrinho"
-                onclick="fecharCarrinho()"
-            >
-                ×
-            </button>
-
-            <div class="carrinho-header">
-
-                <div class="carrinho-titulo">
-
-                    <span>
-                        🛒
-                    </span>
-
-                    <div>
-
-                        <h2>
-                            Meu pedido
-                        </h2>
-
-                        <p>
-                            Confira seus itens antes de enviar
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div
-                id="listaCarrinho"
-                class="lista-carrinho"
-            ></div>
-
-
-            <div class="carrinho-footer">
-
-                <div class="total-carrinho">
-
-                    <span>
-                        Total
-                    </span>
-
-                    <strong id="totalCarrinho">
-                        R$ 0,00
-                    </strong>
-
-                </div>
-
-
-                <button
-                    class="btn-whatsapp"
-                    onclick="enviarPedidoWhatsApp()"
-                >
-                    <span>
-                        📱
-                    </span>
-
-                    Fazer pedido pelo WhatsApp
-                </button>
-
-
-                <button
-                    class="btn-limpar-carrinho"
-                    onclick="limparCarrinho()"
-                >
-                    🗑️ Limpar pedido
-                </button>
-
-            </div>
-
-        </div>
-    `;
-
-    document.body.appendChild(modalCarrinho);
-
-
-    modalCarrinho.addEventListener(
-        "click",
-        function (evento) {
-
-            if (
-                evento.target === modalCarrinho
-            ) {
-
-                fecharCarrinho();
-
-            }
-
-        }
-    );
-}
-
-
-// ========================================
-// ADICIONAR AO CARRINHO
-// ========================================
-
-function adicionarAoCarrinho(id) {
-
-    const prato =
-        pratos.find(
-            item => Number(item.id) === Number(id)
-        );
-
-    if (!prato) {
-        mostrarToast("Prato não encontrado.");
-        return;
-    }
-
-
-    const itemExistente =
-        carrinho.find(
-            item =>
-                Number(item.id) === Number(id)
-        );
-
-
-    if (itemExistente) {
-
-        itemExistente.quantidade++;
-
-    } else {
-
-        carrinho.push({
-
-            id: prato.id,
-
-            nome: prato.nome,
-
-            preco: Number(prato.preco),
-
-            quantidade: 1
-
-        });
+        configurarCarrinho();
 
     }
+);
 
 
-    atualizarCarrinho();
-
-    mostrarToast(
-        `${prato.nome} adicionado ao pedido!`
-    );
-}
-
-
-// ========================================
-// AUMENTAR QUANTIDADE
-// ========================================
-
-function aumentarQuantidade(id) {
-
-    const item =
-        carrinho.find(
-            produto =>
-                Number(produto.id) === Number(id)
-        );
-
-    if (!item) {
-        return;
-    }
-
-    item.quantidade++;
-
-    atualizarCarrinho();
-}
-
-
-// ========================================
-// DIMINUIR QUANTIDADE
-// ========================================
-
-function diminuirQuantidade(id) {
-
-    const item =
-        carrinho.find(
-            produto =>
-                Number(produto.id) === Number(id)
-        );
-
-    if (!item) {
-        return;
-    }
-
-
-    item.quantidade--;
-
-
-    if (item.quantidade <= 0) {
-
-        carrinho =
-            carrinho.filter(
-                produto =>
-                    Number(produto.id) !== Number(id)
-            );
-
-    }
-
-
-    atualizarCarrinho();
-}
-
-
-// ========================================
-// ATUALIZAR CARRINHO
-// ========================================
-
-function atualizarCarrinho() {
-
-    const quantidadeElemento =
-        document.getElementById(
-            "quantidadeCarrinho"
-        );
-
-    const lista =
-        document.getElementById(
-            "listaCarrinho"
-        );
-
-    const totalElemento =
-        document.getElementById(
-            "totalCarrinho"
-        );
-
-
-    const quantidadeTotal =
-        carrinho.reduce(
-            (total, item) =>
-                total + item.quantidade,
-            0
-        );
-
-
-    const valorTotal =
-        carrinho.reduce(
-            (total, item) =>
-                total +
-                item.preco *
-                item.quantidade,
-            0
-        );
-
-
-    if (quantidadeElemento) {
-
-        quantidadeElemento.textContent =
-            quantidadeTotal;
-
-    }
-
-
-    if (totalElemento) {
-
-        totalElemento.textContent =
-            formatarPreco(valorTotal);
-
-    }
-
-
-    if (!lista) {
-        return;
-    }
-
-
-    if (carrinho.length === 0) {
-
-        lista.innerHTML = `
-
-            <div class="carrinho-vazio">
-
-                <div>
-                    🛒
-                </div>
-
-                <h3>
-                    Seu pedido está vazio
-                </h3>
-
-                <p>
-                    Adicione alguns pratos deliciosos
-                    ao seu pedido.
-                </p>
-
-            </div>
-
-        `;
-
-        return;
-    }
-
-
-    lista.innerHTML =
-        carrinho
-            .map(item => {
-
-                const subtotal =
-                    item.preco *
-                    item.quantidade;
-
-
-                return `
-
-                    <div class="item-carrinho">
-
-                        <div class="item-info">
-
-                            <h3>
-                                ${escaparHTML(
-                                    item.nome
-                                )}
-                            </h3>
-
-                            <p>
-                                ${formatarPreco(
-                                    item.preco
-                                )}
-                                cada
-                            </p>
-
-                        </div>
-
-
-                        <div class="item-direita">
-
-                            <div class="controle-quantidade">
-
-                                <button
-                                    onclick="diminuirQuantidade(${item.id})"
-                                >
-                                    −
-                                </button>
-
-                                <strong>
-                                    ${item.quantidade}
-                                </strong>
-
-                                <button
-                                    onclick="aumentarQuantidade(${item.id})"
-                                >
-                                    +
-                                </button>
-
-                            </div>
-
-
-                            <strong class="subtotal">
-                                ${formatarPreco(
-                                    subtotal
-                                )}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            })
-            .join("");
-}
-
-
-// ========================================
-// ABRIR CARRINHO
-// ========================================
-
-function abrirCarrinho() {
-
-    const modalCarrinho =
-        document.getElementById(
-            "modalCarrinho"
-        );
-
-    if (!modalCarrinho) {
-        return;
-    }
-
-    modalCarrinho.classList.add(
-        "aberto"
-    );
-
-    document.body.style.overflow =
-        "hidden";
-
-    atualizarCarrinho();
-}
-
-
-// ========================================
-// FECHAR CARRINHO
-// ========================================
-
-function fecharCarrinho() {
-
-    const modalCarrinho =
-        document.getElementById(
-            "modalCarrinho"
-        );
-
-    if (!modalCarrinho) {
-        return;
-    }
-
-    modalCarrinho.classList.remove(
-        "aberto"
-    );
-
-    document.body.style.overflow =
-        "auto";
-}
-
-
-// ========================================
-// LIMPAR CARRINHO
-// ========================================
-
-function limparCarrinho() {
-
-    if (carrinho.length === 0) {
-        return;
-    }
-
-
-    const confirmar =
-        confirm(
-            "Deseja realmente limpar o pedido?"
-        );
-
-
-    if (!confirmar) {
-        return;
-    }
-
-
-    carrinho = [];
-
-    atualizarCarrinho();
-
-    mostrarToast(
-        "Pedido limpo."
-    );
-}
-
-
-// ========================================
-// ENVIAR PARA WHATSAPP
-// ========================================
-
-function enviarPedidoWhatsApp() {
-
-    if (carrinho.length === 0) {
-
-        mostrarToast(
-            "Adicione pelo menos um prato ao pedido."
-        );
-
-        return;
-    }
-
-
-    let mensagem =
-        "🍽️ *NOVO PEDIDO*\n\n";
-
-
-    mensagem +=
-        "Olá! Gostaria de fazer este pedido:\n\n";
-
-
-    carrinho.forEach(item => {
-
-        const subtotal =
-            item.preco *
-            item.quantidade;
-
-
-        mensagem +=
-            `🍴 *${item.nome}*\n`;
-
-        mensagem +=
-            `Quantidade: ${item.quantidade}\n`;
-
-        mensagem +=
-            `Valor: ${formatarPreco(subtotal)}\n\n`;
-
-    });
-
-
-    const total =
-        carrinho.reduce(
-            (soma, item) =>
-                soma +
-                item.preco *
-                item.quantidade,
-            0
-        );
-
-
-    mensagem +=
-        "━━━━━━━━━━━━━━━━━━\n";
-
-    mensagem +=
-        `💰 *TOTAL: ${formatarPreco(total)}*\n\n`;
-
-    mensagem +=
-        "Aguardo a confirmação do pedido. 😊";
-
-
-    const url =
-        `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
-            mensagem
-        )}`;
-
-
-    window.open(
-        url,
-        "_blank"
-    );
-}
-
-
-// ========================================
-// FORMATAR PREÇO
-// ========================================
-
-function formatarPreco(valor) {
-
-    return Number(valor)
-        .toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
-}
-
-
-// ========================================
-// CARREGAR PRATOS
-// ========================================
+/* ========================================
+   CARREGAR PRATOS
+======================================== */
 
 async function carregarPratos() {
 
     try {
 
-        listaPratos.innerHTML = `
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>Carregando cardápio...</p>
-            </div>
-        `;
+        contador.textContent =
+            "Carregando pratos...";
 
 
         const resposta =
@@ -650,22 +101,7 @@ async function carregarPratos() {
         if (!resposta.ok) {
 
             throw new Error(
-                `Erro HTTP ${resposta.status}`
-            );
-
-        }
-
-
-        const tipo =
-            resposta.headers.get(
-                "content-type"
-            ) || "";
-
-
-        if (!tipo.includes("application/json")) {
-
-            throw new Error(
-                "A API não retornou JSON."
+                "Erro ao carregar pratos"
             );
 
         }
@@ -675,774 +111,369 @@ async function carregarPratos() {
             await resposta.json();
 
 
+        console.log(
+            "Pratos carregados:",
+            pratos
+        );
+
+
+        criarCategorias();
+
         mostrarPratos();
+
 
     } catch (erro) {
 
-        console.error(erro);
+        console.error(
+            "Erro:",
+            erro
+        );
+
+
+        contador.textContent =
+            "Não foi possível carregar os pratos.";
 
 
         listaPratos.innerHTML = `
 
-            <div class="loading">
+            <div class="sem-resultados">
 
-                <div style="font-size:50px;">
-                    ⚠️
-                </div>
+                <h3>
+                    ⚠️ Erro ao carregar o cardápio
+                </h3>
 
                 <p>
-                    Erro ao carregar o cardápio.
+                    Verifique se a API está funcionando.
                 </p>
-
-                <small>
-                    ${escaparHTML(
-                        erro.message
-                    )}
-                </small>
 
             </div>
 
         `;
+
     }
+
 }
 
 
-// ========================================
-// MOSTRAR PRATOS
-// ========================================
+/* ========================================
+   CATEGORIAS
+======================================== */
+
+function criarCategorias() {
+
+    const listaCategorias = [
+
+        "Todos",
+
+        ...new Set(
+            pratos
+                .map(prato =>
+                    prato.categoria
+                )
+                .filter(Boolean)
+        )
+
+    ];
+
+
+    categorias.innerHTML = "";
+
+
+    listaCategorias.forEach(
+        categoria => {
+
+            const botao =
+                document.createElement("button");
+
+
+            botao.textContent =
+                categoria;
+
+
+            if (
+                categoria ===
+                categoriaAtual
+            ) {
+
+                botao.classList.add(
+                    "ativo"
+                );
+
+            }
+
+
+            botao.addEventListener(
+                "click",
+                () => {
+
+                    categoriaAtual =
+                        categoria;
+
+
+                    document
+                        .querySelectorAll(
+                            "#categorias button"
+                        )
+                        .forEach(
+                            b =>
+                                b.classList
+                                    .remove(
+                                        "ativo"
+                                    )
+                        );
+
+
+                    botao.classList.add(
+                        "ativo"
+                    );
+
+
+                    mostrarPratos();
+
+                }
+            );
+
+
+            categorias.appendChild(
+                botao
+            );
+
+        }
+    );
+
+}
+
+
+/* ========================================
+   MOSTRAR PRATOS
+======================================== */
 
 function mostrarPratos() {
 
-    const busca =
+    const textoPesquisa =
         pesquisa.value
             .toLowerCase()
             .trim();
 
 
-    const filtrados =
-        pratos.filter(prato => {
-
-            const categoriaOK =
-                categoriaAtual === "Todos" ||
-                prato.categoria === categoriaAtual;
-
-
-            const buscaOK =
-                (prato.nome || "")
-                    .toLowerCase()
-                    .includes(busca) ||
-
-                (prato.descricao || "")
-                    .toLowerCase()
-                    .includes(busca);
-
-
-            return categoriaOK &&
-                buscaOK;
-        });
-
-
-    contador.textContent =
-        `${filtrados.length} ${
-            filtrados.length === 1
-                ? "prato encontrado"
-                : "pratos encontrados"
-        }`;
-
-
-    if (filtrados.length === 0) {
-
-        listaPratos.innerHTML = `
-
-            <div class="loading">
-
-                <div style="font-size:50px;">
-                    🍽️
-                </div>
-
-                <p>
-                    Nenhum prato encontrado.
-                </p>
-
-            </div>
-
-        `;
-
-        return;
-    }
-
-
-    listaPratos.innerHTML =
-        filtrados
-            .map(criarCard)
-            .join("");
-}
-
-
-// ========================================
-// CRIAR CARD
-// ========================================
-
-function criarCard(prato) {
-
-    const precoFormatado =
-        formatarPreco(
-            prato.preco
-        );
-
-
-    const imagemHTML =
-        prato.imagem
-            ? `
-                <img
-                    src="${escaparHTML(
-                        prato.imagem
-                    )}"
-                    alt="${escaparHTML(
-                        prato.nome
-                    )}"
-                    loading="lazy"
-                >
-            `
-            : `
-                <div class="sem-imagem">
-                    🍽️
-                </div>
-            `;
-
-
-    return `
-
-        <article class="card">
-
-            <div class="card-imagem">
-
-                ${imagemHTML}
-
-                <span class="card-categoria">
-                    ${escaparHTML(
-                        prato.categoria
-                    )}
-                </span>
-
-            </div>
-
-
-            <div class="card-corpo">
-
-                <div class="card-topo">
-
-                    <h3>
-                        ${escaparHTML(
-                            prato.nome
-                        )}
-                    </h3>
-
-                    <span class="preco">
-                        ${precoFormatado}
-                    </span>
-
-                </div>
-
-
-                <p class="descricao">
-
-                    ${escaparHTML(
-                        prato.descricao ||
-                        "Delicioso prato da casa."
-                    )}
-
-                </p>
-
-
-                <!-- ADICIONAR PEDIDO -->
-
-                <button
-                    class="btn-adicionar-pedido"
-                    onclick="adicionarAoCarrinho(${prato.id})"
-                >
-
-                    🛒 Adicionar ao pedido
-
-                </button>
-
-
-                <!-- ADMINISTRAÇÃO -->
-
-                <div class="acoes">
-
-                    <button
-                        class="btn-editar"
-                        onclick="editarPrato(${prato.id})"
-                    >
-                        ✏️ Editar
-                    </button>
-
-
-                    <button
-                        class="btn-excluir"
-                        onclick="excluirPrato(${prato.id})"
-                    >
-                        🗑️ Excluir
-                    </button>
-
-                </div>
-
-            </div>
-
-        </article>
-
-    `;
-}
-
-
-// ========================================
-// ABRIR FORMULÁRIO
-// ========================================
-
-function abrirFormulario() {
-
-    limparFormulario();
-
-    modal.classList.add(
-        "aberto"
-    );
-
-    document.body.style.overflow =
-        "hidden";
-
-
-    setTimeout(() => {
-
-        nome.focus();
-
-    }, 100);
-}
-
-
-// ========================================
-// FECHAR FORMULÁRIO
-// ========================================
-
-function fecharFormulario() {
-
-    modal.classList.remove(
-        "aberto"
-    );
-
-    document.body.style.overflow =
-        "auto";
-
-    limparFormulario();
-}
-
-
-// ========================================
-// LIMPAR FORMULÁRIO
-// ========================================
-
-function limparFormulario() {
-
-    form.reset();
-
-    pratoEditando = null;
-
-    imagemAtual = "";
-
-
-    tituloFormulario.textContent =
-        "Novo prato";
-
-
-    textoBotao.textContent =
-        "Cadastrar prato";
-
-
-    preview.innerHTML = `
-
-        <span>
-            🖼️
-        </span>
-
-        <p>
-            A imagem aparecerá aqui
-        </p>
-
-    `;
-}
-
-
-// ========================================
-// ESCOLHER IMAGEM
-// ========================================
-
-imagem.addEventListener(
-    "change",
-    function () {
-
-        const arquivo =
-            imagem.files[0];
-
-
-        if (!arquivo) {
-
-            if (imagemAtual) {
-
-                mostrarPreview(
-                    imagemAtual
-                );
-
-            } else {
-
-                preview.innerHTML = `
-
-                    <span>
-                        🖼️
-                    </span>
-
-                    <p>
-                        A imagem aparecerá aqui
-                    </p>
-
-                `;
-
-            }
-
-            return;
-        }
-
-
-        if (
-            arquivo.size >
-            5 * 1024 * 1024
-        ) {
-
-            imagem.value = "";
-
-            mostrarToast(
-                "A imagem deve ter no máximo 5 MB."
-            );
-
-            return;
-        }
-
-
-        if (
-            !arquivo.type.startsWith(
-                "image/"
-            )
-        ) {
-
-            imagem.value = "";
-
-            mostrarToast(
-                "Escolha um arquivo de imagem."
-            );
-
-            return;
-        }
-
-
-        const leitor =
-            new FileReader();
-
-
-        leitor.onload =
-            function (evento) {
-
-                imagemAtual =
-                    evento.target.result;
-
-                mostrarPreview(
-                    imagemAtual
-                );
-
-            };
-
-
-        leitor.onerror =
-            function () {
-
-                mostrarToast(
-                    "Não foi possível carregar a imagem."
-                );
-
-            };
-
-
-        leitor.readAsDataURL(
-            arquivo
-        );
-    }
-);
-
-
-// ========================================
-// PREVIEW
-// ========================================
-
-function mostrarPreview(src) {
-
-    preview.innerHTML = `
-
-        <img
-            src="${escaparHTML(src)}"
-            alt="Preview da imagem"
-        >
-
-    `;
-}
-
-
-// ========================================
-// CADASTRAR / EDITAR
-// ========================================
-
-form.addEventListener(
-    "submit",
-    async function (evento) {
-
-        evento.preventDefault();
-
-
-        const dados = {
-
-            nome:
-                nome.value.trim(),
-
-            descricao:
-                descricao.value.trim(),
-
-            preco:
-                Number(preco.value),
-
-            imagem:
-                imagemAtual || "",
-
-            categoria:
-                categoria.value
-
-        };
-
-
-        if (
-            !dados.nome ||
-            !dados.preco ||
-            !dados.categoria
-        ) {
-
-            mostrarToast(
-                "Preencha os campos obrigatórios."
-            );
-
-            return;
-        }
-
-
-        try {
-
-            textoBotao.textContent =
-                "Salvando...";
-
-
-            let resposta;
-
-
-            if (pratoEditando) {
-
-                resposta =
-                    await fetch(
-                        `${API_URL}/pratos/${pratoEditando}`,
-                        {
-
-                            method: "PUT",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    dados
-                                )
-
-                        }
-                    );
-
-            } else {
-
-                resposta =
-                    await fetch(
-                        `${API_URL}/pratos`,
-                        {
-
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    dados
-                                )
-
-                        }
-                    );
-            }
-
-
-            const tipo =
-                resposta.headers.get(
-                    "content-type"
-                ) || "";
-
-
-            if (
-                !tipo.includes(
-                    "application/json"
-                )
-            ) {
-
-                throw new Error(
-                    "O servidor não retornou JSON."
-                );
-
-            }
-
-
-            const resultado =
-                await resposta.json();
-
-
-            if (!resposta.ok) {
-
-                throw new Error(
-                    resultado.erro ||
-                    "Erro ao salvar prato."
-                );
-
-            }
-
-
-            fecharFormulario();
-
-
-            mostrarToast(
-                resultado.mensagem
-            );
-
-
-            await carregarPratos();
-
-
-        } catch (erro) {
-
-            console.error(erro);
-
-
-            textoBotao.textContent =
-                pratoEditando
-                    ? "Salvar alterações"
-                    : "Cadastrar prato";
-
-
-            mostrarToast(
-                erro.message
-            );
-
-        }
-
-    }
-);
-
-
-// ========================================
-// EDITAR
-// ========================================
-
-async function editarPrato(id) {
-
-    const prato =
-        pratos.find(
-            item =>
-                Number(item.id) ===
-                Number(id)
-        );
-
-
-    if (!prato) {
-        return;
-    }
-
-
-    pratoEditando =
-        id;
-
-
-    imagemAtual =
-        prato.imagem || "";
-
-
-    nome.value =
-        prato.nome || "";
-
-
-    descricao.value =
-        prato.descricao || "";
-
-
-    preco.value =
-        prato.preco || "";
-
-
-    categoria.value =
-        prato.categoria || "";
-
-
-    imagem.value = "";
-
-
-    tituloFormulario.textContent =
-        "Editar prato";
-
-
-    textoBotao.textContent =
-        "Salvar alterações";
-
-
-    if (imagemAtual) {
-
-        mostrarPreview(
-            imagemAtual
-        );
-
-    } else {
-
-        preview.innerHTML = `
-
-            <span>
-                🖼️
-            </span>
-
-            <p>
-                A imagem aparecerá aqui
-            </p>
-
-        `;
-
-    }
-
-
-    modal.classList.add(
-        "aberto"
-    );
-
-
-    document.body.style.overflow =
-        "hidden";
-}
-
-
-// ========================================
-// EXCLUIR
-// ========================================
-
-async function excluirPrato(id) {
-
-    const prato =
-        pratos.find(
-            item =>
-                Number(item.id) ===
-                Number(id)
-        );
-
-
-    if (!prato) {
-        return;
-    }
+    let pratosFiltrados =
+        [...pratos];
 
 
     if (
-        !confirm(
-            `Deseja excluir "${prato.nome}"?`
-        )
+        categoriaAtual !==
+        "Todos"
     ) {
 
-        return;
+        pratosFiltrados =
+            pratosFiltrados.filter(
+                prato =>
+                    prato.categoria ===
+                    categoriaAtual
+            );
+
     }
 
 
-    try {
+    if (textoPesquisa) {
 
-        const resposta =
-            await fetch(
-                `${API_URL}/pratos/${id}`,
-                {
-                    method: "DELETE"
+        pratosFiltrados =
+            pratosFiltrados.filter(
+                prato => {
+
+                    const nome =
+                        String(
+                            prato.nome || ""
+                        ).toLowerCase();
+
+
+                    const descricao =
+                        String(
+                            prato.descricao || ""
+                        ).toLowerCase();
+
+
+                    return (
+                        nome.includes(
+                            textoPesquisa
+                        ) ||
+
+                        descricao.includes(
+                            textoPesquisa
+                        )
+                    );
+
                 }
             );
 
-
-        const tipo =
-            resposta.headers.get(
-                "content-type"
-            ) || "";
+    }
 
 
-        if (
-            !tipo.includes(
-                "application/json"
-            )
-        ) {
-
-            throw new Error(
-                "O servidor não retornou JSON."
-            );
-
-        }
+    contador.textContent =
+        `${pratosFiltrados.length} prato(s) encontrado(s)`;
 
 
-        const resultado =
-            await resposta.json();
+    listaPratos.innerHTML = "";
 
 
-        if (!resposta.ok) {
+    if (
+        pratosFiltrados.length === 0
+    ) {
 
-            throw new Error(
-                resultado.erro ||
-                "Erro ao excluir."
-            );
+        listaPratos.innerHTML = `
 
-        }
+            <div class="sem-resultados">
 
+                <h3>
+                    🔎 Nenhum prato encontrado
+                </h3>
 
-        mostrarToast(
-            resultado.mensagem
-        );
+                <p>
+                    Tente pesquisar outro prato.
+                </p>
 
+            </div>
 
-        await carregarPratos();
+        `;
 
-
-    } catch (erro) {
-
-        console.error(erro);
-
-
-        mostrarToast(
-            erro.message
-        );
+        return;
 
     }
+
+
+    pratosFiltrados.forEach(
+        prato => {
+
+            listaPratos.appendChild(
+                criarCardPrato(prato)
+            );
+
+        }
+    );
+
 }
 
 
-// ========================================
-// PESQUISA
-// ========================================
+/* ========================================
+   CRIAR CARD
+======================================== */
+
+function criarCardPrato(prato) {
+
+    const card =
+        document.createElement("article");
+
+
+    card.className =
+        "prato";
+
+
+    const imagem =
+        prato.imagem ||
+        "https://via.placeholder.com/500x350?text=Sem+imagem";
+
+
+    const preco =
+        Number(
+            prato.preco ||
+            prato.valor ||
+            0
+        );
+
+
+    card.innerHTML = `
+
+        <img
+            class="prato-imagem"
+            src="${imagem}"
+            alt="${prato.nome || "Prato"}"
+            onerror="
+                this.src='https://via.placeholder.com/500x350?text=Sem+imagem'
+            "
+        >
+
+
+        <div class="prato-conteudo">
+
+            <h3>
+                ${prato.nome || "Prato sem nome"}
+            </h3>
+
+
+            <p class="prato-descricao">
+
+                ${
+                    prato.descricao ||
+                    "Delicioso prato do nosso restaurante."
+                }
+
+            </p>
+
+
+            ${
+                prato.categoria
+                ?
+                `
+                    <span class="prato-categoria">
+                        ${prato.categoria}
+                    </span>
+                `
+                :
+                ""
+            }
+
+
+            <div class="prato-rodape">
+
+                <span class="preco">
+
+                    ${formatarPreco(preco)}
+
+                </span>
+
+
+                <button
+                    class="botao-adicionar"
+                    data-id="${prato.id}"
+                >
+
+                    + Adicionar
+
+                </button>
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    const botao =
+        card.querySelector(
+            ".botao-adicionar"
+        );
+
+
+    botao.addEventListener(
+        "click",
+        () => {
+
+            adicionarAoCarrinho(
+                prato
+            );
+
+        }
+    );
+
+
+    return card;
+
+}
+
+
+/* ========================================
+   PESQUISA
+======================================== */
 
 pesquisa.addEventListener(
     "input",
@@ -1450,178 +481,530 @@ pesquisa.addEventListener(
 );
 
 
-// ========================================
-// CATEGORIAS
-// ========================================
+/* ========================================
+   CARRINHO
+======================================== */
 
-document
-    .querySelectorAll(".categoria")
-    .forEach(botao => {
+function configurarCarrinho() {
 
-        botao.addEventListener(
-            "click",
-            function () {
-
-                document
-                    .querySelectorAll(".categoria")
-                    .forEach(item => {
-
-                        item.classList.remove(
-                            "ativa"
-                        );
-
-                    });
-
-
-                this.classList.add(
-                    "ativa"
-                );
-
-
-                categoriaAtual =
-                    this.dataset.categoria;
-
-
-                mostrarPratos();
-
-            }
-        );
-
-    });
-
-
-// ========================================
-// FECHAR MODAL
-// ========================================
-
-modal.addEventListener(
-    "click",
-    function (evento) {
-
-        if (
-            evento.target === modal
-        ) {
-
-            fecharFormulario();
-
-        }
-
-    }
-);
-
-
-// ========================================
-// ESC
-// ========================================
-
-document.addEventListener(
-    "keydown",
-    function (evento) {
-
-        if (
-            evento.key === "Escape"
-        ) {
-
-            if (
-                modal.classList.contains(
-                    "aberto"
-                )
-            ) {
-
-                fecharFormulario();
-
-            }
-
-
-            const modalCarrinho =
-                document.getElementById(
-                    "modalCarrinho"
-                );
-
-
-            if (
-                modalCarrinho &&
-                modalCarrinho.classList.contains(
-                    "aberto"
-                )
-            ) {
-
-                fecharCarrinho();
-
-            }
-
-        }
-
-    }
-);
-
-
-// ========================================
-// TOAST
-// ========================================
-
-function mostrarToast(mensagem) {
-
-    toast.textContent =
-        mensagem;
-
-
-    toast.classList.add(
-        "mostrar"
+    abrirCarrinho.addEventListener(
+        "click",
+        abrirCarrinhoFunc
     );
 
 
-    setTimeout(() => {
+    fecharCarrinho.addEventListener(
+        "click",
+        fecharCarrinhoFunc
+    );
 
-        toast.classList.remove(
-            "mostrar"
-        );
 
-    }, 3000);
+    overlayCarrinho.addEventListener(
+        "click",
+        fecharCarrinhoFunc
+    );
+
+
+    continuarComprando.addEventListener(
+        "click",
+        fecharCarrinhoFunc
+    );
+
+
+    limparCarrinho.addEventListener(
+        "click",
+        () => {
+
+            if (
+                carrinho.length === 0
+            ) {
+
+                return;
+
+            }
+
+
+            carrinho = [];
+
+
+            atualizarCarrinho();
+
+        }
+    );
+
+
+    finalizarPedido.addEventListener(
+        "click",
+        finalizarWhatsApp
+    );
+
+
+    atualizarCarrinho();
+
 }
 
 
-// ========================================
-// SEGURANÇA
-// ========================================
+/* ========================================
+   ABRIR CARRINHO
+======================================== */
 
-function escaparHTML(texto) {
+function abrirCarrinhoFunc() {
 
-    return String(texto)
+    carrinhoElemento.classList.add(
+        "aberto"
+    );
 
-        .replace(
-            /&/g,
-            "&amp;"
-        )
 
-        .replace(
-            /</g,
-            "&lt;"
-        )
+    overlayCarrinho.classList.add(
+        "aberto"
+    );
 
-        .replace(
-            />/g,
-            "&gt;"
-        )
 
-        .replace(
-            /"/g,
-            "&quot;"
-        )
+    document.body.style.overflow =
+        "hidden";
 
-        .replace(
-            /'/g,
-            "&#039;"
-        );
 }
 
 
-// ========================================
-// INICIAR
-// ========================================
+/* ========================================
+   FECHAR CARRINHO
+======================================== */
 
-criarInterfaceCarrinho();
+function fecharCarrinhoFunc() {
 
-atualizarCarrinho();
+    carrinhoElemento.classList.remove(
+        "aberto"
+    );
 
-carregarPratos();
+
+    overlayCarrinho.classList.remove(
+        "aberto"
+    );
+
+
+    document.body.style.overflow =
+        "";
+
+}
+
+
+/* ========================================
+   ADICIONAR AO CARRINHO
+======================================== */
+
+function adicionarAoCarrinho(prato) {
+
+    const id =
+        Number(prato.id);
+
+
+    const existente =
+        carrinho.find(
+            item =>
+                Number(item.id) === id
+        );
+
+
+    if (existente) {
+
+        existente.quantidade++;
+
+    } else {
+
+        carrinho.push({
+
+            id: prato.id,
+
+            nome: prato.nome,
+
+            preco:
+                Number(
+                    prato.preco ||
+                    prato.valor ||
+                    0
+                ),
+
+            imagem:
+                prato.imagem || "",
+
+            quantidade: 1
+
+        });
+
+    }
+
+
+    atualizarCarrinho();
+
+
+    abrirCarrinhoFunc();
+
+}
+
+
+/* ========================================
+   ATUALIZAR CARRINHO
+======================================== */
+
+function atualizarCarrinho() {
+
+    const quantidadeTotal =
+        carrinho.reduce(
+            (total, item) =>
+                total +
+                item.quantidade,
+            0
+        );
+
+
+    contadorCarrinho.textContent =
+        quantidadeTotal;
+
+
+    const valorTotal =
+        carrinho.reduce(
+            (total, item) =>
+                total +
+                (
+                    item.preco *
+                    item.quantidade
+                ),
+            0
+        );
+
+
+    totalCarrinho.textContent =
+        formatarPreco(
+            valorTotal
+        );
+
+
+    finalizarPedido.disabled =
+        carrinho.length === 0;
+
+
+    renderizarCarrinho();
+
+}
+
+
+/* ========================================
+   RENDERIZAR CARRINHO
+======================================== */
+
+function renderizarCarrinho() {
+
+    if (
+        carrinho.length === 0
+    ) {
+
+        listaCarrinho.innerHTML = `
+
+            <div
+                id="carrinhoVazio"
+                class="carrinho-vazio"
+            >
+
+                <div class="icone-vazio">
+                    🛒
+                </div>
+
+                <h3>
+                    Seu carrinho está vazio
+                </h3>
+
+                <p>
+                    Adicione pratos para começar seu pedido.
+                </p>
+
+                <button
+                    id="continuarComprando"
+                    class="botao-continuar"
+                >
+
+                    Ver cardápio
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        document
+            .getElementById(
+                "continuarComprando"
+            )
+            .addEventListener(
+                "click",
+                fecharCarrinhoFunc
+            );
+
+
+        return;
+
+    }
+
+
+    listaCarrinho.innerHTML = "";
+
+
+    carrinho.forEach(
+        item => {
+
+            const elemento =
+                document.createElement(
+                    "div"
+                );
+
+
+            elemento.className =
+                "item-carrinho";
+
+
+            const imagem =
+                item.imagem ||
+                "https://via.placeholder.com/100?text=Prato";
+
+
+            elemento.innerHTML = `
+
+                <img
+                    class="item-carrinho-imagem"
+                    src="${imagem}"
+                    alt="${item.nome}"
+                >
+
+
+                <div
+                    class="item-carrinho-info"
+                >
+
+                    <h4>
+                        ${item.nome}
+                    </h4>
+
+
+                    <div
+                        class="item-carrinho-preco"
+                    >
+
+                        ${formatarPreco(item.preco)}
+
+                    </div>
+
+
+                    <div
+                        class="quantidade"
+                    >
+
+                        <button
+                            data-acao="diminuir"
+                            data-id="${item.id}"
+                        >
+                            −
+                        </button>
+
+
+                        <span>
+                            ${item.quantidade}
+                        </span>
+
+
+                        <button
+                            data-acao="aumentar"
+                            data-id="${item.id}"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            elemento
+                .querySelectorAll(
+                    "button"
+                )
+                .forEach(
+                    botao => {
+
+                        botao.addEventListener(
+                            "click",
+                            () => {
+
+                                alterarQuantidade(
+                                    item.id,
+                                    botao.dataset.acao
+                                );
+
+                            }
+                        );
+
+                    }
+                );
+
+
+            listaCarrinho.appendChild(
+                elemento
+            );
+
+        }
+    );
+
+}
+
+
+/* ========================================
+   ALTERAR QUANTIDADE
+======================================== */
+
+function alterarQuantidade(
+    id,
+    acao
+) {
+
+    const item =
+        carrinho.find(
+            produto =>
+                Number(produto.id) ===
+                Number(id)
+        );
+
+
+    if (!item) {
+
+        return;
+
+    }
+
+
+    if (
+        acao ===
+        "aumentar"
+    ) {
+
+        item.quantidade++;
+
+    }
+
+
+    if (
+        acao ===
+        "diminuir"
+    ) {
+
+        item.quantidade--;
+
+    }
+
+
+    if (
+        item.quantidade <= 0
+    ) {
+
+        carrinho =
+            carrinho.filter(
+                produto =>
+                    Number(produto.id) !==
+                    Number(id)
+            );
+
+    }
+
+
+    atualizarCarrinho();
+
+}
+
+
+/* ========================================
+   FINALIZAR WHATSAPP
+======================================== */
+
+function finalizarWhatsApp() {
+
+    if (
+        carrinho.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    let mensagem =
+        "🍽️ *NOVO PEDIDO*%0A%0A";
+
+
+    carrinho.forEach(
+        item => {
+
+            mensagem +=
+                `• ${item.nome} x${item.quantidade} - ${formatarPreco(item.preco * item.quantidade)}%0A`;
+
+        }
+    );
+
+
+    const total =
+        carrinho.reduce(
+            (soma, item) =>
+                soma +
+                (
+                    item.preco *
+                    item.quantidade
+                ),
+            0
+        );
+
+
+    mensagem +=
+        `%0A💰 *Total: ${formatarPreco(total)}*`;
+
+
+    /*
+       TROQUE PELO NÚMERO DO RESTAURANTE
+
+       Exemplo:
+       5579999999999
+
+       55 = Brasil
+       79 = Sergipe
+    */
+
+    const numeroWhatsApp =
+        "5579981021378";
+
+
+    const url =
+        `https://wa.me/${numeroWhatsApp}?text=${mensagem}`;
+
+
+    window.open(
+        url,
+        "_blank"
+    );
+
+}
+
+
+/* ========================================
+   FORMATAR PREÇO
+======================================== */
+
+function formatarPreco(valor) {
+
+    return Number(valor || 0)
+        .toLocaleString(
+            "pt-BR",
+            {
+                style: "currency",
+                currency: "BRL"
+            }
+        );
+
+}
