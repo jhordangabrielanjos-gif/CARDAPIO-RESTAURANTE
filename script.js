@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000";
+const API_URL = "https://cardapio-restaurante-2cun.onrender.com";
 
 let pratos = [];
 let categoriaAtual = "Todos";
