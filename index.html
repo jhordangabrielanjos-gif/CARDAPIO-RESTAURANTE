@@ -2,92 +2,73 @@
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>Cardápio Restaurante</title>
 
-    <title>Meu Restaurante</title>
-
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-
-    <!-- =====================================
-         HEADER
-    ====================================== -->
+    <!-- ================================
+         CABEÇALHO
+    ================================= -->
 
     <header class="header">
 
-        <div class="logo">
+        <div class="header-conteudo">
 
-            <span class="logo-icon">
+            <div class="logo">
                 🍽️
-            </span>
-
-            <div>
-
-                <h1>
-                    Meu Restaurante
-                </h1>
-
-                <p>
-                    Cardápio Digital
-                </p>
-
+                <div>
+                    <h1>Meu Restaurante</h1>
+                    <span>Cardápio online</span>
+                </div>
             </div>
 
+            <!-- BOTÃO DO CARRINHO -->
+
+            <button id="abrirCarrinho" class="botao-carrinho">
+
+                🛒
+
+                <span>
+                    Meu pedido
+                </span>
+
+                <strong id="contadorCarrinho">
+                    0
+                </strong>
+
+            </button>
+
         </div>
-
-
-        <button
-            class="btn-novo"
-            onclick="abrirFormulario()"
-        >
-            + Novo prato
-        </button>
 
     </header>
 
 
-    <!-- =====================================
-         CONTEÚDO
-    ====================================== -->
+    <!-- ================================
+         CONTEÚDO PRINCIPAL
+    ================================= -->
 
-    <main class="container">
-
-
-        <!-- =====================================
-             HERO
-        ====================================== -->
+    <main>
 
         <section class="hero">
 
             <div>
 
-                <span class="tag">
-                    🍴 CARDÁPIO
+                <span class="hero-tag">
+                    🍴 Faça seu pedido
                 </span>
 
                 <h2>
-                    Sabores que fazem
-                    <span>
-                        você voltar.
-                    </span>
+                    Nosso Cardápio
                 </h2>
 
                 <p>
-                    Confira nossos pratos e escolha
-                    o seu favorito.
+                    Escolha seus pratos favoritos e monte seu pedido.
                 </p>
 
             </div>
@@ -95,436 +76,174 @@
         </section>
 
 
-        <!-- =====================================
-             CONTROLES
-        ====================================== -->
+        <!-- PESQUISA -->
 
-        <section class="controles">
+        <section class="filtros">
 
-
-            <!-- PESQUISA -->
-
-            <div class="pesquisa">
-
-                <span>
-                    🔎
-                </span>
-
-                <input
-                    type="text"
-                    id="pesquisa"
-                    placeholder="Buscar prato..."
-                >
-
-            </div>
-
-
-            <!-- CATEGORIAS -->
-
-            <div
-                class="categorias"
-                id="categorias"
+            <input
+                type="text"
+                id="pesquisa"
+                placeholder="🔎 Pesquisar prato..."
             >
 
-                <button
-                    class="categoria ativa"
-                    data-categoria="Todos"
-                >
-                    Todos
-                </button>
-
-
-                <button
-                    class="categoria"
-                    data-categoria="Hambúrgueres"
-                >
-                    🍔 Hambúrgueres
-                </button>
-
-
-                <button
-                    class="categoria"
-                    data-categoria="Pizzas"
-                >
-                    🍕 Pizzas
-                </button>
-
-
-                <button
-                    class="categoria"
-                    data-categoria="Massas"
-                >
-                    🍝 Massas
-                </button>
-
-
-                <button
-                    class="categoria"
-                    data-categoria="Bebidas"
-                >
-                    🥤 Bebidas
-                </button>
-
-
-                <button
-                    class="categoria"
-                    data-categoria="Sobremesas"
-                >
-                    🍰 Sobremesas
-                </button>
-
+            <div
+                id="categorias"
+                class="categorias">
             </div>
 
         </section>
 
 
-        <!-- =====================================
-             CONTADOR
-        ====================================== -->
+        <!-- CONTADOR -->
 
-        <div class="titulo-cardapio">
+        <div class="resultado">
 
-            <div>
-
-                <h2>
-                    Nosso cardápio
-                </h2>
-
-                <p id="contador">
-                    Carregando pratos...
-                </p>
-
-            </div>
+            <span id="contador">
+                Carregando pratos...
+            </span>
 
         </div>
 
 
-        <!-- =====================================
-             CARDS
-        ====================================== -->
+        <!-- LISTA DE PRATOS -->
 
         <section
-            class="grid-pratos"
             id="listaPratos"
-        >
-
-            <div class="loading">
-
-                <div class="spinner"></div>
-
-                <p>
-                    Carregando cardápio...
-                </p>
-
-            </div>
+            class="lista-pratos">
 
         </section>
 
     </main>
 
 
-    <!-- =====================================
-         MODAL
-    ====================================== -->
+    <!-- ==================================================
+         CARRINHO
+         AGORA ELE ESTÁ DIRETAMENTE NO HTML
+    =================================================== -->
 
     <div
-        class="modal"
-        id="modal"
-    >
-
-        <div class="modal-conteudo">
+        id="overlayCarrinho"
+        class="overlay-carrinho">
+    </div>
 
 
-            <!-- BOTÃO FECHAR -->
+    <aside
+        id="carrinho"
+        class="carrinho">
 
-            <button
-                class="fechar"
-                onclick="fecharFormulario()"
-            >
-                ×
-            </button>
+        <!-- CABEÇALHO DO CARRINHO -->
 
+        <div class="carrinho-header">
 
-            <!-- CABEÇALHO -->
+            <div>
 
-            <div class="modal-header">
-
-                <span>
-                    🍽️
+                <span class="carrinho-icone">
+                    🛒
                 </span>
 
                 <div>
 
-                    <h2 id="tituloFormulario">
-                        Novo prato
+                    <h2>
+                        Meu pedido
                     </h2>
 
-                    <p>
-                        Adicione um prato ao seu cardápio
-                    </p>
+                    <small>
+                        Confira seus itens
+                    </small>
 
                 </div>
 
             </div>
 
 
-            <!-- =====================================
-                 FORMULÁRIO
-            ====================================== -->
+            <button
+                id="fecharCarrinho"
+                class="fechar-carrinho">
 
-            <form id="formPrato">
+                ✕
 
-
-                <!-- NOME -->
-
-                <div class="campo">
-
-                    <label for="nome">
-                        Nome do prato
-                    </label>
-
-                    <input
-                        type="text"
-                        id="nome"
-                        placeholder="Ex: X-Bacon Especial"
-                        required
-                    >
-
-                </div>
-
-
-                <!-- =====================================
-                     PREÇO + CATEGORIA
-                ====================================== -->
-
-                <div class="linha">
-
-
-                    <!-- PREÇO -->
-
-                    <div class="campo">
-
-                        <label for="preco">
-                            Preço
-                        </label>
-
-                        <div class="input-preco">
-
-                            <span>
-                                R$
-                            </span>
-
-                            <input
-                                type="number"
-                                id="preco"
-                                placeholder="0,00"
-                                step="0.01"
-                                min="0"
-                                required
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- CATEGORIA -->
-
-                    <div class="campo">
-
-                        <label for="categoria">
-                            Categoria
-                        </label>
-
-                        <select
-                            id="categoria"
-                            required
-                        >
-
-                            <option value="">
-                                Escolha
-                            </option>
-
-                            <option value="Hambúrgueres">
-                                🍔 Hambúrgueres
-                            </option>
-
-                            <option value="Pizzas">
-                                🍕 Pizzas
-                            </option>
-
-                            <option value="Massas">
-                                🍝 Massas
-                            </option>
-
-                            <option value="Bebidas">
-                                🥤 Bebidas
-                            </option>
-
-                            <option value="Sobremesas">
-                                🍰 Sobremesas
-                            </option>
-
-                            <option value="Outros">
-                                🍽️ Outros
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <!-- =====================================
-                     DESCRIÇÃO
-                ====================================== -->
-
-                <div class="campo">
-
-                    <label for="descricao">
-                        Descrição
-                    </label>
-
-                    <textarea
-                        id="descricao"
-                        placeholder="Descreva os ingredientes e detalhes do prato..."
-                        rows="4"
-                    ></textarea>
-
-                </div>
-
-
-                <!-- =====================================
-                     IMAGEM
-                ====================================== -->
-
-                <div class="campo">
-
-                    <label>
-                        🖼️ Imagem do prato
-                    </label>
-
-
-                    <div class="upload-imagem">
-
-                        <input
-                            type="file"
-                            id="imagem"
-                            accept="image/*"
-                            hidden
-                        >
-
-
-                        <label
-                            for="imagem"
-                            class="btn-escolher-imagem"
-                        >
-
-                            <span class="upload-icone">
-                                📷
-                            </span>
-
-
-                            <span class="upload-texto">
-
-                                <strong>
-                                    Escolher imagem
-                                </strong>
-
-                                <small>
-                                    Clique para selecionar uma foto
-                                </small>
-
-                            </span>
-
-
-                            <span class="upload-seta">
-                                →
-                            </span>
-
-                        </label>
-
-                    </div>
-
-
-                    <small>
-                        Formatos: JPG, PNG, WEBP.
-                        Tamanho máximo: 5 MB.
-                    </small>
-
-                </div>
-
-
-                <!-- =====================================
-                     PREVIEW
-                ====================================== -->
-
-                <div
-                    class="preview"
-                    id="preview"
-                >
-
-                    <span>
-                        🖼️
-                    </span>
-
-                    <p>
-                        A imagem aparecerá aqui
-                    </p>
-
-                </div>
-
-
-                <!-- =====================================
-                     BOTÕES
-                ====================================== -->
-
-                <div class="botoes-form">
-
-
-                    <button
-                        type="button"
-                        class="btn-cancelar"
-                        onclick="fecharFormulario()"
-                    >
-                        Cancelar
-                    </button>
-
-
-                    <button
-                        type="submit"
-                        class="btn-salvar"
-                    >
-
-                        <span id="textoBotao">
-                            Cadastrar prato
-                        </span>
-
-                    </button>
-
-                </div>
-
-            </form>
+            </button>
 
         </div>
 
-    </div>
+
+        <!-- ITENS -->
+
+        <div
+            id="listaCarrinho"
+            class="lista-carrinho">
+
+            <div
+                id="carrinhoVazio"
+                class="carrinho-vazio">
+
+                <div class="icone-vazio">
+                    🛒
+                </div>
+
+                <h3>
+                    Seu carrinho está vazio
+                </h3>
+
+                <p>
+                    Adicione pratos para começar seu pedido.
+                </p>
+
+                <button
+                    id="continuarComprando"
+                    class="botao-continuar">
+
+                    Ver cardápio
+
+                </button>
+
+            </div>
+
+        </div>
 
 
-    <!-- =====================================
-         TOAST
-    ====================================== -->
+        <!-- RODAPÉ DO CARRINHO -->
 
-    <div
-        class="toast"
-        id="toast"
-    ></div>
+        <div class="carrinho-footer">
+
+            <div class="linha-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="totalCarrinho">
+                    R$ 0,00
+                </strong>
+
+            </div>
 
 
-    <!-- =====================================
+            <button
+                id="finalizarPedido"
+                class="botao-whatsapp"
+                disabled>
+
+                📱 Finalizar pelo WhatsApp
+
+            </button>
+
+            <button
+                id="limparCarrinho"
+                class="botao-limpar">
+
+                🗑️ Limpar pedido
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================================
          JAVASCRIPT
-    ====================================== -->
+    ================================= -->
 
     <script src="script.js"></script>
 
