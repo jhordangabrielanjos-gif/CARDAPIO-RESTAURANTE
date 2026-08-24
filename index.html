@@ -21,6 +21,7 @@
 
 <body>
 
+
     <!-- =====================================
          HEADER
     ====================================== -->
@@ -29,14 +30,24 @@
 
         <div class="logo">
 
-            <span class="logo-icon">🍽️</span>
+            <span class="logo-icon">
+                🍽️
+            </span>
 
             <div>
-                <h1>Meu Restaurante</h1>
-                <p>Cardápio Digital</p>
+
+                <h1>
+                    Meu Restaurante
+                </h1>
+
+                <p>
+                    Cardápio Digital
+                </p>
+
             </div>
 
         </div>
+
 
         <button
             class="btn-novo"
@@ -55,7 +66,9 @@
     <main class="container">
 
 
-        <!-- APRESENTAÇÃO -->
+        <!-- =====================================
+             HERO
+        ====================================== -->
 
         <section class="hero">
 
@@ -67,7 +80,9 @@
 
                 <h2>
                     Sabores que fazem
-                    <span>você voltar.</span>
+                    <span>
+                        você voltar.
+                    </span>
                 </h2>
 
                 <p>
@@ -86,9 +101,14 @@
 
         <section class="controles">
 
+
+            <!-- PESQUISA -->
+
             <div class="pesquisa">
 
-                <span>🔎</span>
+                <span>
+                    🔎
+                </span>
 
                 <input
                     type="text"
@@ -97,6 +117,9 @@
                 >
 
             </div>
+
+
+            <!-- CATEGORIAS -->
 
             <div
                 class="categorias"
@@ -110,12 +133,14 @@
                     Todos
                 </button>
 
+
                 <button
                     class="categoria"
                     data-categoria="Hambúrgueres"
                 >
                     🍔 Hambúrgueres
                 </button>
+
 
                 <button
                     class="categoria"
@@ -124,6 +149,7 @@
                     🍕 Pizzas
                 </button>
 
+
                 <button
                     class="categoria"
                     data-categoria="Massas"
@@ -131,12 +157,14 @@
                     🍝 Massas
                 </button>
 
+
                 <button
                     class="categoria"
                     data-categoria="Bebidas"
                 >
                     🥤 Bebidas
                 </button>
+
 
                 <button
                     class="categoria"
@@ -157,10 +185,15 @@
         <div class="titulo-cardapio">
 
             <div>
-                <h2>Nosso cardápio</h2>
+
+                <h2>
+                    Nosso cardápio
+                </h2>
+
                 <p id="contador">
                     Carregando pratos...
                 </p>
+
             </div>
 
         </div>
@@ -179,7 +212,9 @@
 
                 <div class="spinner"></div>
 
-                <p>Carregando cardápio...</p>
+                <p>
+                    Carregando cardápio...
+                </p>
 
             </div>
 
@@ -199,6 +234,9 @@
 
         <div class="modal-conteudo">
 
+
+            <!-- BOTÃO FECHAR -->
+
             <button
                 class="fechar"
                 onclick="fecharFormulario()"
@@ -206,11 +244,17 @@
                 ×
             </button>
 
+
+            <!-- CABEÇALHO -->
+
             <div class="modal-header">
 
-                <span>🍽️</span>
+                <span>
+                    🍽️
+                </span>
 
                 <div>
+
                     <h2 id="tituloFormulario">
                         Novo prato
                     </h2>
@@ -218,14 +262,20 @@
                     <p>
                         Adicione um prato ao seu cardápio
                     </p>
+
                 </div>
 
             </div>
 
 
-            <!-- FORMULÁRIO -->
+            <!-- =====================================
+                 FORMULÁRIO
+            ====================================== -->
 
             <form id="formPrato">
+
+
+                <!-- NOME -->
 
                 <div class="campo">
 
@@ -243,7 +293,14 @@
                 </div>
 
 
+                <!-- =====================================
+                     PREÇO + CATEGORIA
+                ====================================== -->
+
                 <div class="linha">
+
+
+                    <!-- PREÇO -->
 
                     <div class="campo">
 
@@ -253,7 +310,9 @@
 
                         <div class="input-preco">
 
-                            <span>R$</span>
+                            <span>
+                                R$
+                            </span>
 
                             <input
                                 type="number"
@@ -269,13 +328,18 @@
                     </div>
 
 
+                    <!-- CATEGORIA -->
+
                     <div class="campo">
 
                         <label for="categoria">
                             Categoria
                         </label>
 
-                        <select id="categoria" required>
+                        <select
+                            id="categoria"
+                            required
+                        >
 
                             <option value="">
                                 Escolha
@@ -312,6 +376,10 @@
                 </div>
 
 
+                <!-- =====================================
+                     DESCRIÇÃO
+                ====================================== -->
+
                 <div class="campo">
 
                     <label for="descricao">
@@ -327,33 +395,79 @@
                 </div>
 
 
+                <!-- =====================================
+                     IMAGEM
+                ====================================== -->
+
                 <div class="campo">
 
-                    <label for="imagem">
-                        🖼️ URL da imagem
+                    <label>
+                        🖼️ Imagem do prato
                     </label>
 
-                    <input
-                        type="url"
-                        id="imagem"
-                        placeholder="https://exemplo.com/imagem.jpg"
-                    >
+
+                    <div class="upload-imagem">
+
+                        <input
+                            type="file"
+                            id="imagem"
+                            accept="image/*"
+                            hidden
+                        >
+
+
+                        <label
+                            for="imagem"
+                            class="btn-escolher-imagem"
+                        >
+
+                            <span class="upload-icone">
+                                📷
+                            </span>
+
+
+                            <span class="upload-texto">
+
+                                <strong>
+                                    Escolher imagem
+                                </strong>
+
+                                <small>
+                                    Clique para selecionar uma foto
+                                </small>
+
+                            </span>
+
+
+                            <span class="upload-seta">
+                                →
+                            </span>
+
+                        </label>
+
+                    </div>
+
 
                     <small>
-                        Cole aqui o endereço da imagem do prato.
+                        Formatos: JPG, PNG, WEBP.
+                        Tamanho máximo: 5 MB.
                     </small>
 
                 </div>
 
 
-                <!-- PREVIEW -->
+                <!-- =====================================
+                     PREVIEW
+                ====================================== -->
 
                 <div
                     class="preview"
                     id="preview"
                 >
 
-                    <span>🖼️</span>
+                    <span>
+                        🖼️
+                    </span>
 
                     <p>
                         A imagem aparecerá aqui
@@ -362,7 +476,12 @@
                 </div>
 
 
+                <!-- =====================================
+                     BOTÕES
+                ====================================== -->
+
                 <div class="botoes-form">
+
 
                     <button
                         type="button"
@@ -372,13 +491,16 @@
                         Cancelar
                     </button>
 
+
                     <button
                         type="submit"
                         class="btn-salvar"
                     >
+
                         <span id="textoBotao">
                             Cadastrar prato
                         </span>
+
                     </button>
 
                 </div>
@@ -390,13 +512,19 @@
     </div>
 
 
-    <!-- TOAST -->
+    <!-- =====================================
+         TOAST
+    ====================================== -->
 
     <div
         class="toast"
         id="toast"
     ></div>
 
+
+    <!-- =====================================
+         JAVASCRIPT
+    ====================================== -->
 
     <script src="script.js"></script>
 
