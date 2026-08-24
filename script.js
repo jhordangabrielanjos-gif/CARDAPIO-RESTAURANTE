@@ -1,4 +1,4 @@
-const API_URL = "";
+const API_URL = "http://localhost:3000";
 
 let pratos = [];
 let categoriaAtual = "Todos";
