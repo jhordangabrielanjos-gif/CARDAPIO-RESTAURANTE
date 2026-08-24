@@ -14,12 +14,24 @@ html {
 
 body {
     font-family: Arial, Helvetica, sans-serif;
-
-    background: #f6f6f6;
-
+    background: #f7f7f7;
     color: #222;
-
     min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+body.sem-scroll {
+    overflow: hidden;
 }
 
 
@@ -28,55 +40,68 @@ body {
 ======================================== */
 
 .header {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+
     width: 100%;
 
-    background: #ffffff;
+    background: white;
 
     border-bottom: 1px solid #eeeeee;
 
-    position: sticky;
-
-    top: 0;
-
-    z-index: 1000;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .header-conteudo {
-    max-width: 1200px;
+    width: 90%;
+    max-width: 1250px;
+
+    min-height: 78px;
 
     margin: auto;
 
-    padding: 16px 20px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
     gap: 20px;
 }
 
 
-/* LOGO */
+/* ========================================
+   LOGO
+======================================== */
 
 .logo {
     display: flex;
-
     align-items: center;
 
     gap: 12px;
 }
 
-.logo > span,
-.logo:first-child {
-    font-size: 35px;
+.logo-icone {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #ff6b35;
+
+    border-radius: 14px;
+
+    font-size: 24px;
+
+    box-shadow:
+        0 7px 18px rgba(255, 107, 53, 0.25);
 }
 
 .logo h1 {
-    font-size: 21px;
-
-    color: #222;
+    font-size: 19px;
+    font-weight: 800;
 }
 
 .logo span {
@@ -84,20 +109,20 @@ body {
 
     margin-top: 3px;
 
-    color: #777;
+    color: #999;
 
-    font-size: 13px;
+    font-size: 12px;
 }
 
 
 /* ========================================
-   BOTÃO CARRINHO
+   NOVO PRATO
 ======================================== */
 
-.botao-carrinho {
+.btn-novo {
     border: none;
 
-    background: #ff6b00;
+    background: #ff6b35;
 
     color: white;
 
@@ -105,45 +130,30 @@ body {
 
     border-radius: 12px;
 
-    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
 
-    font-size: 15px;
-
-    font-weight: bold;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
-
-    transition: 0.2s;
+    transition: 0.25s;
 }
 
-.botao-carrinho:hover {
-    background: #e85d00;
+.btn-novo:hover {
+    background: #e95725;
 
     transform: translateY(-2px);
 }
 
-.botao-carrinho strong {
-    min-width: 23px;
 
-    height: 23px;
+/* ========================================
+   CONTAINER
+======================================== */
 
-    border-radius: 50%;
+.container {
+    width: 90%;
+    max-width: 1250px;
 
-    background: white;
+    margin: auto;
 
-    color: #ff6b00;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 12px;
+    padding-bottom: 100px;
 }
 
 
@@ -152,42 +162,88 @@ body {
 ======================================== */
 
 .hero {
-    max-width: 1200px;
+    position: relative;
 
-    margin: 25px auto;
+    min-height: 300px;
 
-    padding: 45px 30px;
+    margin-top: 32px;
 
-    border-radius: 20px;
+    padding: 50px;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    border-radius: 25px;
+
+    color: white;
 
     background:
         linear-gradient(
-            135deg,
-            #ff6b00,
-            #ff8c32
-        );
+            90deg,
+            rgba(0, 0, 0, 0.85),
+            rgba(0, 0, 0, 0.45)
+        ),
+        url("img/fundo-restaurante.jpg");
 
-    color: white;
+    background-size: cover;
+    background-position: center;
+}
+
+.hero > div {
+    position: relative;
+    z-index: 2;
+}
+
+.hero::after {
+    content: "🍔";
+
+    position: absolute;
+
+    right: 7%;
+    bottom: -30px;
+
+    font-size: 160px;
+
+    opacity: 0.12;
+
+    transform: rotate(-12deg);
 }
 
 .hero-tag {
-    font-size: 14px;
+    display: inline-block;
 
-    opacity: 0.9;
+    padding: 8px 13px;
+
+    margin-bottom: 15px;
+
+    border-radius: 20px;
+
+    background: white;
+
+    color: #ff6b35;
+
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .hero h2 {
-    font-size: 40px;
+    font-size: 44px;
 
-    margin-top: 10px;
+    line-height: 1.1;
 
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+}
+
+.hero h2 span {
+    color: #ff7b45;
 }
 
 .hero p {
-    font-size: 17px;
+    color: #eeeeee;
 
-    opacity: 0.95;
+    font-size: 15px;
 }
 
 
@@ -196,72 +252,92 @@ body {
 ======================================== */
 
 .filtros {
-    max-width: 1200px;
-
-    margin: 25px auto 10px;
-
-    padding: 0 20px;
+    margin-top: 30px;
 }
 
-#pesquisa {
-    width: 100%;
+.pesquisa {
+    height: 54px;
 
-    height: 50px;
+    display: flex;
+    align-items: center;
 
-    padding: 0 18px;
+    gap: 10px;
 
-    border: 1px solid #ddd;
-
-    border-radius: 12px;
-
-    outline: none;
+    padding: 0 17px;
 
     background: white;
 
-    font-size: 15px;
+    border: 1px solid #eeeeee;
 
-    margin-bottom: 15px;
+    border-radius: 14px;
+
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.03);
 }
 
-#pesquisa:focus {
-    border-color: #ff6b00;
+.pesquisa span {
+    font-size: 18px;
+}
+
+.pesquisa input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    font-size: 14px;
+
+    background: transparent;
+}
+
+.pesquisa input::placeholder {
+    color: #aaa;
 }
 
 
-/* CATEGORIAS */
+/* ========================================
+   CATEGORIAS
+======================================== */
 
 .categorias {
     display: flex;
 
-    gap: 10px;
+    gap: 9px;
 
-    overflow-x: auto;
+    flex-wrap: wrap;
 
-    padding-bottom: 5px;
+    margin-top: 15px;
 }
 
-.categorias button {
-    border: none;
+.categoria {
+    border: 1px solid #e5e5e5;
 
     background: white;
 
-    padding: 10px 18px;
+    color: #555;
 
-    border-radius: 20px;
+    padding: 10px 15px;
 
-    cursor: pointer;
+    border-radius: 12px;
 
-    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 700;
 
-    border: 1px solid #eee;
+    transition: 0.2s;
 }
 
-.categorias button.ativo {
-    background: #ff6b00;
+.categoria:hover {
+    border-color: #ff6b35;
+
+    color: #ff6b35;
+}
+
+.categoria.ativa {
+    background: #ff6b35;
 
     color: white;
 
-    border-color: #ff6b00;
+    border-color: #ff6b35;
 }
 
 
@@ -270,156 +346,310 @@ body {
 ======================================== */
 
 .resultado {
-    max-width: 1200px;
+    margin-top: 30px;
+    margin-bottom: 18px;
 
-    margin: 20px auto;
+    color: #888;
 
-    padding: 0 20px;
-
-    color: #777;
-
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 
 /* ========================================
-   PRATOS
+   LISTA
 ======================================== */
 
 .lista-pratos {
-    max-width: 1200px;
-
-    margin: auto;
-
-    padding: 0 20px 50px;
-
     display: grid;
 
     grid-template-columns:
         repeat(
             auto-fill,
-            minmax(250px, 1fr)
+            minmax(270px, 1fr)
         );
 
-    gap: 20px;
-}
-
-
-/* CARD */
-
-.prato {
-    background: white;
-
-    border-radius: 16px;
-
-    overflow: hidden;
-
-    box-shadow:
-        0 5px 20px rgba(0,0,0,0.06);
-
-    transition: 0.2s;
-}
-
-.prato:hover {
-    transform: translateY(-4px);
-
-    box-shadow:
-        0 10px 25px rgba(0,0,0,0.10);
-}
-
-.prato-imagem {
-    width: 100%;
-
-    height: 200px;
-
-    object-fit: cover;
-
-    display: block;
-}
-
-.prato-conteudo {
-    padding: 17px;
-}
-
-.prato-conteudo h3 {
-    font-size: 19px;
-
-    margin-bottom: 8px;
-}
-
-.prato-descricao {
-    color: #777;
-
-    font-size: 14px;
-
-    line-height: 1.5;
-
-    min-height: 42px;
-}
-
-.prato-categoria {
-    display: inline-block;
-
-    margin-top: 10px;
-
-    padding: 5px 9px;
-
-    border-radius: 20px;
-
-    background: #fff0e5;
-
-    color: #ff6b00;
-
-    font-size: 11px;
-
-    font-weight: bold;
-}
-
-.prato-rodape {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    margin-top: 17px;
-
-    gap: 10px;
-}
-
-.preco {
-    font-size: 20px;
-
-    font-weight: bold;
-
-    color: #ff6b00;
-}
-
-.botao-adicionar {
-    border: none;
-
-    background: #ff6b00;
-
-    color: white;
-
-    padding: 10px 14px;
-
-    border-radius: 10px;
-
-    cursor: pointer;
-
-    font-weight: bold;
-
-    transition: 0.2s;
-}
-
-.botao-adicionar:hover {
-    background: #e85d00;
+    gap: 24px;
 }
 
 
 /* ========================================
-   OVERLAY DO CARRINHO
+   CARD
+======================================== */
+
+.card {
+    overflow: hidden;
+
+    background: white;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.05);
+
+    transition: 0.25s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.10);
+}
+
+
+/* ========================================
+   IMAGEM
+======================================== */
+
+.card-imagem {
+    position: relative;
+
+    width: 100%;
+    height: 210px;
+
+    overflow: hidden;
+
+    background: #eeeeee;
+}
+
+.card-imagem img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition: 0.4s;
+}
+
+.card:hover .card-imagem img {
+    transform: scale(1.05);
+}
+
+.sem-imagem {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 55px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f4f4f4,
+            #e8e8e8
+        );
+}
+
+.card-categoria {
+    position: absolute;
+
+    top: 12px;
+    left: 12px;
+
+    padding: 7px 11px;
+
+    border-radius: 20px;
+
+    background: white;
+
+    color: #ff6b35;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.10);
+}
+
+
+/* ========================================
+   CORPO
+======================================== */
+
+.card-corpo {
+    padding: 18px;
+}
+
+.card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.card-topo h3 {
+    font-size: 18px;
+
+    line-height: 1.3;
+}
+
+.preco {
+    color: #ff6b35;
+
+    font-size: 15px;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.descricao {
+    min-height: 42px;
+
+    margin-top: 10px;
+
+    color: #777;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   ADICIONAR
+======================================== */
+
+.btn-adicionar-pedido {
+    width: 100%;
+
+    margin-top: 17px;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #25d366;
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    box-shadow:
+        0 6px 15px rgba(37, 211, 102, 0.18);
+
+    transition: 0.2s;
+}
+
+.btn-adicionar-pedido:hover {
+    background: #20bd5a;
+
+    transform: translateY(-2px);
+}
+
+
+/* ========================================
+   AÇÕES
+======================================== */
+
+.acoes {
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.btn-editar,
+.btn-excluir {
+    flex: 1;
+
+    padding: 10px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.btn-editar {
+    background: #fff1eb;
+
+    color: #ff6b35;
+}
+
+.btn-editar:hover {
+    background: #ff6b35;
+    color: white;
+}
+
+.btn-excluir {
+    background: #f2f2f2;
+
+    color: #777;
+}
+
+.btn-excluir:hover {
+    background: #e74c3c;
+
+    color: white;
+}
+
+
+/* ========================================
+   LOADING
+======================================== */
+
+.loading {
+    grid-column: 1 / -1;
+
+    min-height: 250px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    text-align: center;
+
+    color: #888;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+
+    border: 4px solid #eeeeee;
+
+    border-top-color: #ff6b35;
+
+    border-radius: 50%;
+
+    animation:
+        girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.erro-icone {
+    font-size: 50px;
+}
+
+
+/* ========================================
+   CARRINHO - OVERLAY
 ======================================== */
 
 .overlay-carrinho {
@@ -427,20 +657,21 @@ body {
 
     inset: 0;
 
-    background: rgba(0,0,0,0.5);
+    background:
+        rgba(0, 0, 0, 0.55);
 
-    z-index: 1998;
+    backdrop-filter: blur(3px);
 
     opacity: 0;
-
     visibility: hidden;
 
     transition: 0.25s;
+
+    z-index: 1000;
 }
 
 .overlay-carrinho.aberto {
     opacity: 1;
-
     visibility: visible;
 }
 
@@ -453,29 +684,27 @@ body {
     position: fixed;
 
     top: 0;
-
     right: 0;
 
-    width: 420px;
-
+    width: 430px;
     max-width: 100%;
 
     height: 100vh;
 
+    display: flex;
+    flex-direction: column;
+
     background: white;
 
-    z-index: 1999;
-
-    display: flex;
-
-    flex-direction: column;
+    box-shadow:
+        -10px 0 40px rgba(0, 0, 0, 0.18);
 
     transform: translateX(100%);
 
-    transition: transform 0.3s ease;
+    transition:
+        transform 0.3s ease;
 
-    box-shadow:
-        -10px 0 30px rgba(0,0,0,0.15);
+    z-index: 1100;
 }
 
 .carrinho.aberto {
@@ -488,18 +717,18 @@ body {
 ======================================== */
 
 .carrinho-header {
-    padding: 20px;
+    min-height: 85px;
 
-    border-bottom: 1px solid #eee;
+    padding: 18px 20px;
 
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
+
+    border-bottom: 1px solid #eeeeee;
 }
 
-.carrinho-header > div {
+.carrinho-titulo {
     display: flex;
 
     align-items: center;
@@ -509,55 +738,59 @@ body {
 
 .carrinho-icone {
     width: 45px;
-
     height: 45px;
 
-    border-radius: 12px;
-
-    background: #fff0e5;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
 
-    font-size: 22px;
+    border-radius: 13px;
+
+    background: #eafff0;
+
+    font-size: 21px;
 }
 
-.carrinho-header h2 {
-    font-size: 20px;
+.carrinho-titulo h2 {
+    font-size: 19px;
 }
 
-.carrinho-header small {
-    color: #888;
+.carrinho-titulo small {
+    display: block;
 
-    font-size: 12px;
+    margin-top: 3px;
+
+    color: #999;
+
+    font-size: 11px;
 }
 
 .fechar-carrinho {
     width: 38px;
-
     height: 38px;
 
     border: none;
 
-    background: #f3f3f3;
-
     border-radius: 50%;
 
-    cursor: pointer;
+    background: #f2f2f2;
 
-    font-size: 18px;
+    color: #555;
+
+    font-size: 20px;
+
+    transition: 0.2s;
 }
 
 .fechar-carrinho:hover {
-    background: #e8e8e8;
+    background: #25d366;
+
+    color: white;
 }
 
 
 /* ========================================
-   LISTA DO CARRINHO
+   LISTA CARRINHO
 ======================================== */
 
 .lista-carrinho {
@@ -565,122 +798,44 @@ body {
 
     overflow-y: auto;
 
-    padding: 15px;
-}
-
-
-/* ITEM */
-
-.item-carrinho {
-    display: flex;
-
-    gap: 12px;
-
-    padding: 13px 0;
-
-    border-bottom: 1px solid #eee;
-}
-
-.item-carrinho-imagem {
-    width: 70px;
-
-    height: 70px;
-
-    object-fit: cover;
-
-    border-radius: 10px;
-}
-
-.item-carrinho-info {
-    flex: 1;
-}
-
-.item-carrinho-info h4 {
-    font-size: 15px;
-
-    margin-bottom: 5px;
-}
-
-.item-carrinho-preco {
-    color: #ff6b00;
-
-    font-weight: bold;
-
-    font-size: 14px;
-}
-
-
-/* QUANTIDADE */
-
-.quantidade {
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-
-    margin-top: 8px;
-}
-
-.quantidade button {
-    width: 28px;
-
-    height: 28px;
-
-    border: none;
-
-    background: #f1f1f1;
-
-    border-radius: 7px;
-
-    cursor: pointer;
-
-    font-weight: bold;
-}
-
-.quantidade button:hover {
-    background: #ff6b00;
-
-    color: white;
-}
-
-.quantidade span {
-    min-width: 20px;
-
-    text-align: center;
-
-    font-weight: bold;
+    padding: 18px;
 }
 
 
 /* ========================================
-   CARRINHO VAZIO
+   VAZIO
 ======================================== */
 
 .carrinho-vazio {
+    min-height: 400px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
     text-align: center;
-
-    padding: 50px 20px;
-
-    color: #777;
 }
 
 .icone-vazio {
-    font-size: 50px;
+    font-size: 58px;
 
     margin-bottom: 15px;
-
-    opacity: 0.5;
 }
 
 .carrinho-vazio h3 {
-    color: #333;
-
-    margin-bottom: 7px;
+    font-size: 17px;
 }
 
 .carrinho-vazio p {
-    font-size: 14px;
+    max-width: 280px;
+
+    margin-top: 7px;
+
+    color: #999;
+
+    font-size: 13px;
 
     line-height: 1.5;
 }
@@ -688,30 +843,134 @@ body {
 .botao-continuar {
     margin-top: 20px;
 
+    padding: 11px 18px;
+
     border: none;
-
-    background: #ff6b00;
-
-    color: white;
-
-    padding: 12px 18px;
 
     border-radius: 10px;
 
-    cursor: pointer;
+    background: #ff6b35;
 
-    font-weight: bold;
+    color: white;
+
+    font-size: 12px;
+    font-weight: 800;
 }
 
 
 /* ========================================
-   FOOTER CARRINHO
+   ITEM
+======================================== */
+
+.item-carrinho {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 14px;
+
+    margin-bottom: 10px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 14px;
+
+    background: #fafafa;
+}
+
+.item-info {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.item-info h3 {
+    overflow: hidden;
+
+    color: #222;
+
+    font-size: 14px;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+.item-info p {
+    margin-top: 5px;
+
+    color: #999;
+
+    font-size: 11px;
+}
+
+.item-direita {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 7px;
+}
+
+.controle-quantidade {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.controle-quantidade button {
+    width: 28px;
+    height: 28px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #eeeeee;
+
+    font-size: 17px;
+    font-weight: 800;
+
+    transition: 0.2s;
+}
+
+.controle-quantidade button:hover {
+    background: #25d366;
+
+    color: white;
+}
+
+.controle-quantidade strong {
+    min-width: 18px;
+
+    text-align: center;
+
+    font-size: 13px;
+}
+
+.subtotal {
+    color: #25a85a;
+
+    font-size: 13px;
+}
+
+
+/* ========================================
+   FOOTER
 ======================================== */
 
 .carrinho-footer {
-    border-top: 1px solid #eee;
+    padding: 18px 20px;
 
-    padding: 18px;
+    border-top: 1px solid #eeeeee;
 
     background: white;
 }
@@ -719,75 +978,600 @@ body {
 .linha-total {
     display: flex;
 
-    justify-content: space-between;
-
     align-items: center;
+
+    justify-content: space-between;
 
     margin-bottom: 15px;
 }
 
 .linha-total span {
-    color: #777;
+    color: #666;
+
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .linha-total strong {
-    font-size: 23px;
-
-    color: #222;
+    font-size: 22px;
 }
 
 
-/* WHATSAPP */
+/* ========================================
+   WHATSAPP
+======================================== */
 
 .botao-whatsapp {
     width: 100%;
 
+    min-height: 52px;
+
     border: none;
+
+    border-radius: 12px;
 
     background: #25d366;
 
     color: white;
 
-    padding: 14px;
+    font-size: 13px;
+    font-weight: 800;
 
-    border-radius: 11px;
+    box-shadow:
+        0 7px 18px rgba(37, 211, 102, 0.25);
 
-    cursor: pointer;
-
-    font-size: 15px;
-
-    font-weight: bold;
+    transition: 0.2s;
 }
 
-.botao-whatsapp:hover {
-    background: #1ebe5d;
+.botao-whatsapp:hover:not(:disabled) {
+    background: #20bd5a;
+
+    transform: translateY(-2px);
 }
 
 .botao-whatsapp:disabled {
-    background: #ccc;
+    opacity: 0.45;
 
     cursor: not-allowed;
+
+    box-shadow: none;
 }
 
 
-/* LIMPAR */
+/* ========================================
+   LIMPAR
+======================================== */
 
 .botao-limpar {
     width: 100%;
 
     margin-top: 9px;
 
+    padding: 11px;
+
     border: none;
 
-    background: transparent;
+    border-radius: 10px;
 
-    color: #d33;
+    background: #f2f2f2;
 
-    padding: 10px;
+    color: #777;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.botao-limpar:hover {
+    background: #e74c3c;
+
+    color: white;
+}
+
+
+/* ========================================
+   BOTÃO FLUTUANTE
+======================================== */
+
+.botao-carrinho {
+    position: fixed;
+
+    right: 24px;
+    bottom: 24px;
+
+    min-height: 58px;
+
+    padding: 0 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    border: none;
+
+    border-radius: 17px;
+
+    background: #25d366;
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    box-shadow:
+        0 10px 30px rgba(37, 211, 102, 0.35);
+
+    z-index: 900;
+
+    transition: 0.25s;
+}
+
+.botao-carrinho:hover {
+    transform: translateY(-4px);
+
+    background: #20bd5a;
+}
+
+.icone-carrinho {
+    font-size: 21px;
+}
+
+#contadorCarrinho {
+    min-width: 25px;
+    height: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: white;
+
+    color: #20bd5a;
+
+    font-size: 11px;
+}
+
+
+/* ========================================
+   MODAL
+======================================== */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(0, 0, 0, 0.55);
+
+    backdrop-filter: blur(4px);
+
+    z-index: 2000;
+}
+
+.modal.aberto {
+    display: flex;
+}
+
+.modal-conteudo {
+    position: relative;
+
+    width: 100%;
+    max-width: 600px;
+
+    max-height: 92vh;
+
+    overflow-y: auto;
+
+    padding: 28px;
+
+    border-radius: 22px;
+
+    background: white;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.25);
+
+    animation: subir 0.25s ease;
+}
+
+@keyframes subir {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.fechar {
+    position: absolute;
+
+    top: 15px;
+    right: 15px;
+
+    width: 36px;
+    height: 36px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f2f2f2;
+
+    color: #555;
+
+    font-size: 20px;
+}
+
+.fechar:hover {
+    background: #ff6b35;
+
+    color: white;
+}
+
+
+/* ========================================
+   MODAL HEADER
+======================================== */
+
+.modal-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 25px;
+
+    padding-right: 40px;
+}
+
+.modal-header > span {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: #fff1eb;
+
+    font-size: 21px;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+}
+
+.modal-header p {
+    margin-top: 4px;
+
+    color: #999;
+
+    font-size: 12px;
+}
+
+
+/* ========================================
+   CAMPOS
+======================================== */
+
+.campo {
+    margin-bottom: 17px;
+}
+
+.campo label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #333;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+
+    padding: 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    font-size: 14px;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+.campo textarea {
+    min-height: 100px;
+
+    resize: vertical;
+}
+
+
+/* ========================================
+   LINHA
+======================================== */
+
+.linha {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+}
+
+
+/* ========================================
+   PREÇO
+======================================== */
+
+.input-preco {
+    display: flex;
+
+    align-items: center;
+
+    overflow: hidden;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 11px;
+}
+
+.input-preco span {
+    padding-left: 13px;
+
+    color: #ff6b35;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.input-preco input {
+    border: none;
+}
+
+
+/* ========================================
+   UPLOAD
+======================================== */
+
+.btn-escolher-imagem {
+    width: 100%;
+
+    min-height: 75px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 13px;
+
+    border: 2px dashed #ddd7d1;
+
+    border-radius: 13px;
+
+    background: #fcfbfa;
 
     cursor: pointer;
+}
 
-    font-weight: bold;
+.btn-escolher-imagem:hover {
+    border-color: #ff6b35;
+
+    background: #fff7f3;
+}
+
+.upload-icone {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background: #ff6b35;
+
+    color: white;
+
+    font-size: 21px;
+}
+
+.upload-texto {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.upload-texto strong {
+    font-size: 13px;
+}
+
+.upload-texto small {
+    color: #999;
+
+    font-size: 10px;
+}
+
+.upload-seta {
+    font-size: 20px;
+
+    color: #888;
+}
+
+
+/* ========================================
+   PREVIEW
+======================================== */
+
+.preview {
+    width: 100%;
+    min-height: 170px;
+
+    margin-bottom: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border: 2px dashed #ddd7d1;
+
+    border-radius: 12px;
+
+    background: #fcfbfa;
+
+    color: #aaa;
+
+    text-align: center;
+}
+
+.preview span {
+    font-size: 40px;
+}
+
+.preview p {
+    margin-top: 8px;
+
+    font-size: 12px;
+}
+
+.preview img {
+    width: 100%;
+    height: 250px;
+
+    object-fit: cover;
+}
+
+
+/* ========================================
+   BOTÕES FORM
+======================================== */
+
+.botoes-form {
+    display: flex;
+
+    gap: 10px;
+}
+
+.btn-cancelar,
+.btn-salvar {
+    flex: 1;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.btn-cancelar {
+    background: #eeeeee;
+
+    color: #555;
+}
+
+.btn-salvar {
+    background: #ff6b35;
+
+    color: white;
+}
+
+.btn-salvar:hover {
+    background: #e95725;
+}
+
+
+/* ========================================
+   TOAST
+======================================== */
+
+.toast {
+    position: fixed;
+
+    left: 50%;
+
+    bottom: 25px;
+
+    transform:
+        translate(-50%, 100px);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    z-index: 3000;
+
+    max-width: 90%;
+
+    padding: 13px 18px;
+
+    border-radius: 12px;
+
+    background: #222;
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.2);
+
+    transition: 0.3s;
+}
+
+.toast.mostrar {
+    transform:
+        translate(-50%, 0);
+
+    opacity: 1;
 }
 
 
@@ -795,78 +1579,149 @@ body {
    RESPONSIVO
 ======================================== */
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
 
     .header-conteudo {
-        padding: 12px 15px;
+        width: 92%;
     }
 
-    .logo h1 {
-        font-size: 17px;
-    }
-
-    .logo > span,
-    .logo:first-child {
-        font-size: 28px;
-    }
-
-    .botao-carrinho span {
-        display: none;
-    }
-
-    .botao-carrinho {
-        padding: 11px 13px;
+    .container {
+        width: 92%;
     }
 
     .hero {
-        margin: 15px;
+        min-height: 250px;
 
-        padding: 30px 20px;
-
-        border-radius: 16px;
+        padding: 35px 25px;
     }
 
     .hero h2 {
-        font-size: 30px;
+        font-size: 34px;
+    }
+
+    .lista-pratos {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+
+        gap: 15px;
+    }
+
+    .card-imagem {
+        height: 190px;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .header-conteudo {
+        min-height: 68px;
+    }
+
+    .logo-icone {
+        width: 40px;
+        height: 40px;
+
+        font-size: 20px;
+    }
+
+    .logo h1 {
+        font-size: 15px;
+    }
+
+    .logo span {
+        font-size: 10px;
+    }
+
+    .btn-novo {
+        padding: 9px 11px;
+
+        font-size: 11px;
+    }
+
+    .hero {
+        margin-top: 20px;
+
+        padding: 28px 20px;
+
+        border-radius: 20px;
+    }
+
+    .hero h2 {
+        font-size: 28px;
+    }
+
+    .hero p {
+        font-size: 13px;
+    }
+
+    .hero::after {
+        font-size: 90px;
+    }
+
+    .categorias {
+        flex-wrap: nowrap;
+
+        overflow-x: auto;
+
+        padding-bottom: 5px;
+    }
+
+    .categoria {
+        flex-shrink: 0;
     }
 
     .lista-pratos {
         grid-template-columns: 1fr;
-
-        padding: 0 15px 40px;
     }
 
-    .filtros {
-        padding: 0 15px;
-    }
-
-    .resultado {
-        padding: 0 15px;
+    .card-imagem {
+        height: 220px;
     }
 
     .carrinho {
         width: 100%;
     }
 
-}
+    .botao-carrinho {
+        right: 15px;
+        bottom: 15px;
 
+        min-height: 54px;
 
-/* ========================================
-   SEM RESULTADOS
-======================================== */
+        padding: 0 15px;
 
-.sem-resultados {
-    grid-column: 1 / -1;
+        border-radius: 15px;
+    }
 
-    text-align: center;
+    .linha {
+        grid-template-columns: 1fr;
 
-    padding: 60px 20px;
+        gap: 0;
+    }
 
-    color: #777;
-}
+    .modal {
+        padding: 10px;
+    }
 
-.sem-resultados h3 {
-    color: #333;
+    .modal-conteudo {
+        max-height: 95vh;
 
-    margin-bottom: 8px;
+        padding: 20px 17px;
+
+        border-radius: 18px;
+    }
+
+    .botoes-form {
+        flex-direction: column;
+    }
+
+    .item-carrinho {
+        align-items: flex-start;
+    }
+
 }
