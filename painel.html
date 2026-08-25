@@ -217,10 +217,17 @@
 
         async function carregarEstabelecimentos() {
 
-            const lista =
-                document.getElementById(
-                    "listaEstabelecimentos"
-                );
+            const token = localStorage.getItem("token");
+
+const resposta =
+    await fetch(
+        `${API_URL}/estabelecimentos`,
+        {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        }
+    );
 
             try {
 
@@ -450,11 +457,15 @@ async function excluirEstabelecimento(id) {
     try {
 
         const resposta = await fetch(
-            `${API_URL}/estabelecimentos/${id}`,
-            {
-                method: "DELETE"
-            }
-        );
+    `${API_URL}/estabelecimentos/${id}`,
+    {
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+        }
+    }
+    
+);
 
 
         const texto = await resposta.text();
@@ -563,9 +574,9 @@ async function editarEstabelecimento(id, nomeAtual) {
                 method: "PUT",
 
                 headers: {
-                    "Content-Type":
-                        "application/json"
-                },
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${localStorage.getItem("token")}`
+},
 
                 body: JSON.stringify({
                     nome: novoNome.trim()
