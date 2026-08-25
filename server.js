@@ -716,6 +716,81 @@ app.put("/estabelecimentos/:id", async (req, res) => {
 
 });
 
+// ==========================================
+// CADASTRAR USUÁRIO
+// ==========================================
+
+app.post("/usuarios", async (req, res) => {
+
+    try {
+
+        const { nome, email, senha } = req.body;
+
+        if (!nome || !email || !senha) {
+
+            return res.status(400).json({
+                sucesso: false,
+                erro: "Nome, e-mail e senha são obrigatórios"
+            });
+
+        }
+
+        const usuarioExistente = await pool.query(
+            `
+            SELECT id
+            FROM usuarios
+            WHERE email = $1
+            `,
+            [email.trim().toLowerCase()]
+        );
+
+        if (usuarioExistente.rows.length > 0) {
+
+            return res.status(409).json({
+                sucesso: false,
+                erro: "Este e-mail já está cadastrado"
+            });
+
+        }
+
+        const resultado = await pool.query(
+            `
+            INSERT INTO usuarios
+            (
+                nome,
+                email,
+                senha
+            )
+            VALUES ($1, $2, $3)
+            RETURNING id, nome, email, criado_em
+            `,
+            [
+                nome.trim(),
+                email.trim().toLowerCase(),
+                senha
+            ]
+        );
+
+        res.status(201).json({
+            sucesso: true,
+            mensagem: "Usuário cadastrado com sucesso!",
+            usuario: resultado.rows[0]
+        });
+
+    } catch (error) {
+
+        console.error("ERRO AO CADASTRAR USUÁRIO:");
+        console.error(error);
+
+        res.status(500).json({
+            sucesso: false,
+            erro: "Erro ao cadastrar usuário"
+        });
+
+    }
+
+});
+
 app.listen(PORT, () => {
 
     console.log(`Servidor rodando na porta ${PORT}`);
