@@ -1768,6 +1768,124 @@ async function excluirEstabelecimento(id) {
     }
 
 }
+// ========================================
+// EDITAR ESTABELECIMENTO
+// ========================================
+
+async function editarEstabelecimento(id, nomeAtual) {
+
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+
+    const novoNome = prompt(
+        "✏️ Digite o novo nome da lanchonete:",
+        nomeAtual
+    );
+
+    if (novoNome === null) {
+        return;
+    }
+
+    if (!novoNome.trim()) {
+
+        mostrarToast(
+            "❌ O nome não pode ficar vazio."
+        );
+
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            `${API_URL}/estabelecimentos/${id}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    nome: novoNome.trim()
+                })
+            }
+        );
+
+
+        const tipo =
+            resposta.headers.get("content-type") || "";
+
+
+        if (!tipo.includes("application/json")) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+
+        }
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado.erro ||
+                "Erro ao editar estabelecimento."
+            );
+
+        }
+
+
+        mostrarToast(
+            "✅ Lanchonete atualizada com sucesso!"
+        );
+
+
+        // Atualizar o nome na tela
+        const elemento =
+            document.querySelector(
+                `[data-estabelecimento-id="${id}"]`
+            );
+
+
+        if (elemento) {
+
+            elemento.textContent =
+                resultado.estabelecimento.nome;
+
+        }
+
+
+        // Recarregar a lista caso a função exista
+        if (
+            typeof carregarEstabelecimentos ===
+            "function"
+        ) {
+
+            await carregarEstabelecimentos();
+
+        }
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao editar estabelecimento:",
+            erro
+        );
+
+
+        mostrarToast(
+            "❌ " + erro.message
+        );
+
+    }
+}
 
 // ========================================
 // INICIAR
