@@ -288,26 +288,23 @@
 
                                         <div class="acoes">
 
-                                            <button
-                                                class="botao abrir"
-                                                onclick="
-                                                    abrirCardapio(
-                                                        ${estabelecimento.id}
-                                                    )
-                                                "
-                                            >
-                                                🍽️ Abrir cardápio
-                                            </button>
+    <button
+        class="botao abrir"
+        onclick="abrirCardapio(${estabelecimento.id})"
+    >
+        🍽️ Abrir cardápio
+    </button>
 
-                                        </div>
+    <button
+        class="botao excluir"
+        onclick="excluirEstabelecimento(${estabelecimento.id})"
+    >
+        🗑️ Excluir
+    </button>
 
-                                    </div>
-<button
-    class="botao excluir"
-    onclick="excluirEstabelecimento(${estabelecimento.id})"
->
-    🗑️ Excluir
-</button>
+</div>
+
+</div>
                                 `;
 
                             }
