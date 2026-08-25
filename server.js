@@ -327,34 +327,50 @@ app.post("/pratos", async (req, res) => {
             descricao,
             preco,
             categoria,
-            imagem
+            imagem,
+            estabelecimento_id
         } = req.body;
 
-        if (!nome || preco === undefined) {
+
+        // ======================================
+        // VALIDAR DADOS
+        // ======================================
+
+        if (!nome || preco === undefined || !estabelecimento_id) {
 
             return res.status(400).json({
-                erro: "Nome e preço são obrigatórios"
+                erro: "Nome, preço e estabelecimento são obrigatórios"
             });
 
         }
 
-        // Pegar o primeiro estabelecimento
-        const estabelecimento = await pool.query(`
-            SELECT id
+
+        // ======================================
+        // VERIFICAR ESTABELECIMENTO
+        // ======================================
+
+        const estabelecimento = await pool.query(
+            `
+            SELECT id, nome
             FROM estabelecimentos
-            ORDER BY id
-            LIMIT 1
-        `);
+            WHERE id = $1
+            `,
+            [estabelecimento_id]
+        );
+
 
         if (estabelecimento.rows.length === 0) {
 
-            return res.status(500).json({
-                erro: "Nenhum estabelecimento encontrado"
+            return res.status(404).json({
+                erro: "Estabelecimento não encontrado"
             });
 
         }
 
-        const estabelecimentoId = estabelecimento.rows[0].id;
+
+        // ======================================
+        // CADASTRAR PRATO
+        // ======================================
 
         const resultado = await pool.query(
             `
@@ -376,14 +392,17 @@ app.post("/pratos", async (req, res) => {
                 preco,
                 categoria || "Outros",
                 imagem || "",
-                estabelecimentoId
+                estabelecimento_id
             ]
         );
 
+
         res.status(201).json(resultado.rows[0]);
+
 
     } catch (error) {
 
+        console.error("ERRO AO CADASTRAR PRATO:");
         console.error(error);
 
         res.status(500).json({
