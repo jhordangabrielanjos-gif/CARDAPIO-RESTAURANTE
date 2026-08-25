@@ -652,6 +652,8 @@ app.post("/estabelecimentos", autenticarUsuario, async (req, res) => {
     try {
 
         const { nome } = req.body;
+        
+        const usuarioId = req.usuario.id;
 
         if (!nome || !nome.trim()) {
             return res.status(400).json({
@@ -661,11 +663,11 @@ app.post("/estabelecimentos", autenticarUsuario, async (req, res) => {
 
         const resultado = await pool.query(
             `
-            INSERT INTO estabelecimentos (nome)
-            VALUES ($1)
+            INSERT INTO estabelecimentos (nome, usuario_id)
+            VALUES ($1, $2)
             RETURNING *
             `,
-            [nome.trim()]
+            [nome.trim(), usuarioId]
         );
 
         res.status(201).json(resultado.rows[0]);
