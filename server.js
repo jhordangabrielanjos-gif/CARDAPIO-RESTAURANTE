@@ -634,6 +634,60 @@ app.delete("/estabelecimentos/:id", async (req, res) => {
     }
 
 });
+// ==========================================
+// EDITAR ESTABELECIMENTO
+// ==========================================
+
+app.put("/estabelecimentos/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+        const { nome } = req.body;
+
+        if (!nome || !nome.trim()) {
+            return res.status(400).json({
+                sucesso: false,
+                erro: "Nome do estabelecimento é obrigatório"
+            });
+        }
+
+        const resultado = await pool.query(
+            `
+            UPDATE estabelecimentos
+            SET nome = $1
+            WHERE id = $2
+            RETURNING *
+            `,
+            [nome.trim(), id]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(404).json({
+                sucesso: false,
+                erro: "Estabelecimento não encontrado"
+            });
+        }
+
+        res.json({
+            sucesso: true,
+            mensagem: "Estabelecimento atualizado com sucesso!",
+            estabelecimento: resultado.rows[0]
+        });
+
+    } catch (error) {
+
+        console.error("ERRO AO EDITAR ESTABELECIMENTO:");
+        console.error(error);
+
+        res.status(500).json({
+            sucesso: false,
+            erro: error.message || "Erro ao editar estabelecimento"
+        });
+
+    }
+
+});
 
 app.listen(PORT, () => {
 
