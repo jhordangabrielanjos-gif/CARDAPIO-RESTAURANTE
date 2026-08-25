@@ -176,6 +176,33 @@ async function prepararBanco() {
 
 prepararBanco();
 
+// ======================================
+// TABELA DE USUÁRIOS
+// ======================================
+
+await pool.query(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        senha VARCHAR(255) NOT NULL,
+        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+`);
+
+console.log("Tabela usuarios pronta!");
+
+// ======================================
+// VINCULAR ESTABELECIMENTOS A USUÁRIOS
+// ======================================
+
+await pool.query(`
+    ALTER TABLE estabelecimentos
+    ADD COLUMN IF NOT EXISTS usuario_id INTEGER
+`);
+
+console.log("Coluna usuario_id pronta!");
+
 // ==========================================
 // ROTA PRINCIPAL
 // ==========================================
@@ -688,33 +715,6 @@ app.put("/estabelecimentos/:id", async (req, res) => {
     }
 
 });
-
-// ======================================
-// TABELA DE USUÁRIOS
-// ======================================
-
-await pool.query(`
-    CREATE TABLE IF NOT EXISTS usuarios (
-        id SERIAL PRIMARY KEY,
-        nome VARCHAR(255) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        senha VARCHAR(255) NOT NULL,
-        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-`);
-
-console.log("Tabela usuarios pronta!");
-
-// ======================================
-// VINCULAR ESTABELECIMENTOS A USUÁRIOS
-// ======================================
-
-await pool.query(`
-    ALTER TABLE estabelecimentos
-    ADD COLUMN IF NOT EXISTS usuario_id INTEGER
-`);
-
-console.log("Coluna usuario_id pronta!");
 
 app.listen(PORT, () => {
 
