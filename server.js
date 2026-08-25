@@ -879,14 +879,13 @@ app.post("/login", async (req, res) => {
             SELECT
                 id,
                 nome,
-                email
+                email,
+                senha
             FROM usuarios
             WHERE email = $1
-            AND senha = $2
             `,
             [
-                email.trim().toLowerCase(),
-                senha
+                email.trim().toLowerCase()
             ]
         );
 
@@ -899,16 +898,48 @@ app.post("/login", async (req, res) => {
 
         }
 
+        const usuarioBanco =
+            resultado.rows[0];
+
+        if (usuarioBanco.senha !== senha) {
+
+            return res.status(401).json({
+                sucesso: false,
+                erro: "E-mail ou senha incorretos"
+            });
+
+        }
+
+        const token =
+            jwt.sign(
+                {
+                    id: usuarioBanco.id,
+                    nome: usuarioBanco.nome,
+                    email: usuarioBanco.email
+                },
+                JWT_SECRET,
+                {
+                    expiresIn: "7d"
+                }
+            );
+
         res.json({
             sucesso: true,
             mensagem: "Login realizado com sucesso!",
-            usuario: resultado.rows[0]
+            token: token,
+            usuario: {
+                id: usuarioBanco.id,
+                nome: usuarioBanco.nome,
+                email: usuarioBanco.email
+            }
         });
 
     } catch (error) {
 
-        console.error("ERRO AO FAZER LOGIN:");
-        console.error(error);
+        console.error(
+            "ERRO AO FAZER LOGIN:",
+            error
+        );
 
         res.status(500).json({
             sucesso: false,
