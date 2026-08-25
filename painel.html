@@ -1,665 +1,201 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+async function carregarEstabelecimentos() {
 
-<head>
+    const lista =
+        document.getElementById(
+            "listaEstabelecimentos"
+        );
 
-    <meta charset="UTF-8">
+    try {
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        const token =
+            localStorage.getItem("token");
 
-    <title>Painel - Estabelecimentos</title>
+        // Se não tiver token, volta para o login
+        if (!token) {
 
-    <style>
+            window.location.href =
+                "/login.html";
 
-        * {
-            box-sizing: border-box;
+            return;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            color: #222;
+        const resposta =
+            await fetch(
+                `${API_URL}/estabelecimentos`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+
+        // Se o token estiver inválido
+        if (resposta.status === 401) {
+
+            localStorage.removeItem("token");
+            localStorage.removeItem("usuario");
+
+            alert(
+                "Sua sessão expirou. Faça login novamente."
+            );
+
+            window.location.href =
+                "/login.html";
+
+            return;
         }
 
-        header {
-            background: #222;
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
 
-        header h1 {
-            margin: 0 0 8px;
-        }
+        if (!resposta.ok) {
 
-        header p {
-            margin: 0;
-            opacity: 0.8;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 900px;
-            margin: 30px auto;
-        }
-
-        .topo {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .topo h2 {
-            margin: 0;
-        }
-
-        .botao-novo {
-            border: none;
-            background: #222;
-            color: white;
-            padding: 12px 18px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-        }
-
-        .botao-novo:hover {
-            opacity: 0.9;
-        }
-
-        #listaEstabelecimentos {
-            display: grid;
-            gap: 20px;
-        }
-
-        .estabelecimento {
-            background: white;
-            padding: 22px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
-
-        .estabelecimento h3 {
-            margin: 0 0 8px;
-            font-size: 21px;
-        }
-
-        .id {
-            color: #777;
-            margin-bottom: 18px;
-        }
-
-        .acoes {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .botao {
-            border: none;
-            padding: 10px 15px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .abrir {
-            background: #222;
-            color: white;
-        }
-
-        .carregando,
-        .erro,
-        .vazio {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .erro {
-            color: #a00;
-        }
-
-        @media (max-width: 600px) {
-
-            .topo {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .botao-novo {
-                width: 100%;
-            }
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
 
         }
-        
-        .editar {
-    background: #ffc107;
-    color: #222;
-}
-
-.editar:hover {
-    opacity: 0.9;
-}
-        
-.excluir {
-    background: #dc3545;
-    color: white;
-}
-
-.excluir:hover {
-    opacity: 0.9;
-}
-
-    </style>
-
-</head>
 
 
-<body>
-
-    <header>
-
-        <h1>🏪 Painel Administrativo</h1>
-
-        <p>
-            Gerenciamento de estabelecimentos
-        </p>
-
-    </header>
+        const estabelecimentos =
+            await resposta.json();
 
 
-    <main class="container">
+        if (
+            !Array.isArray(
+                estabelecimentos
+            )
+        ) {
 
-        <div class="topo">
+            throw new Error(
+                "A API não retornou uma lista."
+            );
 
-            <h2>
-                Meus estabelecimentos
-            </h2>
-
-            <button
-                class="botao-novo"
-                onclick="novoEstabelecimento()"
-            >
-                + Nova Lanchonete
-            </button>
-
-        </div>
+        }
 
 
-        <div id="listaEstabelecimentos">
+        if (
+            estabelecimentos.length === 0
+        ) {
 
-            <div class="carregando">
-                Carregando estabelecimentos...
+            lista.innerHTML = `
+                <div class="vazio">
+                    Nenhum estabelecimento cadastrado.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        lista.innerHTML =
+            estabelecimentos
+                .map(
+                    estabelecimento => {
+
+                        const nomeSeguro =
+                            escaparHTML(
+                                estabelecimento.nome
+                            );
+
+                        const nomeParaFuncao =
+                            String(
+                                estabelecimento.nome
+                            )
+                            .replace(
+                                /\\/g,
+                                "\\\\"
+                            )
+                            .replace(
+                                /'/g,
+                                "\\'"
+                            );
+
+
+                        return `
+
+                            <div
+                                class="estabelecimento"
+                            >
+
+                                <h3>
+                                    🏪
+                                    ${nomeSeguro}
+                                </h3>
+
+                                <div class="id">
+
+                                    ID:
+                                    ${estabelecimento.id}
+
+                                </div>
+
+                                <div class="acoes">
+
+                                    <button
+                                        class="botao abrir"
+                                        onclick="abrirCardapio(${estabelecimento.id})"
+                                    >
+                                        🍽️ Abrir cardápio
+                                    </button>
+
+
+                                    <button
+                                        class="botao editar"
+                                        onclick="editarEstabelecimento(
+                                            ${estabelecimento.id},
+                                            '${nomeParaFuncao}'
+                                        )"
+                                    >
+                                        ✏️ Editar
+                                    </button>
+
+
+                                    <button
+                                        class="botao excluir"
+                                        onclick="excluirEstabelecimento(${estabelecimento.id})"
+                                    >
+                                        🗑️ Excluir
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }
+                )
+                .join("");
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar estabelecimentos:",
+            erro
+        );
+
+
+        lista.innerHTML = `
+
+            <div class="erro">
+
+                ❌ Erro ao carregar
+                estabelecimentos.
+
+                <br><br>
+
+                ${escaparHTML(
+                    erro.message
+                )}
+
             </div>
 
-        </div>
-
-    </main>
-
-
-    <script>
-
-        const API_URL =
-            "https://cardapio-restaurante-za9s.onrender.com";
-
-
-        // ======================================
-        // CARREGAR ESTABELECIMENTOS
-        // ======================================
-
-        async function carregarEstabelecimentos() {
-
-            const token = localStorage.getItem("token");
-
-const resposta =
-    await fetch(
-        `${API_URL}/estabelecimentos`,
-        {
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        }
-    );
-
-            try {
-
-                const resposta =
-                    await fetch(
-                        `${API_URL}/estabelecimentos`
-                    );
-
-
-                if (!resposta.ok) {
-
-                    throw new Error(
-                        `Erro HTTP ${resposta.status}`
-                    );
-
-                }
-
-
-                const estabelecimentos =
-                    await resposta.json();
-
-
-                if (
-                    !Array.isArray(
-                        estabelecimentos
-                    )
-                ) {
-
-                    throw new Error(
-                        "A API não retornou uma lista."
-                    );
-
-                }
-
-
-                if (
-                    estabelecimentos.length === 0
-                ) {
-
-                    lista.innerHTML = `
-                        <div class="vazio">
-                            Nenhum estabelecimento cadastrado.
-                        </div>
-                    `;
-
-                    return;
-                }
-
-
-                lista.innerHTML =
-                    estabelecimentos
-                        .map(
-                            estabelecimento => {
-
-                                return `
-
-                                    <div
-                                        class="estabelecimento"
-                                    >
-
-                                        <h3>
-                                            🏪
-                                            ${escaparHTML(
-                                                estabelecimento.nome
-                                            )}
-                                        </h3>
-
-                                        <div class="id">
-
-                                            ID:
-                                            ${estabelecimento.id}
-
-                                        </div>
-
-                                        <div class="acoes">
-
-                                         <button
-     <button
-    class="botao abrir"
-    onclick="abrirCardapio(${estabelecimento.id})"
->
-    🍽️ Abrir cardápio
-</button>
-
-<button
-    class="botao editar"
-    onclick="editarEstabelecimento(
-        ${estabelecimento.id},
-        '${escaparHTML(estabelecimento.nome).replace(/'/g, "\\'")}'
-    )"
->
-    ✏️ Editar
-</button>
-
-<button
-    class="botao excluir"
-    onclick="excluirEstabelecimento(${estabelecimento.id})"
->
-    🗑️ Excluir
-</button>                                    
-
-
-</div>
-
-</div>
-                                `;
-
-                            }
-                        )
-                        .join("");
-
-
-            } catch (erro) {
-
-                console.error(erro);
-
-                lista.innerHTML = `
-
-                    <div class="erro">
-
-                        ❌ Erro ao carregar
-                        estabelecimentos.
-
-                        <br><br>
-
-                        ${escaparHTML(
-                            erro.message
-                        )}
-
-                    </div>
-
-                `;
-
-            }
-
-        }
-
-
-        // ======================================
-        // ABRIR CARDÁPIO
-        // ======================================
-
-        function abrirCardapio(id) {
-
-            window.location.href =
-                `/?estabelecimento=${id}`;
-
-        }
-
-
-        // ======================================
-        // NOVO ESTABELECIMENTO
-        // ======================================
-
-        function novoEstabelecimento() {
-
-            window.location.href =
-                "/admin-estabelecimento.html";
-
-        }
-
-
-        // ======================================
-        // SEGURANÇA HTML
-        // ======================================
-
-        function escaparHTML(texto) {
-
-            return String(texto ?? "")
-                .replace(
-                    /&/g,
-                    "&amp;"
-                )
-                .replace(
-                    /</g,
-                    "&lt;"
-                )
-                .replace(
-                    />/g,
-                    "&gt;"
-                )
-                .replace(
-                    /"/g,
-                    "&quot;"
-                )
-                .replace(
-                    /'/g,
-                    "&#039;"
-                );
-
-        }
-
-// ======================================
-// EXCLUIR ESTABELECIMENTO
-// ======================================
-
-async function excluirEstabelecimento(id) {
-
-    const senha = prompt(
-        "🔐 Digite a senha administrativa:"
-    );
-
-    if (senha === null) {
-        return;
-    }
-
-    if (senha !== "1234") {
-
-        alert("❌ Senha incorreta!");
-
-        return;
-    }
-
-
-    const confirmar = confirm(
-        "⚠️ ATENÇÃO!\n\n" +
-        "A lanchonete será excluída.\n" +
-        "Todos os pratos dela também serão excluídos.\n\n" +
-        "Deseja realmente continuar?"
-    );
-
-    if (!confirmar) {
-        return;
-    }
-
-
-    try {
-
-        const resposta = await fetch(
-    `${API_URL}/estabelecimentos/${id}`,
-    {
-        method: "DELETE",
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
-        }
-    }
-    
-);
-
-
-        const texto = await resposta.text();
-
-        console.log("Status:", resposta.status);
-        console.log("Resposta:", texto);
-
-
-        let dados;
-
-        try {
-
-            dados = JSON.parse(texto);
-
-        } catch (erro) {
-
-            throw new Error(
-                `Servidor respondeu algo que não é JSON. Status: ${resposta.status}`
-            );
-
-        }
-
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                dados.erro ||
-                "Erro ao excluir estabelecimento."
-            );
-
-        }
-
-
-        alert(
-            "✅ Lanchonete excluída com sucesso!"
-        );
-
-
-        carregarEstabelecimentos();
-
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao excluir:",
-            erro
-        );
-
-        alert(
-            "❌ " + erro.message
-        );
+        `;
 
     }
 
 }
-
-// ======================================
-// EDITAR ESTABELECIMENTO
-// ======================================
-
-async function editarEstabelecimento(id, nomeAtual) {
-
-    const senha = prompt(
-        "🔐 Digite a senha administrativa:"
-    );
-
-    if (senha === null) {
-        return;
-    }
-
-    if (senha !== "1234") {
-
-        alert("❌ Senha incorreta!");
-
-        return;
-    }
-
-
-    const novoNome = prompt(
-        "✏️ Digite o novo nome da lanchonete:",
-        nomeAtual
-    );
-
-
-    if (novoNome === null) {
-        return;
-    }
-
-
-    if (!novoNome.trim()) {
-
-        alert(
-            "❌ O nome não pode ficar vazio."
-        );
-
-        return;
-    }
-
-
-    try {
-
-        const resposta = await fetch(
-            `${API_URL}/estabelecimentos/${id}`,
-            {
-
-                method: "PUT",
-
-                headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${localStorage.getItem("token")}`
-},
-
-                body: JSON.stringify({
-                    nome: novoNome.trim()
-                })
-
-            }
-        );
-
-
-        const texto =
-            await resposta.text();
-
-
-        console.log(
-            "Status:",
-            resposta.status
-        );
-
-        console.log(
-            "Resposta:",
-            texto
-        );
-
-
-        let dados;
-
-
-        try {
-
-            dados =
-                JSON.parse(texto);
-
-        } catch (erro) {
-
-            throw new Error(
-                `Servidor respondeu algo que não é JSON. Status: ${resposta.status}`
-            );
-
-        }
-
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                dados.erro ||
-                "Erro ao editar estabelecimento."
-            );
-
-        }
-
-
-        alert(
-            "✅ Lanchonete editada com sucesso!"
-        );
-
-
-        await carregarEstabelecimentos();
-
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao editar:",
-            erro
-        );
-
-
-        alert(
-            "❌ " + erro.message
-        );
-
-    }
-
-}
-
-        // ======================================
-        // INICIAR
-        // ======================================
-
-        carregarEstabelecimentos();
-
-    </script>
-
-</body>
-
-</html>
