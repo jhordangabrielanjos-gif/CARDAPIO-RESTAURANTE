@@ -392,6 +392,110 @@
 
         }
 
+// ======================================
+// EXCLUIR ESTABELECIMENTO
+// ======================================
+
+async function excluirEstabelecimento(id) {
+
+    const senha = prompt(
+        "🔐 Digite a senha administrativa:"
+    );
+
+    if (senha === null) {
+        return;
+    }
+
+    if (senha !== "1234") {
+
+        alert("❌ Senha incorreta!");
+
+        return;
+    }
+
+
+    const confirmar = confirm(
+        "⚠️ ATENÇÃO!\n\n" +
+        "A lanchonete será excluída.\n" +
+        "Todos os pratos dela também serão excluídos.\n\n" +
+        "Deseja realmente continuar?"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+
+    try {
+
+        const resposta = await fetch(
+            `${API_URL}/estabelecimentos/${id}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+
+        const texto = await resposta.text();
+
+        console.log("Status:", resposta.status);
+        console.log("Resposta:", texto);
+
+
+        let dados;
+
+        try {
+
+            dados = JSON.parse(texto);
+
+        } catch (erro) {
+
+            throw new Error(
+                `Servidor respondeu algo que não é JSON. Status: ${resposta.status}`
+            );
+
+        }
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao excluir estabelecimento."
+            );
+
+        }
+
+
+        alert(
+            "✅ Lanchonete excluída com sucesso!"
+        );
+
+
+        carregarEstabelecimentos();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao excluir:",
+            erro
+        );
+
+        alert(
+            "❌ " + erro.message
+        );
+
+    }
+
+}
+
+
+// ======================================
+// INICIAR
+// ======================================
+
+carregarEstabelecimentos();
 
         // ======================================
         // INICIAR
