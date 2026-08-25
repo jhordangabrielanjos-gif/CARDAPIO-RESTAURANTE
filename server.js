@@ -287,43 +287,48 @@ app.get("/api", (req, res) => {
 });
 
 // ==========================================
-// LISTAR ESTABELECIMENTOS
+// LISTAR ESTABELECIMENTOS DO USUÁRIO
 // ==========================================
 
-app.get("/estabelecimentos", autenticarUsuario, async (req, res) => {
+app.get(
+    "/estabelecimentos",
+    autenticarUsuario,
+    async (req, res) => {
 
-    try {
+        try {
 
-        const resultado = await pool.query(
-    `
-    SELECT
-        id,
-        nome,
-        criado_em
-    FROM estabelecimentos
-    WHERE usuario_id = $1
-    ORDER BY id ASC
-    `,
-    [req.usuario.id]
-);
+            const resultado = await pool.query(
+                `
+                SELECT
+                    id,
+                    nome,
+                    criado_em
+                FROM estabelecimentos
+                WHERE usuario_id = $1
+                ORDER BY id ASC
+                `,
+                [req.usuario.id]
+            );
 
-        res.json(resultado.rows);
+            res.json(resultado.rows);
 
-    } catch (error) {
+        } catch (error) {
 
-        console.error(
-            "ERRO AO BUSCAR ESTABELECIMENTOS:"
-        );
+            console.error(
+                "ERRO AO BUSCAR ESTABELECIMENTOS:"
+            );
 
-        console.error(error);
+            console.error(error);
 
-        res.status(500).json({
-            erro: "Erro ao buscar estabelecimentos"
-        });
+            res.status(500).json({
+                sucesso: false,
+                erro: "Erro ao buscar estabelecimentos"
+            });
+
+        }
 
     }
-
-});
+);
 
 // ==========================================
 // LISTAR PRATOS
@@ -651,43 +656,62 @@ app.delete("/pratos/:id", async (req, res) => {
 // CRIAR ESTABELECIMENTO
 // ==========================================
 
-app.post("/estabelecimentos", autenticarUsuario, async (req, res) => {
+app.post(
+    "/estabelecimentos",
+    autenticarUsuario,
+    async (req, res) => {
 
-    try {
+        try {
 
-        const { nome } = req.body;
-        
-        const usuarioId = req.usuario.id;
+            const { nome } = req.body;
 
-        if (!nome || !nome.trim()) {
-            return res.status(400).json({
-                erro: "Nome do estabelecimento é obrigatório"
+            if (!nome || !nome.trim()) {
+
+                return res.status(400).json({
+                    sucesso: false,
+                    erro: "Nome do estabelecimento é obrigatório"
+                });
+
+            }
+
+            const resultado = await pool.query(
+                `
+                INSERT INTO estabelecimentos
+                (
+                    nome,
+                    usuario_id
+                )
+                VALUES ($1, $2)
+                RETURNING *
+                `,
+                [
+                    nome.trim(),
+                    req.usuario.id
+                ]
+            );
+
+            res.status(201).json({
+                sucesso: true,
+                estabelecimento: resultado.rows[0]
             });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO CRIAR ESTABELECIMENTO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+                sucesso: false,
+                erro: "Erro ao criar estabelecimento"
+            });
+
         }
 
-        const resultado = await pool.query(
-            `
-            INSERT INTO estabelecimentos (nome, usuario_id)
-            VALUES ($1, $2)
-            RETURNING *
-            `,
-            [nome.trim(), usuarioId]
-        );
-
-        res.status(201).json(resultado.rows[0]);
-
-    } catch (error) {
-
-        console.error("ERRO AO CRIAR ESTABELECIMENTO:");
-        console.error(error);
-
-        res.status(500).json({
-            erro: "Erro ao criar estabelecimento"
-        });
-
     }
-
-});
+);
 
 // ==========================================
 // EXCLUIR ESTABELECIMENTO
