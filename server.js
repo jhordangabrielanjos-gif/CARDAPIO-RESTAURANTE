@@ -162,22 +162,8 @@ async function prepararBanco() {
 
         }
 
-        console.log("======================================");
-        console.log("BANCO PREPARADO COM SUCESSO!");
-        console.log("======================================");
-
-    } catch (error) {
-
-        console.error("ERRO AO PREPARAR BANCO:");
-        console.error(error);
-
-    }
-}
-
-prepararBanco();
-
 // ======================================
-// TABELA DE USUÁRIOS
+// 7. TABELA DE USUÁRIOS
 // ======================================
 
 await pool.query(`
@@ -193,7 +179,7 @@ await pool.query(`
 console.log("Tabela usuarios pronta!");
 
 // ======================================
-// VINCULAR ESTABELECIMENTOS A USUÁRIOS
+// 8. VINCULAR ESTABELECIMENTOS A USUÁRIOS
 // ======================================
 
 await pool.query(`
@@ -202,6 +188,20 @@ await pool.query(`
 `);
 
 console.log("Coluna usuario_id pronta!");
+
+        console.log("======================================");
+        console.log("BANCO PREPARADO COM SUCESSO!");
+        console.log("======================================");
+
+    } catch (error) {
+
+        console.error("ERRO AO PREPARAR BANCO:");
+        console.error(error);
+
+    }
+}
+
+prepararBanco();
 
 // ==========================================
 // ROTA PRINCIPAL
