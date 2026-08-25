@@ -100,19 +100,14 @@ app.get("/pratos", async (req, res) => {
             "SELECT * FROM pratos ORDER BY id DESC"
         );
 
-        res.json({
-            sucesso: true,
-            pratos: resultado.rows
-        });
+        res.json(resultado.rows);
 
     } catch (error) {
         console.error("ERRO AO BUSCAR PRATOS:");
         console.error(error);
-        console.error(error.message);
 
         res.status(500).json({
-            sucesso: false,
-            erro: error.message || "Erro desconhecido ao buscar pratos"
+            erro: error.message || "Erro ao buscar pratos"
         });
     }
 });
