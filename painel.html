@@ -139,6 +139,15 @@
             }
 
         }
+        
+.excluir {
+    background: #dc3545;
+    color: white;
+}
+
+.excluir:hover {
+    opacity: 0.9;
+}
 
     </style>
 
@@ -293,7 +302,12 @@
                                         </div>
 
                                     </div>
-
+<button
+    class="botao excluir"
+    onclick="excluirEstabelecimento(${estabelecimento.id})"
+>
+    🗑️ Excluir
+</button>
                                 `;
 
                             }
