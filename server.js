@@ -290,18 +290,22 @@ app.get("/api", (req, res) => {
 // LISTAR ESTABELECIMENTOS
 // ==========================================
 
-app.get("/estabelecimentos", async (req, res) => {
+app.get("/estabelecimentos", autenticarUsuario, async (req, res) => {
 
     try {
 
-        const resultado = await pool.query(`
-            SELECT
-                id,
-                nome,
-                criado_em
-            FROM estabelecimentos
-            ORDER BY id ASC
-        `);
+        const resultado = await pool.query(
+    `
+    SELECT
+        id,
+        nome,
+        criado_em
+    FROM estabelecimentos
+    WHERE usuario_id = $1
+    ORDER BY id ASC
+    `,
+    [req.usuario.id]
+);
 
         res.json(resultado.rows);
 
@@ -325,7 +329,7 @@ app.get("/estabelecimentos", async (req, res) => {
 // LISTAR PRATOS
 // ==========================================
 
-app.get("/pratos", async (req, res) => {
+app.get("/pratos", autenticarUsuario, async (req, res) => {
 
     try {
 
