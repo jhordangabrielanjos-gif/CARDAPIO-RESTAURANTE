@@ -980,6 +980,36 @@ app.post("/login", async (req, res) => {
 
 });
 
+app.get("/corrigir-estabelecimento", async (req, res) => {
+
+    try {
+
+        const resultado = await pool.query(`
+            UPDATE estabelecimentos
+            SET usuario_id = 1
+            WHERE id = 1
+            RETURNING *
+        `);
+
+        res.json({
+            sucesso: true,
+            mensagem: "Estabelecimento vinculado ao usuário 1!",
+            estabelecimento: resultado.rows
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            sucesso: false,
+            erro: error.message
+        });
+
+    }
+
+});
+
 app.listen(PORT, () => {
 
     console.log(`Servidor rodando na porta ${PORT}`);
