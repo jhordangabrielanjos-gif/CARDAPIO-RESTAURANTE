@@ -196,6 +196,41 @@ app.get("/api", (req, res) => {
 });
 
 // ==========================================
+// LISTAR ESTABELECIMENTOS
+// ==========================================
+
+app.get("/estabelecimentos", async (req, res) => {
+
+    try {
+
+        const resultado = await pool.query(`
+            SELECT
+                id,
+                nome,
+                criado_em
+            FROM estabelecimentos
+            ORDER BY id ASC
+        `);
+
+        res.json(resultado.rows);
+
+    } catch (error) {
+
+        console.error(
+            "ERRO AO BUSCAR ESTABELECIMENTOS:"
+        );
+
+        console.error(error);
+
+        res.status(500).json({
+            erro: "Erro ao buscar estabelecimentos"
+        });
+
+    }
+
+});
+
+// ==========================================
 // LISTAR PRATOS
 // ==========================================
 
