@@ -156,20 +156,23 @@ async function criarEstabelecimento() {
 
     try {
 
-        const resposta = await fetch(
-            `${API_URL}/estabelecimentos`,
-            {
-                method: "POST",
+        const token = localStorage.getItem("token");
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+const resposta = await fetch(
+    `${API_URL}/estabelecimentos`,
+    {
+        method: "POST",
 
-                body: JSON.stringify({
-                    nome: nome
-                })
-            }
-        );
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+
+        body: JSON.stringify({
+            nome: nome
+        })
+    }
+);
 
         // PEGAR A RESPOSTA COMO TEXTO PRIMEIRO
         const texto = await resposta.text();
