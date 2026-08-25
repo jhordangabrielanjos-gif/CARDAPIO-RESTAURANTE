@@ -1670,6 +1670,104 @@ document.addEventListener(
     }
 );
 
+// ======================================
+// EXCLUIR ESTABELECIMENTO
+// ======================================
+
+async function excluirEstabelecimento(id) {
+
+    const senha = prompt(
+        "🔐 Digite a senha administrativa:"
+    );
+
+    if (senha === null) {
+        return;
+    }
+
+    if (senha !== "1234") {
+
+        alert("❌ Senha incorreta!");
+
+        return;
+    }
+
+
+    const estabelecimento =
+        document.querySelector(
+            `[onclick*="abrirCardapio(${id})"]`
+        );
+
+
+    const confirmar = confirm(
+        "⚠️ Tem certeza que deseja excluir este estabelecimento?\n\n" +
+        "Todos os pratos vinculados a ele também serão excluídos."
+    );
+
+
+    if (!confirmar) {
+        return;
+    }
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${API_URL}/estabelecimentos/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        const tipo =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        if (!tipo.includes("application/json")) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao excluir estabelecimento."
+            );
+
+        }
+
+
+        alert(
+            "✅ Estabelecimento excluído com sucesso!"
+        );
+
+
+        carregarEstabelecimentos();
+
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert(
+            "❌ " + erro.message
+        );
+
+    }
+
+}
 
 // ========================================
 // INICIAR
