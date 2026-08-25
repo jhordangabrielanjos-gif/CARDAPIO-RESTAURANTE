@@ -201,10 +201,17 @@ async function criarEstabelecimento() {
         resultado.className = "sucesso";
 
         resultado.innerHTML = `
-            <strong>Lanchonete criada!</strong><br><br>
-            ID: ${dados.id}<br>
-            Nome: ${dados.nome}
-        `;
+    <strong>✅ Lanchonete criada!</strong><br><br>
+    ID: ${dados.id}<br>
+    Nome: ${dados.nome}<br><br>
+    Redirecionando para o painel...
+`;
+
+setTimeout(() => {
+
+    window.location.href = "/painel.html";
+
+}, 1500);
 
         document
             .getElementById("nome")
