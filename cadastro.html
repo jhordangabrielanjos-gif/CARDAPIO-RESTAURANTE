@@ -204,6 +204,9 @@
 
                     }
 
+localStorage.setItem("usuario", JSON.stringify(dados.usuario));
+
+localStorage.setItem("token", dados.token);
 
                     mensagem.textContent =
                         "✅ Conta criada com sucesso!";
