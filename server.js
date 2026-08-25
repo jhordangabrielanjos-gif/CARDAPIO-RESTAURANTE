@@ -647,7 +647,7 @@ app.delete("/pratos/:id", async (req, res) => {
 // CRIAR ESTABELECIMENTO
 // ==========================================
 
-app.post("/estabelecimentos", async (req, res) => {
+app.post("/estabelecimentos", autenticarUsuario, async (req, res) => {
 
     try {
 
@@ -687,7 +687,7 @@ app.post("/estabelecimentos", async (req, res) => {
 // EXCLUIR ESTABELECIMENTO
 // ==========================================
 
-app.delete("/estabelecimentos/:id", async (req, res) => {
+app.delete("/estabelecimentos/:id", autenticarUsuario, async (req, res) => {
 
     try {
 
