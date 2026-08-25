@@ -791,6 +791,70 @@ app.post("/usuarios", async (req, res) => {
 
 });
 
+// ==========================================
+// LOGIN DE USUÁRIO
+// ==========================================
+
+app.post("/login", async (req, res) => {
+
+    try {
+
+        const { email, senha } = req.body;
+
+        if (!email || !senha) {
+
+            return res.status(400).json({
+                sucesso: false,
+                erro: "E-mail e senha são obrigatórios"
+            });
+
+        }
+
+        const resultado = await pool.query(
+            `
+            SELECT
+                id,
+                nome,
+                email
+            FROM usuarios
+            WHERE email = $1
+            AND senha = $2
+            `,
+            [
+                email.trim().toLowerCase(),
+                senha
+            ]
+        );
+
+        if (resultado.rows.length === 0) {
+
+            return res.status(401).json({
+                sucesso: false,
+                erro: "E-mail ou senha incorretos"
+            });
+
+        }
+
+        res.json({
+            sucesso: true,
+            mensagem: "Login realizado com sucesso!",
+            usuario: resultado.rows[0]
+        });
+
+    } catch (error) {
+
+        console.error("ERRO AO FAZER LOGIN:");
+        console.error(error);
+
+        res.status(500).json({
+            sucesso: false,
+            erro: "Erro ao fazer login"
+        });
+
+    }
+
+});
+
 app.listen(PORT, () => {
 
     console.log(`Servidor rodando na porta ${PORT}`);
