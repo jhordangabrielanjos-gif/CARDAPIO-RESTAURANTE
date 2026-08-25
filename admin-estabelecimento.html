@@ -135,87 +135,94 @@
 
         const API_URL = "https://cardapio-restaurante-za9s.onrender.com";
 
+async function criarEstabelecimento() {
 
-        async function criarEstabelecimento() {
+    const nome = document
+        .getElementById("nome")
+        .value
+        .trim();
 
-            const nome = document
-                .getElementById("nome")
-                .value
-                .trim();
+    const resultado =
+        document.getElementById("resultado");
 
-            const resultado =
-                document.getElementById("resultado");
+    if (!nome) {
 
+        resultado.className = "erro";
+        resultado.textContent =
+            "Digite o nome da lanchonete.";
 
-            if (!nome) {
+        return;
+    }
 
-                resultado.className = "erro";
+    try {
 
-                resultado.textContent =
-                    "Digite o nome da lanchonete.";
+        const resposta = await fetch(
+            `${API_URL}/estabelecimentos`,
+            {
+                method: "POST",
 
-                return;
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    nome: nome
+                })
             }
+        );
 
+        // PEGAR A RESPOSTA COMO TEXTO PRIMEIRO
+        const texto = await resposta.text();
 
-            try {
+        console.log("Status:", resposta.status);
+        console.log("Resposta:", texto);
 
-                const resposta = await fetch(
-                    `${API_URL}/estabelecimentos`,
-                    {
-                        method: "POST",
+        let dados;
 
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
+        try {
+            dados = JSON.parse(texto);
+        } catch {
 
-                        body: JSON.stringify({
-                            nome: nome
-                        })
-                    }
-                );
-
-
-                const dados = await resposta.json();
-
-
-                if (!resposta.ok) {
-
-                    throw new Error(
-                        dados.erro ||
-                        "Erro ao cadastrar"
-                    );
-
-                }
-
-
-                resultado.className = "sucesso";
-
-                resultado.innerHTML = `
-                    <strong>Lanchonete criada!</strong><br><br>
-                    ID: ${dados.id}<br>
-                    Nome: ${dados.nome}
-                `;
-
-
-                document
-                    .getElementById("nome")
-                    .value = "";
-
-
-            } catch (erro) {
-
-                console.error(erro);
-
-                resultado.className = "erro";
-
-                resultado.textContent =
-                    erro.message ||
-                    "Erro ao conectar com a API.";
-
-            }
+            throw new Error(
+                `A API respondeu algo que não é JSON. Status: ${resposta.status}`
+            );
 
         }
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao cadastrar estabelecimento"
+            );
+
+        }
+
+        resultado.className = "sucesso";
+
+        resultado.innerHTML = `
+            <strong>Lanchonete criada!</strong><br><br>
+            ID: ${dados.id}<br>
+            Nome: ${dados.nome}
+        `;
+
+        document
+            .getElementById("nome")
+            .value = "";
+
+    } catch (erro) {
+
+        console.error("ERRO:", erro);
+
+        resultado.className = "erro";
+
+        resultado.textContent =
+            erro.message ||
+            "Erro ao conectar com a API.";
+
+    }
+
+}
 
     </script>
 
