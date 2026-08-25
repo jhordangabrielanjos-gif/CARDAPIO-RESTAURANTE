@@ -46,11 +46,59 @@ pool.connect()
     });
 
 // ==========================================
-// CRIAR TABELA
+// CRIAR / PREPARAR TABELAS
 // ==========================================
 
-async function criarTabela() {
+async function prepararBanco() {
     try {
+
+        // ======================================
+        // 1. TABELA DE ESTABELECIMENTOS
+        // ======================================
+
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS estabelecimentos (
+                id SERIAL PRIMARY KEY,
+                nome VARCHAR(255) NOT NULL,
+                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        console.log("Tabela estabelecimentos pronta!");
+
+        // ======================================
+        // 2. CRIAR ESTABELECIMENTO PADRÃO
+        // ======================================
+
+        let estabelecimento = await pool.query(`
+            SELECT id
+            FROM estabelecimentos
+            ORDER BY id
+            LIMIT 1
+        `);
+
+        if (estabelecimento.rows.length === 0) {
+
+            estabelecimento = await pool.query(`
+                INSERT INTO estabelecimentos (nome)
+                VALUES ('Minha Lanchonete')
+                RETURNING id
+            `);
+
+            console.log("Estabelecimento padrão criado!");
+
+        } else {
+
+            console.log("Estabelecimento já existente encontrado!");
+
+        }
+
+        const estabelecimentoId = estabelecimento.rows[0].id;
+
+        // ======================================
+        // 3. CRIAR TABELA PRATOS
+        // ======================================
+
         await pool.query(`
             CREATE TABLE IF NOT EXISTS pratos (
                 id SERIAL PRIMARY KEY,
@@ -64,12 +112,69 @@ async function criarTabela() {
         `);
 
         console.log("Tabela pratos pronta!");
+
+        // ======================================
+        // 4. ADICIONAR ESTABELECIMENTO_ID
+        // ======================================
+
+        await pool.query(`
+            ALTER TABLE pratos
+            ADD COLUMN IF NOT EXISTS estabelecimento_id INTEGER
+        `);
+
+        console.log("Coluna estabelecimento_id pronta!");
+
+        // ======================================
+        // 5. COLOCAR PRATOS ANTIGOS NO
+        //    ESTABELECIMENTO PADRÃO
+        // ======================================
+
+        await pool.query(`
+            UPDATE pratos
+            SET estabelecimento_id = $1
+            WHERE estabelecimento_id IS NULL
+        `, [estabelecimentoId]);
+
+        console.log("Pratos antigos vinculados ao estabelecimento!");
+
+        // ======================================
+        // 6. CRIAR CHAVE ESTRANGEIRA
+        // ======================================
+
+        const foreignKey = await pool.query(`
+            SELECT constraint_name
+            FROM information_schema.table_constraints
+            WHERE table_name = 'pratos'
+            AND constraint_name = 'fk_pratos_estabelecimento'
+        `);
+
+        if (foreignKey.rows.length === 0) {
+
+            await pool.query(`
+                ALTER TABLE pratos
+                ADD CONSTRAINT fk_pratos_estabelecimento
+                FOREIGN KEY (estabelecimento_id)
+                REFERENCES estabelecimentos(id)
+                ON DELETE CASCADE
+            `);
+
+            console.log("Relacionamento entre pratos e estabelecimentos criado!");
+
+        }
+
+        console.log("======================================");
+        console.log("BANCO PREPARADO COM SUCESSO!");
+        console.log("======================================");
+
     } catch (error) {
-        console.error("Erro ao criar tabela:", error);
+
+        console.error("ERRO AO PREPARAR BANCO:");
+        console.error(error);
+
     }
 }
 
-criarTabela();
+prepararBanco();
 
 // ==========================================
 // ROTA PRINCIPAL
@@ -95,21 +200,28 @@ app.get("/api", (req, res) => {
 // ==========================================
 
 app.get("/pratos", async (req, res) => {
+
     try {
-        const resultado = await pool.query(
-            "SELECT * FROM pratos ORDER BY id DESC"
-        );
+
+        const resultado = await pool.query(`
+            SELECT *
+            FROM pratos
+            ORDER BY id DESC
+        `);
 
         res.json(resultado.rows);
 
     } catch (error) {
+
         console.error("ERRO AO BUSCAR PRATOS:");
         console.error(error);
 
         res.status(500).json({
             erro: error.message || "Erro ao buscar pratos"
         });
+
     }
+
 });
 
 // ==========================================
@@ -117,7 +229,9 @@ app.get("/pratos", async (req, res) => {
 // ==========================================
 
 app.get("/pratos/:id", async (req, res) => {
+
     try {
+
         const { id } = req.params;
 
         const resultado = await pool.query(
@@ -126,20 +240,25 @@ app.get("/pratos/:id", async (req, res) => {
         );
 
         if (resultado.rows.length === 0) {
+
             return res.status(404).json({
                 erro: "Prato não encontrado"
             });
+
         }
 
         res.json(resultado.rows[0]);
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
             erro: "Erro ao buscar prato"
         });
+
     }
+
 });
 
 // ==========================================
@@ -147,7 +266,9 @@ app.get("/pratos/:id", async (req, res) => {
 // ==========================================
 
 app.post("/pratos", async (req, res) => {
+
     try {
+
         const {
             nome,
             descricao,
@@ -157,16 +278,43 @@ app.post("/pratos", async (req, res) => {
         } = req.body;
 
         if (!nome || preco === undefined) {
+
             return res.status(400).json({
                 erro: "Nome e preço são obrigatórios"
             });
+
         }
+
+        // Pegar o primeiro estabelecimento
+        const estabelecimento = await pool.query(`
+            SELECT id
+            FROM estabelecimentos
+            ORDER BY id
+            LIMIT 1
+        `);
+
+        if (estabelecimento.rows.length === 0) {
+
+            return res.status(500).json({
+                erro: "Nenhum estabelecimento encontrado"
+            });
+
+        }
+
+        const estabelecimentoId = estabelecimento.rows[0].id;
 
         const resultado = await pool.query(
             `
             INSERT INTO pratos
-            (nome, descricao, preco, categoria, imagem)
-            VALUES ($1, $2, $3, $4, $5)
+            (
+                nome,
+                descricao,
+                preco,
+                categoria,
+                imagem,
+                estabelecimento_id
+            )
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
             `,
             [
@@ -174,19 +322,23 @@ app.post("/pratos", async (req, res) => {
                 descricao || "",
                 preco,
                 categoria || "Outros",
-                imagem || ""
+                imagem || "",
+                estabelecimentoId
             ]
         );
 
         res.status(201).json(resultado.rows[0]);
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
             erro: "Erro ao cadastrar prato"
         });
+
     }
+
 });
 
 // ==========================================
@@ -194,7 +346,9 @@ app.post("/pratos", async (req, res) => {
 // ==========================================
 
 app.put("/pratos/:id", async (req, res) => {
+
     try {
+
         const { id } = req.params;
 
         const {
@@ -228,20 +382,25 @@ app.put("/pratos/:id", async (req, res) => {
         );
 
         if (resultado.rows.length === 0) {
+
             return res.status(404).json({
                 erro: "Prato não encontrado"
             });
+
         }
 
         res.json(resultado.rows[0]);
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
             erro: "Erro ao editar prato"
         });
+
     }
+
 });
 
 // ==========================================
@@ -249,7 +408,9 @@ app.put("/pratos/:id", async (req, res) => {
 // ==========================================
 
 app.delete("/pratos/:id", async (req, res) => {
+
     try {
+
         const { id } = req.params;
 
         const resultado = await pool.query(
@@ -258,9 +419,11 @@ app.delete("/pratos/:id", async (req, res) => {
         );
 
         if (resultado.rows.length === 0) {
+
             return res.status(404).json({
                 erro: "Prato não encontrado"
             });
+
         }
 
         res.json({
@@ -268,12 +431,15 @@ app.delete("/pratos/:id", async (req, res) => {
         });
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
             erro: "Erro ao excluir prato"
         });
+
     }
+
 });
 
 // ==========================================
@@ -281,5 +447,7 @@ app.delete("/pratos/:id", async (req, res) => {
 // ==========================================
 
 app.listen(PORT, () => {
+
     console.log(`Servidor rodando na porta ${PORT}`);
+
 });
