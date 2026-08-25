@@ -240,21 +240,74 @@ app.get("/pratos/:id", async (req, res) => {
         );
 
         if (resultado.rows.length === 0) {
-
             return res.status(404).json({
                 erro: "Prato não encontrado"
             });
-
         }
 
         res.json(resultado.rows[0]);
 
     } catch (error) {
 
+        console.error("ERRO AO BUSCAR PRATO:");
         console.error(error);
 
         res.status(500).json({
             erro: "Erro ao buscar prato"
+        });
+
+    }
+
+});
+
+// ==========================================
+// LISTAR PRATOS DE UM ESTABELECIMENTO
+// ==========================================
+
+app.get("/estabelecimentos/:id/pratos", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        // Verificar se o estabelecimento existe
+        const estabelecimento = await pool.query(
+            `
+            SELECT *
+            FROM estabelecimentos
+            WHERE id = $1
+            `,
+            [id]
+        );
+
+        if (estabelecimento.rows.length === 0) {
+
+            return res.status(404).json({
+                erro: "Estabelecimento não encontrado"
+            });
+
+        }
+
+        // Buscar somente os pratos desse estabelecimento
+        const resultado = await pool.query(
+            `
+            SELECT *
+            FROM pratos
+            WHERE estabelecimento_id = $1
+            ORDER BY id DESC
+            `,
+            [id]
+        );
+
+        res.json(resultado.rows);
+
+    } catch (error) {
+
+        console.error("ERRO AO BUSCAR PRATOS DO ESTABELECIMENTO:");
+        console.error(error);
+
+        res.status(500).json({
+            erro: "Erro ao buscar pratos"
         });
 
     }
