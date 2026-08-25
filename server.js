@@ -2,6 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
 const path = require("path");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET =
+    process.env.JWT_SECRET || "chave-temporaria-restaurante";
 
 const app = express();
 
@@ -210,6 +214,66 @@ prepararBanco();
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "index.html"));
 });
+
+// ==========================================
+// AUTENTICAÇÃO
+// ==========================================
+
+function autenticarUsuario(req, res, next) {
+
+    try {
+
+        const autorizacao =
+            req.headers.authorization;
+
+        if (!autorizacao) {
+
+            return res.status(401).json({
+                sucesso: false,
+                erro: "Usuário não autenticado."
+            });
+
+        }
+
+        const partes =
+            autorizacao.split(" ");
+
+        if (
+            partes.length !== 2 ||
+            partes[0] !== "Bearer"
+        ) {
+
+            return res.status(401).json({
+                sucesso: false,
+                erro: "Token inválido."
+            });
+
+        }
+
+        const token = partes[1];
+
+        const usuario =
+            jwt.verify(token, JWT_SECRET);
+
+        req.usuario = usuario;
+
+        next();
+
+    } catch (error) {
+
+        console.error(
+            "ERRO NA AUTENTICAÇÃO:",
+            error.message
+        );
+
+        return res.status(401).json({
+            sucesso: false,
+            erro: "Sessão inválida ou expirada."
+        });
+
+    }
+
+}
 
 // ==========================================
 // TESTE DA API
