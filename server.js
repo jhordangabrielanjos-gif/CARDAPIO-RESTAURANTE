@@ -498,7 +498,45 @@ app.delete("/pratos/:id", async (req, res) => {
 // ==========================================
 // INICIAR SERVIDOR
 // ==========================================
+// ==========================================
+// CRIAR ESTABELECIMENTO
+// ==========================================
 
+app.post("/estabelecimentos", async (req, res) => {
+
+    try {
+
+        const { nome } = req.body;
+
+        if (!nome || !nome.trim()) {
+            return res.status(400).json({
+                erro: "Nome do estabelecimento é obrigatório"
+            });
+        }
+
+        const resultado = await pool.query(
+            `
+            INSERT INTO estabelecimentos (nome)
+            VALUES ($1)
+            RETURNING *
+            `,
+            [nome.trim()]
+        );
+
+        res.status(201).json(resultado.rows[0]);
+
+    } catch (error) {
+
+        console.error("ERRO AO CRIAR ESTABELECIMENTO:");
+        console.error(error);
+
+        res.status(500).json({
+            erro: "Erro ao criar estabelecimento"
+        });
+
+    }
+
+});
 app.listen(PORT, () => {
 
     console.log(`Servidor rodando na porta ${PORT}`);
