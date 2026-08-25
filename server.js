@@ -704,6 +704,7 @@ await pool.query(`
 `);
 
 console.log("Tabela usuarios pronta!");
+
 // ======================================
 // VINCULAR ESTABELECIMENTOS A USUÁRIOS
 // ======================================
