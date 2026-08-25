@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastrar Lanchonete</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 450px;
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 15px;
+
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 12px;
+
+            border: 1px solid #ccc;
+            border-radius: 8px;
+
+            margin-bottom: 15px;
+
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+
+            padding: 13px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #222;
+            color: white;
+
+            font-size: 16px;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #resultado {
+            margin-top: 20px;
+
+            padding: 12px;
+
+            border-radius: 8px;
+
+            text-align: center;
+        }
+
+        .sucesso {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .erro {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Nova Lanchonete</h1>
+
+        <label for="nome">
+            Nome da lanchonete
+        </label>
+
+        <input
+            type="text"
+            id="nome"
+            placeholder="Ex: Lanchonete do João"
+        >
+
+        <button onclick="criarEstabelecimento()">
+            Cadastrar Lanchonete
+        </button>
+
+        <div id="resultado"></div>
+
+    </div>
+
+
+    <script>
+
+        const API_URL = "https://cardapio-restaurante-za9s.onrender.com";
+
+
+        async function criarEstabelecimento() {
+
+            const nome = document
+                .getElementById("nome")
+                .value
+                .trim();
+
+            const resultado =
+                document.getElementById("resultado");
+
+
+            if (!nome) {
+
+                resultado.className = "erro";
+
+                resultado.textContent =
+                    "Digite o nome da lanchonete.";
+
+                return;
+            }
+
+
+            try {
+
+                const resposta = await fetch(
+                    `${API_URL}/estabelecimentos`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            nome: nome
+                        })
+                    }
+                );
+
+
+                const dados = await resposta.json();
+
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        dados.erro ||
+                        "Erro ao cadastrar"
+                    );
+
+                }
+
+
+                resultado.className = "sucesso";
+
+                resultado.innerHTML = `
+                    <strong>Lanchonete criada!</strong><br><br>
+                    ID: ${dados.id}<br>
+                    Nome: ${dados.nome}
+                `;
+
+
+                document
+                    .getElementById("nome")
+                    .value = "";
+
+
+            } catch (erro) {
+
+                console.error(erro);
+
+                resultado.className = "erro";
+
+                resultado.textContent =
+                    erro.message ||
+                    "Erro ao conectar com a API.";
+
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
