@@ -591,6 +591,75 @@ app.post("/estabelecimentos", async (req, res) => {
     }
 
 });
+
+// ==========================================
+// EXCLUIR ESTABELECIMENTO
+// ==========================================
+
+app.delete("/estabelecimentos/:id", async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        // Verificar se existe
+        const estabelecimento = await pool.query(
+            `
+            SELECT *
+            FROM estabelecimentos
+            WHERE id = $1
+            `,
+            [id]
+        );
+
+        if (estabelecimento.rows.length === 0) {
+
+            return res.status(404).json({
+                erro: "Estabelecimento não encontrado"
+            });
+
+        }
+
+        // Não permitir excluir o estabelecimento padrão
+        if (Number(id) === 1) {
+
+            return res.status(400).json({
+                erro: "O estabelecimento principal não pode ser excluído."
+            });
+
+        }
+
+        // Excluir estabelecimento
+        // Os pratos serão excluídos automaticamente
+        // por causa do ON DELETE CASCADE
+        await pool.query(
+            `
+            DELETE FROM estabelecimentos
+            WHERE id = $1
+            `,
+            [id]
+        );
+
+        res.json({
+            sucesso: true,
+            mensagem: "Estabelecimento excluído com sucesso!"
+        });
+
+    } catch (error) {
+
+        console.error(
+            "ERRO AO EXCLUIR ESTABELECIMENTO:"
+        );
+
+        console.error(error);
+
+        res.status(500).json({
+            erro: "Erro ao excluir estabelecimento"
+        });
+
+    }
+
+});
 app.listen(PORT, () => {
 
     console.log(`Servidor rodando na porta ${PORT}`);
