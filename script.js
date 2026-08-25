@@ -2,6 +2,21 @@ const API_URL = "https://cardapio-restaurante-za9s.onrender.com";
 
 const WHATSAPP = "5579981021378";
 // ========================================
+// ESTABELECIMENTO ATUAL
+// ========================================
+
+const parametros = new URLSearchParams(
+    window.location.search
+);
+
+const ESTABELECIMENTO_ID =
+    Number(parametros.get("estabelecimento")) || 1;
+
+console.log(
+    "Estabelecimento atual:",
+    ESTABELECIMENTO_ID
+);
+// ========================================
 // SENHA ADMINISTRATIVA
 // ========================================
 
@@ -609,7 +624,7 @@ async function carregarPratos() {
 
 
         const resposta = await fetch(
-            `${API_URL}/pratos`
+            `${API_URL}/estabelecimentos/${ESTABELECIMENTO_ID}/pratos`
         );
 
 
@@ -1255,25 +1270,27 @@ form.addEventListener(
             return;
         }
 
-
         const dados = {
 
-            nome:
-                nome.value.trim(),
+    nome:
+        nome.value.trim(),
 
-            descricao:
-                descricao.value.trim(),
+    descricao:
+        descricao.value.trim(),
 
-            preco:
-                precoNumerico,
+    preco:
+        precoNumerico,
 
-            imagem:
-                imagemAtual || "",
+    imagem:
+        imagemAtual || "",
 
-            categoria:
-                categoria.value.trim()
+    categoria:
+        categoria.value.trim(),
 
-        };
+    estabelecimento_id:
+        ESTABELECIMENTO_ID
+
+};
 
 
         try {
