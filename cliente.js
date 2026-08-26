@@ -1021,11 +1021,15 @@ function criarCategorias() {
 
         "Bebidas",
 
-        "Açaí",
+         "Açaí",
 
-        "Cafés"
+"Cafés",
 
-    ];
+"Pastéis",
+
+"Geladinhos"
+
+];
 
 
     const icones = {
@@ -1058,10 +1062,13 @@ function criarCategorias() {
 
         "Açaí": "🍨",
 
-        "Cafés": "☕"
+"Cafés": "☕",
 
-    };
+"Pastéis": "🥟",
 
+"Geladinhos": "🍧"
+
+};
 
     categorias.innerHTML =
         nomes
