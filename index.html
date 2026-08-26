@@ -309,6 +309,198 @@
 
         </div>
 
+<!-- =========================================
+     DADOS DO PEDIDO
+========================================= -->
+
+<div class="dados-pedido">
+
+    <h3>📦 Como deseja receber?</h3>
+
+    <div class="opcoes-pedido">
+
+        <label class="opcao-pedido">
+
+            <input
+                type="radio"
+                name="tipoPedido"
+                value="Delivery"
+                checked
+            >
+
+            🚚 Delivery
+
+        </label>
+
+
+        <label class="opcao-pedido">
+
+            <input
+                type="radio"
+                name="tipoPedido"
+                value="Retirada"
+            >
+
+            🏪 Buscar no estabelecimento
+
+        </label>
+
+    </div>
+
+
+    <!-- ENDEREÇO DELIVERY -->
+
+    <div id="dadosEndereco">
+
+        <h3>📍 Endereço de entrega</h3>
+
+        <input
+            type="text"
+            id="enderecoCliente"
+            placeholder="Rua / Avenida"
+        >
+
+        <input
+            type="text"
+            id="numeroCliente"
+            placeholder="Número"
+        >
+
+        <input
+            type="text"
+            id="bairroCliente"
+            placeholder="Bairro"
+        >
+
+        <input
+            type="text"
+            id="complementoCliente"
+            placeholder="Complemento (opcional)"
+        >
+
+    </div>
+
+
+    <!-- PAGAMENTO -->
+
+    <h3>💰 Forma de pagamento</h3>
+
+    <select id="metodoPagamento">
+
+        <option value="">
+            Selecione a forma de pagamento
+        </option>
+
+        <option value="PIX">
+            📱 PIX
+        </option>
+
+        <option value="Cartão">
+            💳 Cartão
+        </option>
+
+        <option value="Dinheiro">
+            💵 Dinheiro
+        </option>
+
+    </select>
+
+
+    <!-- PIX -->
+
+    <div
+        id="opcaoPix"
+        class="opcao-extra"
+        style="display: none;"
+    >
+
+        <h4>📱 Pagamento via PIX</h4>
+
+        <p>
+            Após finalizar o pedido, faça o pagamento pelo PIX.
+        </p>
+
+        <div class="pix-info">
+
+            <strong>Chave PIX:</strong>
+
+            <span id="chavePix">
+                COLOQUE_SUA_CHAVE_PIX_AQUI
+            </span>
+
+        </div>
+
+        <button
+            type="button"
+            id="copiarPix"
+            class="botao-copiar-pix"
+        >
+            📋 Copiar chave PIX
+        </button>
+
+    </div>
+
+
+    <!-- CARTÃO -->
+
+    <div
+        id="opcaoCartao"
+        class="opcao-extra"
+        style="display: none;"
+    >
+
+        <label class="opcao-pedido">
+
+            <input
+                type="checkbox"
+                id="levarMaquininha"
+            >
+
+            💳 Levar maquininha para pagamento
+
+        </label>
+
+    </div>
+
+
+    <!-- DINHEIRO -->
+
+    <div
+        id="opcaoDinheiro"
+        class="opcao-extra"
+        style="display: none;"
+    >
+
+        <label class="opcao-pedido">
+
+            <input
+                type="checkbox"
+                id="precisaTroco"
+            >
+
+            💰 Preciso de troco
+
+        </label>
+
+
+        <div
+            id="campoTroco"
+            style="display: none;"
+        >
+
+            <input
+                type="number"
+                id="trocoPara"
+                step="0.01"
+                min="0"
+                placeholder="Troco para quanto? Ex: 50"
+            >
+
+        </div>
+
+    </div>
+
+</div>
 
         <!-- FOOTER -->
 
