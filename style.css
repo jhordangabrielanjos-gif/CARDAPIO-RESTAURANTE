@@ -89,7 +89,7 @@ body.sem-scroll {
     align-items: center;
     justify-content: center;
 
-    background: #ff6b35;
+    background: var(--cor-estabelecimento);
 
     border-radius: 14px;
 
@@ -493,7 +493,7 @@ body.sem-scroll {
 }
 
 .preco {
-    color: #ff6b35;
+    color: var(--cor-estabelecimento);
 
     font-size: 15px;
     font-weight: 800;
@@ -580,11 +580,11 @@ body.sem-scroll {
 .btn-editar {
     background: #fff1eb;
 
-    color: #ff6b35;
+    color: var(--cor-estabelecimento);
 }
 
 .btn-editar:hover {
-    background: #ff6b35;
+    background: var(--cor-estabelecimento);
     color: white;
 }
 
@@ -1574,6 +1574,417 @@ body.sem-scroll {
     opacity: 1;
 }
 
+/* ========================================
+   DADOS DO PEDIDO
+======================================== */
+
+.dados-pedido {
+    margin-top: 20px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.dados-pedido h3 {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 16px;
+
+    color: #222;
+
+    font-size: 16px;
+}
+
+
+/* ========================================
+   ENDEREÇO
+======================================== */
+
+.dados-endereco {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.dados-endereco input {
+    width: 100%;
+
+    min-height: 46px;
+
+    padding: 0 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    background: #fafafa;
+
+    color: #222;
+
+    font-size: 13px;
+
+    transition: 0.2s;
+}
+
+.dados-endereco input:focus {
+    border-color: #ff6b35;
+
+    background: white;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+.dados-endereco input::placeholder {
+    color: #aaa;
+}
+
+
+/* ========================================
+   LINHA ENDEREÇO
+======================================== */
+
+.linha-endereco {
+    display: grid;
+
+    grid-template-columns:
+        1fr 110px;
+
+    gap: 10px;
+}
+
+
+/* ========================================
+   PAGAMENTO
+======================================== */
+
+.metodo-pagamento {
+    margin-top: 22px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.metodo-pagamento h3 {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+
+    font-size: 16px;
+}
+
+
+/* ========================================
+   OPÇÕES DE PAGAMENTO
+======================================== */
+
+.opcoes-pagamento {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 9px;
+}
+
+.opcao-pagamento {
+    min-height: 70px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    padding: 8px;
+
+    border: 2px solid #eeeeee;
+
+    border-radius: 13px;
+
+    background: #fafafa;
+
+    color: #666;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.opcao-pagamento:hover {
+    border-color: #25d366;
+
+    background: #f2fff6;
+
+    transform: translateY(-2px);
+}
+
+.opcao-pagamento.ativo {
+    border-color: #25d366;
+
+    background: #eafff0;
+
+    color: #168c43;
+
+    box-shadow:
+        0 5px 14px
+        rgba(37, 211, 102, 0.12);
+}
+
+.opcao-pagamento .icone-pagamento {
+    font-size: 22px;
+}
+
+
+/* ========================================
+   PIX
+======================================== */
+
+.dados-pix {
+    margin-top: 14px;
+
+    padding: 14px;
+
+    border-radius: 13px;
+
+    background: #f5fff8;
+
+    border: 1px solid #d7f5e1;
+}
+
+.dados-pix p {
+    margin-bottom: 9px;
+
+    color: #666;
+
+    font-size: 12px;
+}
+
+.chave-pix {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.chave-pix input {
+    flex: 1;
+
+    min-width: 0;
+
+    height: 42px;
+
+    padding: 0 10px;
+
+    border: 1px solid #d8e8dd;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: white;
+
+    color: #333;
+
+    font-size: 12px;
+}
+
+.btn-copiar-pix {
+    height: 42px;
+
+    padding: 0 12px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #25d366;
+
+    color: white;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    transition: 0.2s;
+}
+
+.btn-copiar-pix:hover {
+    background: #20bd5a;
+}
+
+
+/* ========================================
+   CARTÃO
+======================================== */
+
+.opcao-maquininha {
+    margin-top: 14px;
+
+    padding: 14px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    border-radius: 12px;
+
+    background: #f8f8f8;
+
+    border: 1px solid #eeeeee;
+
+    color: #555;
+
+    font-size: 12px;
+}
+
+.opcao-maquininha input {
+    width: 18px;
+    height: 18px;
+
+    accent-color: #25d366;
+}
+
+
+/* ========================================
+   DINHEIRO
+======================================== */
+
+.opcao-troco {
+    margin-top: 14px;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    background: #fffaf0;
+
+    border: 1px solid #f3e4bd;
+}
+
+.opcao-troco label {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.opcao-troco input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+
+    accent-color: #ff6b35;
+}
+
+
+/* ========================================
+   CAMPO TROCO
+======================================== */
+
+.campo-troco {
+    margin-top: 13px;
+}
+
+.campo-troco label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.campo-troco input {
+    width: 100%;
+
+    height: 46px;
+
+    padding: 0 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: white;
+
+    font-size: 13px;
+}
+
+.campo-troco input:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+
+/* ========================================
+   SEÇÕES OCULTAS
+======================================== */
+
+.oculto {
+    display: none !important;
+}
+
+
+/* ========================================
+   RESPONSIVO PEDIDO
+======================================== */
+
+@media (max-width: 600px) {
+
+    .opcoes-pagamento {
+        gap: 7px;
+    }
+
+    .opcao-pagamento {
+        min-height: 65px;
+
+        font-size: 10px;
+    }
+
+    .linha-endereco {
+        grid-template-columns:
+            1fr 90px;
+    }
+
+    .chave-pix {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .btn-copiar-pix {
+        width: 100%;
+    }
+
+}
 
 /* ========================================
    RESPONSIVO
@@ -1724,4 +2135,388 @@ body.sem-scroll {
         align-items: flex-start;
     }
 
+}
+/* ========================================
+   DADOS DO PEDIDO
+======================================== */
+
+.dados-pedido {
+    padding: 18px 20px;
+
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
+
+    background: #fafafa;
+}
+
+.dados-pedido h3 {
+    margin-bottom: 12px;
+
+    color: #222;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.opcoes-pedido {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+
+    margin-bottom: 18px;
+}
+
+.opcao-pedido {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 12px 13px;
+
+    border: 1px solid #e5e5e5;
+
+    border-radius: 11px;
+
+    background: white;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.opcao-pedido:hover {
+    border-color: #ff6b35;
+
+    background: #fff8f5;
+}
+
+.opcao-pedido input {
+    width: 17px;
+    height: 17px;
+
+    accent-color: #ff6b35;
+
+    cursor: pointer;
+}
+
+
+/* ========================================
+   ENDEREÇO
+======================================== */
+
+#dadosEndereco {
+    margin-bottom: 18px;
+
+    padding: 15px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 13px;
+
+    background: white;
+}
+
+#dadosEndereco h3 {
+    margin-bottom: 12px;
+
+    color: #333;
+
+    font-size: 13px;
+}
+
+#dadosEndereco input {
+    width: 100%;
+
+    margin-bottom: 9px;
+
+    padding: 11px 12px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: white;
+
+    color: #222;
+
+    font-size: 12px;
+
+    transition: 0.2s;
+}
+
+#dadosEndereco input:last-child {
+    margin-bottom: 0;
+}
+
+#dadosEndereco input:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+
+/* ========================================
+   SELECT PAGAMENTO
+======================================== */
+
+#metodoPagamento {
+    width: 100%;
+
+    margin-bottom: 12px;
+
+    padding: 12px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    background: white;
+
+    color: #444;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#metodoPagamento:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+
+/* ========================================
+   OPÇÕES EXTRAS
+======================================== */
+
+.opcao-extra {
+    margin-bottom: 12px;
+
+    padding: 14px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 13px;
+
+    background: white;
+
+    animation: aparecerOpcao 0.2s ease;
+}
+
+@keyframes aparecerOpcao {
+
+    from {
+        opacity: 0;
+
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+
+}
+
+.opcao-extra h4 {
+    margin-bottom: 7px;
+
+    color: #333;
+
+    font-size: 13px;
+}
+
+.opcao-extra p {
+    margin-bottom: 10px;
+
+    color: #888;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   PIX
+======================================== */
+
+.pix-info {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    padding: 11px;
+
+    margin-bottom: 10px;
+
+    border-radius: 10px;
+
+    background: #f5f5f5;
+}
+
+.pix-info strong {
+    color: #555;
+
+    font-size: 11px;
+}
+
+.pix-info span {
+    overflow-wrap: anywhere;
+
+    color: #222;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.botao-copiar-pix {
+    width: 100%;
+
+    padding: 11px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #fff1eb;
+
+    color: #ff6b35;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.botao-copiar-pix:hover {
+    background: #ff6b35;
+
+    color: white;
+}
+
+
+/* ========================================
+   CARTÃO / DINHEIRO
+======================================== */
+
+.opcao-extra .opcao-pedido {
+    margin: 0;
+
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+}
+
+.opcao-extra .opcao-pedido:hover {
+    border: none;
+
+    background: transparent;
+}
+
+
+/* ========================================
+   TROCO
+======================================== */
+
+#campoTroco {
+    margin-top: 10px;
+}
+
+#trocoPara {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    font-size: 12px;
+
+    background: white;
+}
+
+#trocoPara:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+
+/* ========================================
+   COR PERSONALIZADA
+======================================== */
+
+:root {
+    --cor-estabelecimento: #ff6b35;
+}
+
+
+/* PRINCIPAIS ELEMENTOS */
+
+.btn-novo {
+    background: var(--cor-estabelecimento);
+}
+
+.btn-novo:hover {
+    background: var(--cor-estabelecimento);
+    filter: brightness(0.90);
+}
+
+.categoria.ativa {
+    background: var(--cor-estabelecimento);
+    border-color: var(--cor-estabelecimento);
+}
+
+.card-categoria {
+    color: var(--cor-estabelecimento);
+}
+
+.preco {
+    color: var(--cor-estabelecimento);
+}
+
+.btn-salvar {
+    background: var(--cor-estabelecimento);
+}
+
+.fechar:hover {
+    background: var(--cor-estabelecimento);
+}
+
+.botao-continuar {
+    background: var(--cor-estabelecimento);
 }
