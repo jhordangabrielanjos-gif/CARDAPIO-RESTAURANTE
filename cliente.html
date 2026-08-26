@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cardápio</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- =========================================
+         HEADER
+    ========================================== -->
+
+    <header class="header">
+
+        <div class="header-conteudo">
+
+            <div class="logo">
+
+                <div class="logo-icone" id="logoEstabelecimento">
+                    🍽️
+                </div>
+
+                <div>
+
+                    <h1 id="nomeEstabelecimento">
+                        Meu Restaurante
+                    </h1>
+
+                    <span id="subtituloEstabelecimento">
+                        Cardápio online
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================================
+         CONTEÚDO
+    ========================================== -->
+
+    <main class="container">
+
+        <!-- HERO -->
+
+        <section class="hero">
+
+            <div>
+
+                <span class="hero-tag">
+                    🍴 Faça seu pedido
+                </span>
+
+                <h2 id="tituloCardapio">
+                    Nosso <span>Cardápio</span>
+                </h2>
+
+                <p id="descricaoEstabelecimento">
+                    Escolha seus pratos favoritos e monte seu pedido.
+                </p>
+
+                <div id="informacoesEstabelecimento"></div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             PESQUISA
+        ====================================== -->
+
+        <section class="filtros">
+
+            <div class="pesquisa">
+
+                <span>🔎</span>
+
+                <input
+                    type="text"
+                    id="pesquisa"
+                    placeholder="Pesquisar prato..."
+                >
+
+            </div>
+
+
+            <div
+                id="categorias"
+                class="categorias">
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             CONTADOR
+        ====================================== -->
+
+        <div class="resultado">
+
+            <span id="contador">
+                Carregando pratos...
+            </span>
+
+        </div>
+
+
+        <!-- =====================================
+             PRATOS
+        ====================================== -->
+
+        <section
+            id="listaPratos"
+            class="lista-pratos">
+        </section>
+
+    </main>
+
+
+    <!-- =========================================
+         BOTÃO FLUTUANTE DO CARRINHO
+    ========================================== -->
+
+    <button
+        id="abrirCarrinho"
+        class="botao-carrinho"
+        type="button"
+    >
+
+        <span class="icone-carrinho">
+            🛒
+        </span>
+
+        <span>
+            Meu pedido
+        </span>
+
+        <strong id="contadorCarrinho">
+            0
+        </strong>
+
+    </button>
+
+
+    <!-- =========================================
+         OVERLAY DO CARRINHO
+    ========================================== -->
+
+    <div
+        id="overlayCarrinho"
+        class="overlay-carrinho">
+    </div>
+
+
+    <!-- =========================================
+         CARRINHO
+    ========================================== -->
+
+    <aside
+        id="carrinho"
+        class="carrinho"
+    >
+
+        <div class="carrinho-header">
+
+            <div class="carrinho-titulo">
+
+                <span class="carrinho-icone">
+                    🛒
+                </span>
+
+                <div>
+
+                    <h2>
+                        Meu pedido
+                    </h2>
+
+                    <small>
+                        Confira seus itens
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="fecharCarrinho"
+                class="fechar-carrinho"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <!-- LISTA DO CARRINHO -->
+
+        <div
+            id="listaCarrinho"
+            class="lista-carrinho"
+        >
+
+            <div
+                id="carrinhoVazio"
+                class="carrinho-vazio"
+            >
+
+                <div class="icone-vazio">
+                    🛒
+                </div>
+
+                <h3>
+                    Seu carrinho está vazio
+                </h3>
+
+                <p>
+                    Adicione pratos para começar seu pedido.
+                </p>
+
+                <button
+                    id="continuarComprando"
+                    class="botao-continuar"
+                    type="button"
+                >
+                    Ver cardápio
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="carrinho-footer">
+
+            <div class="linha-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="totalCarrinho">
+                    R$ 0,00
+                </strong>
+
+            </div>
+
+
+            <button
+                id="finalizarPedido"
+                class="botao-whatsapp"
+                type="button"
+                disabled
+            >
+                📱 Finalizar pelo WhatsApp
+            </button>
+
+
+            <button
+                id="limparCarrinho"
+                class="botao-limpar"
+                type="button"
+            >
+                🗑️ Limpar pedido
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================================
+         TOAST
+    ========================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+    ></div>
+
+
+    <!-- =========================================
+         JAVASCRIPT DO CLIENTE
+    ========================================== -->
+
+    <script src="cliente.js"></script>
+
+</body>
+
+</html>
