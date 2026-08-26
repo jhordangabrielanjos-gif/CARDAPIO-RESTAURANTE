@@ -1523,43 +1523,37 @@ form.addEventListener(
 
             if (pratoEditando) {
 
-                resposta =
-                    await fetch(
-                        `${API_URL}/pratos/${pratoEditando}`,
-                        {
+                resposta = await fetch(
+    `${API_URL}/pratos/${pratoEditando}`,
+    {
+        method: "PUT",
 
-                            method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                `Bearer ${localStorage.getItem("token")}`
+        },
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(dados)
-
-                        }
-                    );
+        body: JSON.stringify(dados)
+    }
+);
 
             } else {
 
-                resposta =
-                    await fetch(
-                        `${API_URL}/pratos`,
-                        {
+                resposta = await fetch(
+    `${API_URL}/pratos`,
+    {
+        method: "POST",
 
-                            method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                `Bearer ${localStorage.getItem("token")}`
+        },
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(dados)
-
-                        }
-                    );
+        body: JSON.stringify(dados)
+    }
+);
 
             }
 
@@ -1762,13 +1756,14 @@ async function excluirPrato(id) {
 
     try {
 
-        const resposta =
-            await fetch(
-                `${API_URL}/pratos/${id}`,
-                {
-                    method: "DELETE"
-                }
-            );
+        await fetch(`${API_URL}/pratos/${id}`, {
+    method: "DELETE",
+
+    headers: {
+        "Authorization":
+            `Bearer ${localStorage.getItem("token")}`
+    }
+});
 
 
         const tipo =
