@@ -1,32 +1,26 @@
 const API_URL = "https://cardapio-restaurante-za9s.onrender.com";
 
-const WHATSAPP = "5579981021378";
-
 // ==========================================
 // ESTABELECIMENTO ATUAL
 // ==========================================
 
-const API_URL =
-    "https://cardapio-restaurante-za9s.onrender.com";
-
-
-// Pegar ID pela URL
-const parametros =
-    new URLSearchParams(window.location.search);
+const parametros = new URLSearchParams(
+    window.location.search
+);
 
 const estabelecimentoId =
     parametros.get("estabelecimento");
 
+const ESTABELECIMENTO_ID =
+    Number(estabelecimentoId) || 1;
 
-// Se não tiver estabelecimento na URL
-if (!estabelecimentoId) {
+console.log(
+    "Estabelecimento atual:",
+    ESTABELECIMENTO_ID
+);
 
-    console.warn(
-        "Nenhum estabelecimento foi informado na URL."
-    );
-
-}
-
+// WhatsApp padrão
+let WHATSAPP = "5579981021378";
 
 // ==========================================
 // CARREGAR PERSONALIZAÇÃO
@@ -41,8 +35,8 @@ async function carregarConfiguracaoEstabelecimento() {
     try {
 
         const resposta = await fetch(
-            `${API_URL}/estabelecimentos/${estabelecimentoId}/configuracao`
-        );
+    `${API_URL}/publico/estabelecimentos/${estabelecimentoId}`
+);
 
 
         if (!resposta.ok) {
@@ -241,21 +235,6 @@ async function carregarConfiguracaoEstabelecimento() {
 
 }
 
-// ========================================
-// ESTABELECIMENTO ATUAL
-// ========================================
-
-const parametros = new URLSearchParams(
-    window.location.search
-);
-
-const ESTABELECIMENTO_ID =
-    Number(parametros.get("estabelecimento")) || 1;
-
-console.log(
-    "Estabelecimento atual:",
-    ESTABELECIMENTO_ID
-);
 // ========================================
 // SENHA ADMINISTRATIVA
 // ========================================
