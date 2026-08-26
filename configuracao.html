@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Configuração do Cardápio</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        header {
+            background: #222;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 850px;
+            margin: 30px auto;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: #666;
+        }
+
+        .campo {
+            margin-bottom: 20px;
+        }
+
+        .campo label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .campo input,
+        .campo textarea,
+        .campo select {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .campo input:focus,
+        .campo textarea:focus,
+        .campo select:focus {
+            border-color: #222;
+        }
+
+        .campo textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .linha {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .logo-preview {
+            margin-top: 12px;
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .logo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logo-preview span {
+            color: #888;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .cor-area {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .cor-area input[type="color"] {
+            width: 60px;
+            height: 45px;
+            padding: 3px;
+            cursor: pointer;
+        }
+
+        .botoes {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 13px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .salvar {
+            background: #222;
+            color: white;
+            flex: 1;
+        }
+
+        .voltar {
+            background: #ddd;
+            color: #222;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .mensagem {
+            display: none;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .sucesso {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .erro {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .carregando {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .info {
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+
+            .linha {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .botoes {
+                flex-direction: column;
+            }
+
+            .salvar,
+            .voltar {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <h1>⚙️ Configuração do Cardápio</h1>
+
+    <p>
+        Personalize as informações do seu estabelecimento
+    </p>
+
+</header>
+
+
+<main class="container">
+
+
+    <!-- ==========================================
+         MENSAGEM
+    =========================================== -->
+
+    <div
+        id="mensagem"
+        class="mensagem"
+    ></div>
+
+
+    <!-- ==========================================
+         ESCOLHER ESTABELECIMENTO
+    =========================================== -->
+
+    <div class="card">
+
+        <h2>🏪 Estabelecimento</h2>
+
+        <p>
+            Escolha qual estabelecimento deseja configurar.
+        </p>
+
+        <div class="campo">
+
+            <label for="estabelecimento">
+
+                Meu estabelecimento
+
+            </label>
+
+            <select
+                id="estabelecimento"
+            >
+
+                <option value="">
+                    Carregando estabelecimentos...
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         CONFIGURAÇÕES
+    =========================================== -->
+
+    <div
+        id="areaConfiguracao"
+        class="card"
+        style="display:none;"
+    >
+
+        <h2>🎨 Informações do cardápio</h2>
+
+        <p>
+            Essas informações serão usadas no cardápio deste estabelecimento.
+        </p>
+
+
+        <div class="info">
+
+            <strong>
+                💡 Dica:
+            </strong>
+
+            Você pode alterar essas informações quando quiser.
+
+        </div>
+
+
+        <!-- NOME -->
+
+        <div class="campo">
+
+            <label for="nome">
+
+                Nome do estabelecimento
+
+            </label>
+
+            <input
+                type="text"
+                id="nome"
+                placeholder="Ex: Lanchonete do Jhordan"
+                required
+            >
+
+        </div>
+
+
+        <!-- DESCRIÇÃO -->
+
+        <div class="campo">
+
+            <label for="descricao">
+
+                Descrição
+
+            </label>
+
+            <textarea
+                id="descricao"
+                placeholder="Ex: Os melhores hambúrgueres da cidade!"
+            ></textarea>
+
+        </div>
+
+
+        <!-- LOGO -->
+
+        <div class="campo">
+
+            <label for="logo">
+
+                🖼️ Logo
+
+            </label>
+
+            <input
+                type="text"
+                id="logo"
+                placeholder="Cole aqui o link da imagem da logo"
+            >
+
+            <div
+                id="logoPreview"
+                class="logo-preview"
+            >
+
+                <span>
+                    A logo aparecerá aqui
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- COR -->
+
+        <div class="campo">
+
+            <label for="cor">
+
+                🎨 Cor principal
+
+            </label>
+
+            <div class="cor-area">
+
+                <input
+                    type="color"
+                    id="cor"
+                    value="#222222"
+                >
+
+                <input
+                    type="text"
+                    id="corTexto"
+                    value="#222222"
+                    placeholder="#222222"
+                >
+
+            </div>
+
+        </div>
+
+
+        <!-- WHATSAPP -->
+
+        <div class="campo">
+
+            <label for="whatsapp">
+
+                📱 WhatsApp
+
+            </label>
+
+            <input
+                type="text"
+                id="whatsapp"
+                placeholder="Ex: 5579999999999"
+            >
+
+            <small>
+                Use o número com DDI e DDD.
+                Exemplo: 5579999999999
+            </small>
+
+        </div>
+
+
+        <!-- ENDEREÇO -->
+
+        <div class="campo">
+
+            <label for="endereco">
+
+                📍 Endereço
+
+            </label>
+
+            <textarea
+                id="endereco"
+                placeholder="Ex: Avenida Brasil, 123 - Centro"
+            ></textarea>
+
+        </div>
+
+
+        <!-- HORÁRIO -->
+
+        <div class="campo">
+
+            <label for="horario">
+
+                🕐 Horário de funcionamento
+
+            </label>
+
+            <textarea
+                id="horario"
+                placeholder="Ex: Segunda a sábado: 18:00 às 23:00"
+            ></textarea>
+
+        </div>
+
+
+        <!-- BOTÕES -->
+
+        <div class="botoes">
+
+            <button
+                type="button"
+                class="voltar"
+                onclick="voltarPainel()"
+            >
+
+                ← Voltar
+
+            </button>
+
+
+            <button
+                type="button"
+                class="salvar"
+                id="botaoSalvar"
+                onclick="salvarConfiguracao()"
+            >
+
+                💾 Salvar configuração
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         SEM ESTABELECIMENTO
+    =========================================== -->
+
+    <div
+        id="semEstabelecimento"
+        class="card"
+        style="display:none; text-align:center;"
+    >
+
+        <h2>
+            🏪 Nenhum estabelecimento
+        </h2>
+
+        <p>
+            Você ainda não possui um estabelecimento cadastrado.
+        </p>
+
+        <button
+            class="salvar"
+            onclick="novoEstabelecimento()"
+        >
+
+            + Criar estabelecimento
+
+        </button>
+
+    </div>
+
+
+</main>
+
+
+<script>
+
+    // ==========================================
+    // API
+    // ==========================================
+
+    const API_URL =
+        "https://cardapio-restaurante-za9s.onrender.com";
+
+
+    // ==========================================
+    // ELEMENTOS
+    // ==========================================
+
+    const selectEstabelecimento =
+        document.getElementById(
+            "estabelecimento"
+        );
+
+    const areaConfiguracao =
+        document.getElementById(
+            "areaConfiguracao"
+        );
+
+    const semEstabelecimento =
+        document.getElementById(
+            "semEstabelecimento"
+        );
+
+    const mensagem =
+        document.getElementById(
+            "mensagem"
+        );
+
+    const nome =
+        document.getElementById(
+            "nome"
+        );
+
+    const descricao =
+        document.getElementById(
+            "descricao"
+        );
+
+    const logo =
+        document.getElementById(
+            "logo"
+        );
+
+    const cor =
+        document.getElementById(
+            "cor"
+        );
+
+    const corTexto =
+        document.getElementById(
+            "corTexto"
+        );
+
+    const whatsapp =
+        document.getElementById(
+            "whatsapp"
+        );
+
+    const endereco =
+        document.getElementById(
+            "endereco"
+        );
+
+    const horario =
+        document.getElementById(
+            "horario"
+        );
+
+    const logoPreview =
+        document.getElementById(
+            "logoPreview"
+        );
+
+    const botaoSalvar =
+        document.getElementById(
+            "botaoSalvar"
+        );
+
+
+    // ==========================================
+    // TOKEN
+    // ==========================================
+
+    const token =
+        localStorage.getItem("token");
+
+
+    // ==========================================
+    // VERIFICAR LOGIN
+    // ==========================================
+
+    if (!token) {
+
+        alert(
+            "Você precisa estar logado."
+        );
+
+        window.location.href =
+            "/login.html";
+
+    }
+
+
+    // ==========================================
+    // HEADERS
+    // ==========================================
+
+    function headersAutenticacao() {
+
+        return {
+
+            "Content-Type":
+                "application/json",
+
+            "Authorization":
+                `Bearer ${token}`
+
+        };
+
+    }
+
+
+    // ==========================================
+    // MOSTRAR MENSAGEM
+    // ==========================================
+
+    function mostrarMensagem(
+        texto,
+        tipo
+    ) {
+
+        mensagem.textContent =
+            texto;
+
+        mensagem.className =
+            "mensagem " + tipo;
+
+    }
+
+
+    // ==========================================
+    // LIMPAR MENSAGEM
+    // ==========================================
+
+    function limparMensagem() {
+
+        mensagem.textContent =
+            "";
+
+        mensagem.className =
+            "mensagem";
+
+    }
+
+
+    // ==========================================
+    // CARREGAR ESTABELECIMENTOS
+    // ==========================================
+
+    async function carregarEstabelecimentos() {
+
+        try {
+
+            const resposta =
+                await fetch(
+                    `${API_URL}/estabelecimentos`,
+                    {
+                        headers: {
+                            "Authorization":
+                                `Bearer ${token}`
+                        }
+                    }
+                );
+
+
+            if (
+                resposta.status === 401
+            ) {
+
+                localStorage.removeItem(
+                    "token"
+                );
+
+                alert(
+                    "Sua sessão expirou. Faça login novamente."
+                );
+
+                window.location.href =
+                    "/login.html";
+
+                return;
+
+            }
+
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    `Erro HTTP ${resposta.status}`
+                );
+
+            }
+
+
+            const estabelecimentos =
+                await resposta.json();
+
+
+            selectEstabelecimento.innerHTML =
+                "";
+
+
+            if (
+                !Array.isArray(
+                    estabelecimentos
+                ) ||
+                estabelecimentos.length === 0
+            ) {
+
+                selectEstabelecimento.innerHTML = `
+
+                    <option value="">
+                        Nenhum estabelecimento cadastrado
+                    </option>
+
+                `;
+
+                areaConfiguracao.style.display =
+                    "none";
+
+                semEstabelecimento.style.display =
+                    "block";
+
+                return;
+
+            }
+
+
+            semEstabelecimento.style.display =
+                "none";
+
+
+            estabelecimentos.forEach(
+                estabelecimento => {
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value =
+                        estabelecimento.id;
+
+                    option.textContent =
+                        `🏪 ${estabelecimento.nome}`;
+
+                    selectEstabelecimento.appendChild(
+                        option
+                    );
+
+                }
+            );
+
+
+            areaConfiguracao.style.display =
+                "block";
+
+
+            // Carregar o primeiro
+
+            await carregarConfiguracao(
+                estabelecimentos[0].id
+            );
+
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            mostrarMensagem(
+                "❌ Erro ao carregar estabelecimentos: " +
+                erro.message,
+                "erro"
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // TROCAR ESTABELECIMENTO
+    // ==========================================
+
+    selectEstabelecimento.addEventListener(
+        "change",
+        async function() {
+
+            const id =
+                this.value;
+
+            if (!id) {
+                return;
+            }
+
+            await carregarConfiguracao(
+                id
+            );
+
+        }
+    );
+
+
+    // ==========================================
+    // CARREGAR CONFIGURAÇÃO
+    // ==========================================
+
+    async function carregarConfiguracao(
+        id
+    ) {
+
+        limparMensagem();
+
+
+        try {
+
+            const resposta =
+                await fetch(
+                    `${API_URL}/estabelecimentos/${id}/configuracao`,
+                    {
+                        headers: {
+                            "Authorization":
+                                `Bearer ${token}`
+                        }
+                    }
+                );
+
+
+            if (
+                resposta.status === 401
+            ) {
+
+                localStorage.removeItem(
+                    "token"
+                );
+
+                window.location.href =
+                    "/login.html";
+
+                return;
+
+            }
+
+
+            const dados =
+                await resposta.json();
+
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    dados.erro ||
+                    "Erro ao carregar configuração."
+                );
+
+            }
+
+
+            const estabelecimento =
+                dados.estabelecimento;
+
+
+            // ==================================
+            // PREENCHER FORMULÁRIO
+            // ==================================
+
+            nome.value =
+                estabelecimento.nome || "";
+
+            descricao.value =
+                estabelecimento.descricao || "";
+
+            logo.value =
+                estabelecimento.logo || "";
+
+            cor.value =
+                estabelecimento.cor ||
+                "#222222";
+
+            corTexto.value =
+                estabelecimento.cor ||
+                "#222222";
+
+            whatsapp.value =
+                estabelecimento.whatsapp || "";
+
+            endereco.value =
+                estabelecimento.endereco || "";
+
+            horario.value =
+                estabelecimento.horario || "";
+
+
+            atualizarPreviewLogo();
+
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            mostrarMensagem(
+                "❌ " + erro.message,
+                "erro"
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // SALVAR CONFIGURAÇÃO
+    // ==========================================
+
+    async function salvarConfiguracao() {
+
+        limparMensagem();
+
+
+        const id =
+            selectEstabelecimento.value;
+
+
+        if (!id) {
+
+            mostrarMensagem(
+                "❌ Selecione um estabelecimento.",
+                "erro"
+            );
+
+            return;
+
+        }
+
+
+        if (!nome.value.trim()) {
+
+            mostrarMensagem(
+                "❌ Digite o nome do estabelecimento.",
+                "erro"
+            );
+
+            nome.focus();
+
+            return;
+
+        }
+
+
+        botaoSalvar.disabled =
+            true;
+
+        botaoSalvar.textContent =
+            "⏳ Salvando...";
+
+
+        try {
+
+            const resposta =
+                await fetch(
+                    `${API_URL}/estabelecimentos/${id}/configuracao`,
+                    {
+
+                        method: "PUT",
+
+                        headers:
+                            headersAutenticacao(),
+
+                        body:
+                            JSON.stringify({
+
+                                nome:
+                                    nome.value.trim(),
+
+                                descricao:
+                                    descricao.value.trim(),
+
+                                logo:
+                                    logo.value.trim(),
+
+                                cor:
+                                    corTexto.value.trim() ||
+                                    "#222222",
+
+                                whatsapp:
+                                    whatsapp.value.trim(),
+
+                                endereco:
+                                    endereco.value.trim(),
+
+                                horario:
+                                    horario.value.trim()
+
+                            })
+
+                    }
+                );
+
+
+            const dados =
+                await resposta.json();
+
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    dados.erro ||
+                    "Erro ao salvar configuração."
+                );
+
+            }
+
+
+            mostrarMensagem(
+                "✅ Configuração salva com sucesso!",
+                "sucesso"
+            );
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao salvar:",
+                erro
+            );
+
+            mostrarMensagem(
+                "❌ " + erro.message,
+                "erro"
+            );
+
+        } finally {
+
+            botaoSalvar.disabled =
+                false;
+
+            botaoSalvar.textContent =
+                "💾 Salvar configuração";
+
+        }
+
+    }
+
+
+    // ==========================================
+    // PREVIEW DA LOGO
+    // ==========================================
+
+    function atualizarPreviewLogo() {
+
+        const url =
+            logo.value.trim();
+
+
+        if (!url) {
+
+            logoPreview.innerHTML = `
+
+                <span>
+                    A logo aparecerá aqui
+                </span>
+
+            `;
+
+            return;
+
+        }
+
+
+        logoPreview.innerHTML = `
+
+            <img
+                src="${url}"
+                alt="Logo"
+                onerror="this.parentElement.innerHTML =
+                    '<span>❌ Não foi possível carregar a imagem</span>'"
+            >
+
+        `;
+
+    }
+
+
+    logo.addEventListener(
+        "input",
+        atualizarPreviewLogo
+    );
+
+
+    // ==========================================
+    // SINCRONIZAR COR
+    // ==========================================
+
+    cor.addEventListener(
+        "input",
+        function() {
+
+            corTexto.value =
+                cor.value;
+
+        }
+    );
+
+
+    corTexto.addEventListener(
+        "input",
+        function() {
+
+            const valor =
+                corTexto.value.trim();
+
+
+            if (
+                /^#[0-9A-Fa-f]{6}$/.test(
+                    valor
+                )
+            ) {
+
+                cor.value =
+                    valor;
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // NOVO ESTABELECIMENTO
+    // ==========================================
+
+    function novoEstabelecimento() {
+
+        window.location.href =
+            "/admin-estabelecimento.html";
+
+    }
+
+
+    // ==========================================
+    // VOLTAR
+    // ==========================================
+
+    function voltarPainel() {
+
+        window.location.href =
+            "/painel.html";
+
+    }
+
+
+    // ==========================================
+    // INICIAR
+    // ==========================================
+
+    carregarEstabelecimentos();
+
+</script>
+
+
+</body>
+
+</html>
