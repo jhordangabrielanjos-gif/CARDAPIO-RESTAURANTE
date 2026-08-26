@@ -4,12 +4,12 @@ const { Pool } = require("pg");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
-const JWT_SECRET =
-    process.env.JWT_SECRET || "chave-temporaria-restaurante";
-
 const app = express();
 
 const PORT = process.env.PORT || 3000;
+
+const JWT_SECRET =
+    process.env.JWT_SECRET || "chave-temporaria-restaurante";
 
 // ==========================================
 // CONFIGURAÇÕES
@@ -28,12 +28,17 @@ app.use(express.static(__dirname));
 // ==========================================
 
 if (!process.env.DATABASE_URL) {
-    console.error("ERRO: DATABASE_URL não foi configurada.");
+
+    console.error(
+        "ERRO: DATABASE_URL não foi configurada."
+    );
+
     process.exit(1);
 }
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+
     ssl: {
         rejectUnauthorized: false
     }
@@ -41,23 +46,53 @@ const pool = new Pool({
 
 pool.connect()
     .then(client => {
-        console.log("PostgreSQL conectado com sucesso!");
+
+        console.log(
+            "PostgreSQL conectado com sucesso!"
+        );
+
         client.release();
+
     })
-    .catch(err => {
-        console.error("ERRO AO CONECTAR AO POSTGRESQL:");
-        console.error(err);
+    .catch(error => {
+
+        console.error(
+            "ERRO AO CONECTAR AO POSTGRESQL:"
+        );
+
+        console.error(error);
+
     });
 
 // ==========================================
-// CRIAR / PREPARAR TABELAS
+// PREPARAR BANCO
 // ==========================================
 
 async function prepararBanco() {
+
     try {
 
         // ======================================
-        // 1. TABELA DE ESTABELECIMENTOS
+        // USUÁRIOS
+        // ======================================
+
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id SERIAL PRIMARY KEY,
+                nome VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                senha VARCHAR(255) NOT NULL,
+                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        console.log(
+            "Tabela usuarios pronta!"
+        );
+
+
+        // ======================================
+        // ESTABELECIMENTOS
         // ======================================
 
         await pool.query(`
@@ -68,39 +103,66 @@ async function prepararBanco() {
             )
         `);
 
-        console.log("Tabela estabelecimentos pronta!");
+        console.log(
+            "Tabela estabelecimentos pronta!"
+        );
+
 
         // ======================================
-        // 2. CRIAR ESTABELECIMENTO PADRÃO
+        // VINCULAR ESTABELECIMENTO AO USUÁRIO
         // ======================================
 
-        let estabelecimento = await pool.query(`
-            SELECT id
-            FROM estabelecimentos
-            ORDER BY id
-            LIMIT 1
+        await pool.query(`
+            ALTER TABLE estabelecimentos
+            ADD COLUMN IF NOT EXISTS usuario_id INTEGER
         `);
 
-        if (estabelecimento.rows.length === 0) {
+        console.log(
+            "Coluna usuario_id pronta!"
+        );
 
-            estabelecimento = await pool.query(`
-                INSERT INTO estabelecimentos (nome)
-                VALUES ('Minha Lanchonete')
-                RETURNING id
-            `);
-
-            console.log("Estabelecimento padrão criado!");
-
-        } else {
-
-            console.log("Estabelecimento já existente encontrado!");
-
-        }
-
-        const estabelecimentoId = estabelecimento.rows[0].id;
 
         // ======================================
-        // 3. CRIAR TABELA PRATOS
+        // PERSONALIZAÇÃO
+        // ======================================
+
+        await pool.query(`
+            ALTER TABLE estabelecimentos
+            ADD COLUMN IF NOT EXISTS descricao TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE estabelecimentos
+            ADD COLUMN IF NOT EXISTS logo TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE estabelecimentos
+            ADD COLUMN IF NOT EXISTS cor VARCHAR(20)
+        `);
+
+        await pool.query(`
+            ALTER TABLE estabelecimentos
+            ADD COLUMN IF NOT EXISTS whatsapp VARCHAR(30)
+        `);
+
+        await pool.query(`
+            ALTER TABLE estabelecimentos
+            ADD COLUMN IF NOT EXISTS endereco TEXT
+        `);
+
+        await pool.query(`
+            ALTER TABLE estabelecimentos
+            ADD COLUMN IF NOT EXISTS horario TEXT
+        `);
+
+        console.log(
+            "Colunas de personalização prontas!"
+        );
+
+
+        // ======================================
+        // PRATOS
         // ======================================
 
         await pool.query(`
@@ -115,10 +177,13 @@ async function prepararBanco() {
             )
         `);
 
-        console.log("Tabela pratos pronta!");
+        console.log(
+            "Tabela pratos pronta!"
+        );
+
 
         // ======================================
-        // 4. ADICIONAR ESTABELECIMENTO_ID
+        // VINCULAR PRATOS AO ESTABELECIMENTO
         // ======================================
 
         await pool.query(`
@@ -126,116 +191,137 @@ async function prepararBanco() {
             ADD COLUMN IF NOT EXISTS estabelecimento_id INTEGER
         `);
 
-        console.log("Coluna estabelecimento_id pronta!");
+        console.log(
+            "Coluna estabelecimento_id pronta!"
+        );
+
 
         // ======================================
-        // 5. COLOCAR PRATOS ANTIGOS NO
-        //    ESTABELECIMENTO PADRÃO
+        // RELACIONAMENTO PRATOS -> ESTABELECIMENTOS
         // ======================================
 
-        await pool.query(`
-            UPDATE pratos
-            SET estabelecimento_id = $1
-            WHERE estabelecimento_id IS NULL
-        `, [estabelecimentoId]);
-
-        console.log("Pratos antigos vinculados ao estabelecimento!");
-
-        // ======================================
-        // 6. CRIAR CHAVE ESTRANGEIRA
-        // ======================================
-
-        const foreignKey = await pool.query(`
-            SELECT constraint_name
-            FROM information_schema.table_constraints
-            WHERE table_name = 'pratos'
-            AND constraint_name = 'fk_pratos_estabelecimento'
-        `);
-
-        if (foreignKey.rows.length === 0) {
-
+        const foreignKeyPratos =
             await pool.query(`
-                ALTER TABLE pratos
-                ADD CONSTRAINT fk_pratos_estabelecimento
-                FOREIGN KEY (estabelecimento_id)
-                REFERENCES estabelecimentos(id)
-                ON DELETE CASCADE
+                SELECT constraint_name
+                FROM information_schema.table_constraints
+                WHERE table_name = 'pratos'
+                AND constraint_name = 'fk_pratos_estabelecimento'
             `);
 
-            console.log("Relacionamento entre pratos e estabelecimentos criado!");
+        if (
+            foreignKeyPratos.rows.length === 0
+        ) {
+
+            try {
+
+                await pool.query(`
+                    ALTER TABLE pratos
+                    ADD CONSTRAINT fk_pratos_estabelecimento
+                    FOREIGN KEY (estabelecimento_id)
+                    REFERENCES estabelecimentos(id)
+                    ON DELETE CASCADE
+                `);
+
+                console.log(
+                    "FK de pratos criada!"
+                );
+
+            } catch (error) {
+
+                console.log(
+                    "FK de pratos não foi criada. "
+                    + "Provavelmente existem dados antigos."
+                );
+
+            }
 
         }
 
-// ======================================
-// 7. TABELA DE USUÁRIOS
-// ======================================
 
-await pool.query(`
-    CREATE TABLE IF NOT EXISTS usuarios (
-        id SERIAL PRIMARY KEY,
-        nome VARCHAR(255) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        senha VARCHAR(255) NOT NULL,
-        criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-`);
+        // ======================================
+        // CRIAR ESTABELECIMENTO PADRÃO
+        // SOMENTE SE NÃO EXISTIR NENHUM
+        // ======================================
 
-console.log("Tabela usuarios pronta!");
+        const quantidade =
+            await pool.query(`
+                SELECT COUNT(*) AS total
+                FROM estabelecimentos
+            `);
 
-// ======================================
-// 8. VINCULAR ESTABELECIMENTOS A USUÁRIOS
-// ======================================
+        if (
+            Number(quantidade.rows[0].total) === 0
+        ) {
 
-await pool.query(`
-    ALTER TABLE estabelecimentos
-    ADD COLUMN IF NOT EXISTS usuario_id INTEGER
-`);
+            await pool.query(`
+                INSERT INTO estabelecimentos
+                (
+                    nome,
+                    descricao,
+                    cor
+                )
+                VALUES
+                (
+                    'Minha Lanchonete',
+                    'Escolha seus pratos favoritos e monte seu pedido.',
+                    '#222222'
+                )
+            `);
 
-// ======================================
-// 9. PERSONALIZAÇÃO DO CARDÁPIO
-// ======================================
+            console.log(
+                "Estabelecimento padrão criado!"
+            );
 
-await pool.query(`
-    ALTER TABLE estabelecimentos
-    ADD COLUMN IF NOT EXISTS descricao TEXT,
-    ADD COLUMN IF NOT EXISTS logo TEXT,
-    ADD COLUMN IF NOT EXISTS cor VARCHAR(20),
-    ADD COLUMN IF NOT EXISTS whatsapp VARCHAR(30),
-    ADD COLUMN IF NOT EXISTS endereco TEXT,
-    ADD COLUMN IF NOT EXISTS horario TEXT
-`);
+        }
 
-console.log("Colunas de personalização prontas!");
 
-console.log("Coluna usuario_id pronta!");
+        console.log(
+            "======================================"
+        );
 
-        console.log("======================================");
-        console.log("BANCO PREPARADO COM SUCESSO!");
-        console.log("======================================");
+        console.log(
+            "BANCO PREPARADO COM SUCESSO!"
+        );
+
+        console.log(
+            "======================================"
+        );
 
     } catch (error) {
 
-        console.error("ERRO AO PREPARAR BANCO:");
+        console.error(
+            "ERRO AO PREPARAR BANCO:"
+        );
+
         console.error(error);
 
     }
+
 }
 
 prepararBanco();
 
 // ==========================================
-// ROTA PRINCIPAL
+// PÁGINA PRINCIPAL
 // ==========================================
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
+
+    res.sendFile(
+        path.join(__dirname, "index.html")
+    );
+
 });
 
 // ==========================================
 // AUTENTICAÇÃO
 // ==========================================
 
-function autenticarUsuario(req, res, next) {
+function autenticarUsuario(
+    req,
+    res,
+    next
+) {
 
     try {
 
@@ -266,12 +352,17 @@ function autenticarUsuario(req, res, next) {
 
         }
 
-        const token = partes[1];
+        const token =
+            partes[1];
 
         const usuario =
-            jwt.verify(token, JWT_SECRET);
+            jwt.verify(
+                token,
+                JWT_SECRET
+            );
 
-        req.usuario = usuario;
+        req.usuario =
+            usuario;
 
         next();
 
@@ -296,11 +387,414 @@ function autenticarUsuario(req, res, next) {
 // ==========================================
 
 app.get("/api", (req, res) => {
+
     res.json({
-        mensagem: "API do restaurante funcionando!",
-        banco: "PostgreSQL"
+
+        sucesso: true,
+
+        mensagem:
+            "API do restaurante funcionando!",
+
+        banco:
+            "PostgreSQL"
+
     });
+
 });
+
+// ==========================================
+// CADASTRAR USUÁRIO
+// ==========================================
+
+app.post(
+    "/usuarios",
+    async (req, res) => {
+
+        try {
+
+            const {
+                nome,
+                email,
+                senha
+            } = req.body;
+
+            if (
+                !nome ||
+                !email ||
+                !senha
+            ) {
+
+                return res.status(400).json({
+                    sucesso: false,
+                    erro:
+                        "Nome, e-mail e senha são obrigatórios."
+                });
+
+            }
+
+            if (
+                senha.length < 6
+            ) {
+
+                return res.status(400).json({
+                    sucesso: false,
+                    erro:
+                        "A senha deve ter pelo menos 6 caracteres."
+                });
+
+            }
+
+            const emailLimpo =
+                email
+                    .trim()
+                    .toLowerCase();
+
+            // ==================================
+            // VERIFICAR E-MAIL
+            // ==================================
+
+            const existente =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM usuarios
+                    WHERE email = $1
+                    `,
+                    [
+                        emailLimpo
+                    ]
+                );
+
+            if (
+                existente.rows.length > 0
+            ) {
+
+                return res.status(409).json({
+                    sucesso: false,
+                    erro:
+                        "Este e-mail já está cadastrado."
+                });
+
+            }
+
+            // ==================================
+            // CRIAR USUÁRIO
+            // ==================================
+
+            const usuario =
+                await pool.query(
+                    `
+                    INSERT INTO usuarios
+                    (
+                        nome,
+                        email,
+                        senha
+                    )
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3
+                    )
+                    RETURNING
+                        id,
+                        nome,
+                        email,
+                        criado_em
+                    `,
+                    [
+                        nome.trim(),
+                        emailLimpo,
+                        senha
+                    ]
+                );
+
+            const usuarioCriado =
+                usuario.rows[0];
+
+            // ==================================
+            // CRIAR ESTABELECIMENTO DO USUÁRIO
+            // ==================================
+
+            const estabelecimento =
+                await pool.query(
+                    `
+                    INSERT INTO estabelecimentos
+                    (
+                        nome,
+                        usuario_id,
+                        descricao,
+                        cor
+                    )
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3,
+                        $4
+                    )
+                    RETURNING *
+                    `,
+                    [
+                        nome.trim(),
+                        usuarioCriado.id,
+                        "Escolha seus pratos favoritos e monte seu pedido.",
+                        "#222222"
+                    ]
+                );
+
+            res.status(201).json({
+
+                sucesso: true,
+
+                mensagem:
+                    "Usuário cadastrado com sucesso!",
+
+                usuario:
+                    usuarioCriado,
+
+                estabelecimento:
+                    estabelecimento.rows[0]
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO CADASTRAR USUÁRIO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao cadastrar usuário."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// LOGIN
+// ==========================================
+
+app.post(
+    "/login",
+    async (req, res) => {
+
+        try {
+
+            const {
+                email,
+                senha
+            } = req.body;
+
+            if (
+                !email ||
+                !senha
+            ) {
+
+                return res.status(400).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "E-mail e senha são obrigatórios."
+
+                });
+
+            }
+
+            const emailLimpo =
+                email
+                    .trim()
+                    .toLowerCase();
+
+            const resultado =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        nome,
+                        email,
+                        senha
+                    FROM usuarios
+                    WHERE email = $1
+                    `,
+                    [
+                        emailLimpo
+                    ]
+                );
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(401).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "E-mail ou senha incorretos."
+
+                });
+
+            }
+
+            const usuario =
+                resultado.rows[0];
+
+            if (
+                usuario.senha !== senha
+            ) {
+
+                return res.status(401).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "E-mail ou senha incorretos."
+
+                });
+
+            }
+
+            // ==================================
+            // GARANTIR ESTABELECIMENTO
+            // ==================================
+
+            let estabelecimento =
+                await pool.query(
+                    `
+                    SELECT *
+                    FROM estabelecimentos
+                    WHERE usuario_id = $1
+                    ORDER BY id ASC
+                    LIMIT 1
+                    `,
+                    [
+                        usuario.id
+                    ]
+                );
+
+            // ==================================
+            // SE NÃO TIVER, CRIAR
+            // ==================================
+
+            if (
+                estabelecimento.rows.length === 0
+            ) {
+
+                estabelecimento =
+                    await pool.query(
+                        `
+                        INSERT INTO estabelecimentos
+                        (
+                            nome,
+                            usuario_id,
+                            descricao,
+                            cor
+                        )
+                        VALUES
+                        (
+                            $1,
+                            $2,
+                            $3,
+                            $4
+                        )
+                        RETURNING *
+                        `,
+                        [
+                            usuario.nome,
+                            usuario.id,
+                            "Escolha seus pratos favoritos e monte seu pedido.",
+                            "#222222"
+                        ]
+                    );
+
+            }
+
+            const estabelecimentoAtual =
+                estabelecimento.rows[0];
+
+            // ==================================
+            // TOKEN
+            // ==================================
+
+            const token =
+                jwt.sign(
+                    {
+                        id: usuario.id,
+                        nome: usuario.nome,
+                        email: usuario.email
+                    },
+                    JWT_SECRET,
+                    {
+                        expiresIn: "7d"
+                    }
+                );
+
+            res.json({
+
+                sucesso: true,
+
+                mensagem:
+                    "Login realizado com sucesso!",
+
+                token,
+
+                usuario: {
+
+                    id:
+                        usuario.id,
+
+                    nome:
+                        usuario.nome,
+
+                    email:
+                        usuario.email
+
+                },
+
+                estabelecimento: {
+
+                    id:
+                        estabelecimentoAtual.id,
+
+                    nome:
+                        estabelecimentoAtual.nome
+
+                }
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO FAZER LOGIN:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao fazer login."
+
+            });
+
+        }
+
+    }
+);
 
 // ==========================================
 // LISTAR ESTABELECIMENTOS DO USUÁRIO
@@ -313,20 +807,31 @@ app.get(
 
         try {
 
-            const resultado = await pool.query(
-                `
-                SELECT
-                    id,
-                    nome,
-                    criado_em
-                FROM estabelecimentos
-                WHERE usuario_id = $1
-                ORDER BY id ASC
-                `,
-                [req.usuario.id]
-            );
+            const resultado =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        nome,
+                        descricao,
+                        logo,
+                        cor,
+                        whatsapp,
+                        endereco,
+                        horario,
+                        criado_em
+                    FROM estabelecimentos
+                    WHERE usuario_id = $1
+                    ORDER BY id ASC
+                    `,
+                    [
+                        req.usuario.id
+                    ]
+                );
 
-            res.json(resultado.rows);
+            res.json(
+                resultado.rows
+            );
 
         } catch (error) {
 
@@ -337,8 +842,12 @@ app.get(
             console.error(error);
 
             res.status(500).json({
+
                 sucesso: false,
-                erro: "Erro ao buscar estabelecimentos"
+
+                erro:
+                    "Erro ao buscar estabelecimentos."
+
             });
 
         }
@@ -346,517 +855,6 @@ app.get(
     }
 );
 
-// ==========================================
-// LISTAR PRATOS
-// ==========================================
-
-app.get("/pratos", autenticarUsuario, async (req, res) => {
-
-    try {
-
-        const resultado = await pool.query(`
-            SELECT *
-            FROM pratos
-            ORDER BY id DESC
-        `);
-
-        res.json(resultado.rows);
-
-    } catch (error) {
-
-        console.error("ERRO AO BUSCAR PRATOS:");
-        console.error(error);
-
-        res.status(500).json({
-            erro: error.message || "Erro ao buscar pratos"
-        });
-
-    }
-
-});
-
-// ==========================================
-// BUSCAR UM PRATO
-// ==========================================
-
-app.get("/pratos/:id", async (req, res) => {
-
-    try {
-
-        const { id } = req.params;
-
-        const resultado = await pool.query(
-            "SELECT * FROM pratos WHERE id = $1",
-            [id]
-        );
-
-        if (resultado.rows.length === 0) {
-            return res.status(404).json({
-                erro: "Prato não encontrado"
-            });
-        }
-
-        res.json(resultado.rows[0]);
-
-    } catch (error) {
-
-        console.error("ERRO AO BUSCAR PRATO:");
-        console.error(error);
-
-        res.status(500).json({
-            erro: "Erro ao buscar prato"
-        });
-
-    }
-
-});
-
-// ==========================================
-// LISTAR PRATOS DE UM ESTABELECIMENTO
-// ==========================================
-
-app.get("/estabelecimentos/:id/pratos", async (req, res) => {
-
-    try {
-
-        const { id } = req.params;
-
-        // Verificar se o estabelecimento existe
-        const estabelecimento = await pool.query(
-            `
-            SELECT *
-            FROM estabelecimentos
-            WHERE id = $1
-            `,
-            [id]
-        );
-
-        if (estabelecimento.rows.length === 0) {
-
-            return res.status(404).json({
-                erro: "Estabelecimento não encontrado"
-            });
-
-        }
-
-        // Buscar somente os pratos desse estabelecimento
-        const resultado = await pool.query(
-            `
-            SELECT *
-            FROM pratos
-            WHERE estabelecimento_id = $1
-            ORDER BY id DESC
-            `,
-            [id]
-        );
-
-        res.json(resultado.rows);
-
-    } catch (error) {
-
-        console.error("ERRO AO BUSCAR PRATOS DO ESTABELECIMENTO:");
-        console.error(error);
-
-        res.status(500).json({
-            erro: "Erro ao buscar pratos"
-        });
-
-    }
-
-});
-
-// ==========================================
-// CADASTRAR PRATO
-// ==========================================
-
-app.post("/pratos", async (req, res) => {
-
-    try {
-
-        const {
-            nome,
-            descricao,
-            preco,
-            categoria,
-            imagem,
-            estabelecimento_id
-        } = req.body;
-
-
-        // ======================================
-        // VALIDAR DADOS
-        // ======================================
-
-        if (!nome || preco === undefined || !estabelecimento_id) {
-
-            return res.status(400).json({
-                erro: "Nome, preço e estabelecimento são obrigatórios"
-            });
-
-        }
-
-
-        // ======================================
-        // VERIFICAR ESTABELECIMENTO
-        // ======================================
-
-        const estabelecimento = await pool.query(
-            `
-            SELECT id, nome
-            FROM estabelecimentos
-            WHERE id = $1
-            `,
-            [estabelecimento_id]
-        );
-
-
-        if (estabelecimento.rows.length === 0) {
-
-            return res.status(404).json({
-                erro: "Estabelecimento não encontrado"
-            });
-
-        }
-
-
-        // ======================================
-        // CADASTRAR PRATO
-        // ======================================
-
-        const resultado = await pool.query(
-            `
-            INSERT INTO pratos
-            (
-                nome,
-                descricao,
-                preco,
-                categoria,
-                imagem,
-                estabelecimento_id
-            )
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING *
-            `,
-            [
-                nome,
-                descricao || "",
-                preco,
-                categoria || "Outros",
-                imagem || "",
-                estabelecimento_id
-            ]
-        );
-
-
-        res.status(201).json(resultado.rows[0]);
-
-
-    } catch (error) {
-
-        console.error("ERRO AO CADASTRAR PRATO:");
-        console.error(error);
-
-        res.status(500).json({
-            erro: "Erro ao cadastrar prato"
-        });
-
-    }
-
-});
-
-// ==========================================
-// EDITAR PRATO
-// ==========================================
-
-app.put("/pratos/:id", async (req, res) => {
-
-    try {
-
-        const { id } = req.params;
-
-        const {
-            nome,
-            descricao,
-            preco,
-            categoria,
-            imagem
-        } = req.body;
-
-        const resultado = await pool.query(
-            `
-            UPDATE pratos
-            SET
-                nome = $1,
-                descricao = $2,
-                preco = $3,
-                categoria = $4,
-                imagem = $5
-            WHERE id = $6
-            RETURNING *
-            `,
-            [
-                nome,
-                descricao || "",
-                preco,
-                categoria || "Outros",
-                imagem || "",
-                id
-            ]
-        );
-
-        if (resultado.rows.length === 0) {
-
-            return res.status(404).json({
-                erro: "Prato não encontrado"
-            });
-
-        }
-
-        res.json(resultado.rows[0]);
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            erro: "Erro ao editar prato"
-        });
-
-    }
-
-});
-
-// ==========================================
-// EXCLUIR PRATO
-// ==========================================
-
-app.delete("/pratos/:id", async (req, res) => {
-
-    try {
-
-        const { id } = req.params;
-
-        const resultado = await pool.query(
-            "DELETE FROM pratos WHERE id = $1 RETURNING *",
-            [id]
-        );
-
-        if (resultado.rows.length === 0) {
-
-            return res.status(404).json({
-                erro: "Prato não encontrado"
-            });
-
-        }
-
-        res.json({
-            mensagem: "Prato excluído com sucesso!"
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            erro: "Erro ao excluir prato"
-        });
-
-    }
-
-});
-
-// ==========================================
-// SALVAR PERSONALIZAÇÃO DO ESTABELECIMENTO
-// ==========================================
-
-app.put(
-    "/estabelecimentos/:id/configuracao",
-    autenticarUsuario,
-    async (req, res) => {
-
-        try {
-
-            const { id } = req.params;
-
-            const {
-                nome,
-                descricao,
-                logo,
-                cor,
-                whatsapp,
-                endereco,
-                horario
-            } = req.body;
-
-
-            // ======================================
-            // VALIDAR NOME
-            // ======================================
-
-            if (!nome || !nome.trim()) {
-
-                return res.status(400).json({
-                    sucesso: false,
-                    erro: "O nome do estabelecimento é obrigatório."
-                });
-
-            }
-
-
-            // ======================================
-            // ATUALIZAR
-            // ======================================
-
-            const resultado = await pool.query(
-                `
-                UPDATE estabelecimentos
-                SET
-                    nome = $1,
-                    descricao = $2,
-                    logo = $3,
-                    cor = $4,
-                    whatsapp = $5,
-                    endereco = $6,
-                    horario = $7
-                WHERE id = $8
-                AND usuario_id = $9
-                RETURNING
-                    id,
-                    nome,
-                    descricao,
-                    logo,
-                    cor,
-                    whatsapp,
-                    endereco,
-                    horario
-                `,
-                [
-                    nome.trim(),
-                    descricao || "",
-                    logo || "",
-                    cor || "#222222",
-                    whatsapp || "",
-                    endereco || "",
-                    horario || "",
-                    id,
-                    req.usuario.id
-                ]
-            );
-
-
-            // ======================================
-            // VERIFICAR ESTABELECIMENTO
-            // ======================================
-
-            if (resultado.rows.length === 0) {
-
-                return res.status(404).json({
-                    sucesso: false,
-                    erro: "Estabelecimento não encontrado ou não pertence ao usuário."
-                });
-
-            }
-
-
-            res.json({
-                sucesso: true,
-                mensagem: "Configuração salva com sucesso!",
-                estabelecimento: resultado.rows[0]
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO SALVAR CONFIGURAÇÃO:"
-            );
-
-            console.error(error);
-
-
-            res.status(500).json({
-                sucesso: false,
-                erro: "Erro ao salvar configuração"
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// BUSCAR PERSONALIZAÇÃO DO ESTABELECIMENTO
-// ==========================================
-
-app.get(
-    "/estabelecimentos/:id/configuracao",
-    autenticarUsuario,
-    async (req, res) => {
-
-        try {
-
-            const { id } = req.params;
-
-            const resultado = await pool.query(
-                `
-                SELECT
-                    id,
-                    nome,
-                    descricao,
-                    logo,
-                    cor,
-                    whatsapp,
-                    endereco,
-                    horario
-                FROM estabelecimentos
-                WHERE id = $1
-                AND usuario_id = $2
-                `,
-                [
-                    id,
-                    req.usuario.id
-                ]
-            );
-
-
-            if (resultado.rows.length === 0) {
-
-                return res.status(404).json({
-                    sucesso: false,
-                    erro: "Estabelecimento não encontrado ou não pertence ao usuário."
-                });
-
-            }
-
-
-            res.json({
-                sucesso: true,
-                estabelecimento: resultado.rows[0]
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO BUSCAR CONFIGURAÇÃO:"
-            );
-
-            console.error(error);
-
-
-            res.status(500).json({
-                sucesso: false,
-                erro: "Erro ao buscar configuração"
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// INICIAR SERVIDOR
-// ==========================================
 // ==========================================
 // CRIAR ESTABELECIMENTO
 // ==========================================
@@ -868,36 +866,63 @@ app.post(
 
         try {
 
-            const { nome } = req.body;
+            const {
+                nome
+            } = req.body;
 
-            if (!nome || !nome.trim()) {
+            if (
+                !nome ||
+                !nome.trim()
+            ) {
 
                 return res.status(400).json({
+
                     sucesso: false,
-                    erro: "Nome do estabelecimento é obrigatório"
+
+                    erro:
+                        "Nome do estabelecimento é obrigatório."
+
                 });
 
             }
 
-            const resultado = await pool.query(
-                `
-                INSERT INTO estabelecimentos
-                (
-                    nome,
-                    usuario_id
-                )
-                VALUES ($1, $2)
-                RETURNING *
-                `,
-                [
-                    nome.trim(),
-                    req.usuario.id
-                ]
-            );
+            const resultado =
+                await pool.query(
+                    `
+                    INSERT INTO estabelecimentos
+                    (
+                        nome,
+                        usuario_id,
+                        descricao,
+                        cor
+                    )
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3,
+                        $4
+                    )
+                    RETURNING *
+                    `,
+                    [
+                        nome.trim(),
+                        req.usuario.id,
+                        "Escolha seus pratos favoritos e monte seu pedido.",
+                        "#222222"
+                    ]
+                );
 
             res.status(201).json({
+
                 sucesso: true,
-                estabelecimento: resultado.rows[0]
+
+                mensagem:
+                    "Estabelecimento criado com sucesso!",
+
+                estabelecimento:
+                    resultado.rows[0]
+
             });
 
         } catch (error) {
@@ -909,8 +934,115 @@ app.post(
             console.error(error);
 
             res.status(500).json({
+
                 sucesso: false,
-                erro: "Erro ao criar estabelecimento"
+
+                erro:
+                    "Erro ao criar estabelecimento."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// EDITAR ESTABELECIMENTO
+// ==========================================
+
+app.put(
+    "/estabelecimentos/:id",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const {
+                nome
+            } = req.body;
+
+            if (
+                !nome ||
+                !nome.trim()
+            ) {
+
+                return res.status(400).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Nome do estabelecimento é obrigatório."
+
+                });
+
+            }
+
+            const resultado =
+                await pool.query(
+                    `
+                    UPDATE estabelecimentos
+
+                    SET nome = $1
+
+                    WHERE id = $2
+                    AND usuario_id = $3
+
+                    RETURNING *
+                    `,
+                    [
+                        nome.trim(),
+                        id,
+                        req.usuario.id
+                    ]
+                );
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Estabelecimento não encontrado ou não pertence ao usuário."
+
+                });
+
+            }
+
+            res.json({
+
+                sucesso: true,
+
+                mensagem:
+                    "Estabelecimento atualizado com sucesso!",
+
+                estabelecimento:
+                    resultado.rows[0]
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO EDITAR ESTABELECIMENTO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao editar estabelecimento."
+
             });
 
         }
@@ -922,436 +1054,1009 @@ app.post(
 // EXCLUIR ESTABELECIMENTO
 // ==========================================
 
-app.delete("/estabelecimentos/:id", autenticarUsuario, async (req, res) => {
-
-    try {
-
-        const { id } = req.params;
-
-        const resultado = await pool.query(
-            "DELETE FROM estabelecimentos WHERE id = $1 RETURNING *",
-            [id]
-        );
-
-        if (resultado.rows.length === 0) {
-
-            return res.status(404).json({
-                erro: "Estabelecimento não encontrado"
-            });
-
-        }
-
-        res.json({
-            sucesso: true,
-            mensagem: "Estabelecimento excluído com sucesso!",
-            estabelecimento: resultado.rows[0]
-        });
-
-    } catch (error) {
-
-        console.error("ERRO AO EXCLUIR ESTABELECIMENTO:");
-        console.error(error);
-
-        res.status(500).json({
-            sucesso: false,
-            erro: error.message || "Erro ao excluir estabelecimento"
-        });
-
-    }
-
-});
-// ==========================================
-// EDITAR ESTABELECIMENTO
-// ==========================================
-
-app.put(
+app.delete(
     "/estabelecimentos/:id",
     autenticarUsuario,
     async (req, res) => {
 
-    try {
+        try {
 
-        const { id } = req.params;
-        const { nome } = req.body;
+            const {
+                id
+            } = req.params;
 
-        if (!nome || !nome.trim()) {
-            return res.status(400).json({
-                sucesso: false,
-                erro: "Nome do estabelecimento é obrigatório"
-            });
-        }
+            const resultado =
+                await pool.query(
+                    `
+                    DELETE FROM estabelecimentos
 
-        const resultado = await pool.query(
-            `
-            UPDATE estabelecimentos
-            SET nome = $1
-            WHERE id = $2
-            RETURNING *
-            `,
-            [nome.trim(), id]
-        );
+                    WHERE id = $1
+                    AND usuario_id = $2
 
-        if (resultado.rows.length === 0) {
-            return res.status(404).json({
-                sucesso: false,
-                erro: "Estabelecimento não encontrado"
-            });
-        }
+                    RETURNING *
+                    `,
+                    [
+                        id,
+                        req.usuario.id
+                    ]
+                );
 
-        res.json({
-            sucesso: true,
-            mensagem: "Estabelecimento atualizado com sucesso!",
-            estabelecimento: resultado.rows[0]
-        });
+            if (
+                resultado.rows.length === 0
+            ) {
 
-    } catch (error) {
+                return res.status(404).json({
 
-        console.error("ERRO AO EDITAR ESTABELECIMENTO:");
-        console.error(error);
+                    sucesso: false,
 
-        res.status(500).json({
-            sucesso: false,
-            erro: error.message || "Erro ao editar estabelecimento"
-        });
+                    erro:
+                        "Estabelecimento não encontrado ou não pertence ao usuário."
 
-    }
+                });
 
-});
+            }
 
-// ==========================================
-// CADASTRAR USUÁRIO
-// ==========================================
+            res.json({
 
-app.post("/usuarios", async (req, res) => {
+                sucesso: true,
 
-    try {
+                mensagem:
+                    "Estabelecimento excluído com sucesso!",
 
-        const { nome, email, senha } = req.body;
+                estabelecimento:
+                    resultado.rows[0]
 
-        if (!nome || !email || !senha) {
-
-            return res.status(400).json({
-                sucesso: false,
-                erro: "Nome, e-mail e senha são obrigatórios"
             });
 
-        }
+        } catch (error) {
 
-        const usuarioExistente = await pool.query(
-            `
-            SELECT id
-            FROM usuarios
-            WHERE email = $1
-            `,
-            [email.trim().toLowerCase()]
-        );
-
-        if (usuarioExistente.rows.length > 0) {
-
-            return res.status(409).json({
-                sucesso: false,
-                erro: "Este e-mail já está cadastrado"
-            });
-
-        }
-
-        const resultado = await pool.query(
-            `
-            INSERT INTO usuarios
-            (
-                nome,
-                email,
-                senha
-            )
-            VALUES ($1, $2, $3)
-            RETURNING id, nome, email, criado_em
-            `,
-            [
-                nome.trim(),
-                email.trim().toLowerCase(),
-                senha
-            ]
-        );
-
-        res.status(201).json({
-            sucesso: true,
-            mensagem: "Usuário cadastrado com sucesso!",
-            usuario: resultado.rows[0]
-        });
-
-    } catch (error) {
-
-        console.error("ERRO AO CADASTRAR USUÁRIO:");
-        console.error(error);
-
-        res.status(500).json({
-            sucesso: false,
-            erro: "Erro ao cadastrar usuário"
-        });
-
-    }
-
-});
-
-// ==========================================
-// LOGIN DE USUÁRIO
-// ==========================================
-
-app.post("/login", async (req, res) => {
-
-    try {
-
-        const { email, senha } = req.body;
-
-        if (!email || !senha) {
-
-            return res.status(400).json({
-                sucesso: false,
-                erro: "E-mail e senha são obrigatórios"
-            });
-
-        }
-
-        const resultado = await pool.query(
-            `
-            SELECT
-                id,
-                nome,
-                email,
-                senha
-            FROM usuarios
-            WHERE email = $1
-            `,
-            [
-                email.trim().toLowerCase()
-            ]
-        );
-
-        if (resultado.rows.length === 0) {
-
-            return res.status(401).json({
-                sucesso: false,
-                erro: "E-mail ou senha incorretos"
-            });
-
-        }
-
-        const usuarioBanco =
-            resultado.rows[0];
-
-        if (usuarioBanco.senha !== senha) {
-
-            return res.status(401).json({
-                sucesso: false,
-                erro: "E-mail ou senha incorretos"
-            });
-
-        }
-
-        const token =
-            jwt.sign(
-                {
-                    id: usuarioBanco.id,
-                    nome: usuarioBanco.nome,
-                    email: usuarioBanco.email
-                },
-                JWT_SECRET,
-                {
-                    expiresIn: "7d"
-                }
+            console.error(
+                "ERRO AO EXCLUIR ESTABELECIMENTO:"
             );
 
-        res.json({
-            sucesso: true,
-            mensagem: "Login realizado com sucesso!",
-            token: token,
-            usuario: {
-                id: usuarioBanco.id,
-                nome: usuarioBanco.nome,
-                email: usuarioBanco.email
-            }
-        });
+            console.error(error);
 
-    } catch (error) {
+            res.status(500).json({
 
-        console.error(
-            "ERRO AO FAZER LOGIN:",
-            error
-        );
+                sucesso: false,
 
-        res.status(500).json({
-            sucesso: false,
-            erro: "Erro ao fazer login"
-        });
+                erro:
+                    "Erro ao excluir estabelecimento."
+
+            });
+
+        }
 
     }
+);
 
-});
+// ==========================================
+// CONFIGURAÇÃO DO ESTABELECIMENTO
+// ADMIN
+// ==========================================
+
+app.put(
+    "/estabelecimentos/:id/configuracao",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const {
+                nome,
+                descricao,
+                logo,
+                cor,
+                whatsapp,
+                endereco,
+                horario
+            } = req.body;
+
+            if (
+                !nome ||
+                !nome.trim()
+            ) {
+
+                return res.status(400).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "O nome do estabelecimento é obrigatório."
+
+                });
+
+            }
+
+            const resultado =
+                await pool.query(
+                    `
+                    UPDATE estabelecimentos
+
+                    SET
+                        nome = $1,
+                        descricao = $2,
+                        logo = $3,
+                        cor = $4,
+                        whatsapp = $5,
+                        endereco = $6,
+                        horario = $7
+
+                    WHERE id = $8
+                    AND usuario_id = $9
+
+                    RETURNING
+                        id,
+                        nome,
+                        descricao,
+                        logo,
+                        cor,
+                        whatsapp,
+                        endereco,
+                        horario
+                    `,
+                    [
+                        nome.trim(),
+                        descricao || "",
+                        logo || "",
+                        cor || "#222222",
+                        whatsapp || "",
+                        endereco || "",
+                        horario || "",
+                        id,
+                        req.usuario.id
+                    ]
+                );
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Estabelecimento não encontrado ou não pertence ao usuário."
+
+                });
+
+            }
+
+            res.json({
+
+                sucesso: true,
+
+                mensagem:
+                    "Configuração salva com sucesso!",
+
+                estabelecimento:
+                    resultado.rows[0]
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO SALVAR CONFIGURAÇÃO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao salvar configuração."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// BUSCAR CONFIGURAÇÃO
+// ADMIN
+// ==========================================
+
+app.get(
+    "/estabelecimentos/:id/configuracao",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const resultado =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        nome,
+                        descricao,
+                        logo,
+                        cor,
+                        whatsapp,
+                        endereco,
+                        horario
+
+                    FROM estabelecimentos
+
+                    WHERE id = $1
+                    AND usuario_id = $2
+                    `,
+                    [
+                        id,
+                        req.usuario.id
+                    ]
+                );
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Estabelecimento não encontrado."
+
+                });
+
+            }
+
+            res.json({
+
+                sucesso: true,
+
+                estabelecimento:
+                    resultado.rows[0]
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO BUSCAR CONFIGURAÇÃO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao buscar configuração."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// CONFIGURAÇÃO PÚBLICA
+// NÃO PRECISA DE LOGIN
+// ==========================================
+
+app.get(
+    "/publico/estabelecimentos/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const resultado =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        nome,
+                        descricao,
+                        logo,
+                        cor,
+                        whatsapp,
+                        endereco,
+                        horario
+
+                    FROM estabelecimentos
+
+                    WHERE id = $1
+                    `,
+                    [
+                        id
+                    ]
+                );
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Estabelecimento não encontrado."
+
+                });
+
+            }
+
+            res.json({
+
+                sucesso: true,
+
+                estabelecimento:
+                    resultado.rows[0]
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO BUSCAR ESTABELECIMENTO PÚBLICO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao carregar estabelecimento."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// PRATOS DO ESTABELECIMENTO
+// PÚBLICO
+// ==========================================
+
+app.get(
+    "/estabelecimentos/:id/pratos",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const resultado =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        nome,
+                        descricao,
+                        preco,
+                        categoria,
+                        imagem,
+                        estabelecimento_id,
+                        criado_em
+
+                    FROM pratos
+
+                    WHERE estabelecimento_id = $1
+
+                    ORDER BY id DESC
+                    `,
+                    [
+                        id
+                    ]
+                );
+
+            res.json(
+                resultado.rows
+            );
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO BUSCAR PRATOS:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao buscar pratos."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// CADASTRAR PRATO
+// ==========================================
+
+app.post(
+    "/pratos",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const {
+                nome,
+                descricao,
+                preco,
+                categoria,
+                imagem,
+                estabelecimento_id
+            } = req.body;
+
+            if (
+                !nome ||
+                preco === undefined ||
+                !estabelecimento_id
+            ) {
+
+                return res.status(400).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Nome, preço e estabelecimento são obrigatórios."
+
+                });
+
+            }
+
+            // ==================================
+            // VERIFICAR DONO
+            // ==================================
+
+            const estabelecimento =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM estabelecimentos
+
+                    WHERE id = $1
+                    AND usuario_id = $2
+                    `,
+                    [
+                        estabelecimento_id,
+                        req.usuario.id
+                    ]
+                );
+
+            if (
+                estabelecimento.rows.length === 0
+            ) {
+
+                return res.status(403).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Você não pode cadastrar pratos neste estabelecimento."
+
+                });
+
+            }
+
+            // ==================================
+            // CADASTRAR
+            // ==================================
+
+            const resultado =
+                await pool.query(
+                    `
+                    INSERT INTO pratos
+                    (
+                        nome,
+                        descricao,
+                        preco,
+                        categoria,
+                        imagem,
+                        estabelecimento_id
+                    )
+
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3,
+                        $4,
+                        $5,
+                        $6
+                    )
+
+                    RETURNING *
+                    `,
+                    [
+                        nome.trim(),
+                        descricao || "",
+                        preco,
+                        categoria || "Outros",
+                        imagem || "",
+                        estabelecimento_id
+                    ]
+                );
+
+            res.status(201).json({
+
+                sucesso: true,
+
+                mensagem:
+                    "Prato cadastrado com sucesso!",
+
+                prato:
+                    resultado.rows[0]
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO CADASTRAR PRATO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao cadastrar prato."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// EDITAR PRATO
+// ==========================================
+
+app.put(
+    "/pratos/:id",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const {
+                nome,
+                descricao,
+                preco,
+                categoria,
+                imagem
+            } = req.body;
+
+            // ==================================
+            // VERIFICAR DONO DO PRATO
+            // ==================================
+
+            const dono =
+                await pool.query(
+                    `
+                    SELECT p.id
+
+                    FROM pratos p
+
+                    INNER JOIN estabelecimentos e
+                        ON e.id = p.estabelecimento_id
+
+                    WHERE p.id = $1
+                    AND e.usuario_id = $2
+                    `,
+                    [
+                        id,
+                        req.usuario.id
+                    ]
+                );
+
+            if (
+                dono.rows.length === 0
+            ) {
+
+                return res.status(403).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Você não pode editar este prato."
+
+                });
+
+            }
+
+            const resultado =
+                await pool.query(
+                    `
+                    UPDATE pratos
+
+                    SET
+                        nome = $1,
+                        descricao = $2,
+                        preco = $3,
+                        categoria = $4,
+                        imagem = $5
+
+                    WHERE id = $6
+
+                    RETURNING *
+                    `,
+                    [
+                        nome,
+                        descricao || "",
+                        preco,
+                        categoria || "Outros",
+                        imagem || "",
+                        id
+                    ]
+                );
+
+            res.json({
+
+                sucesso: true,
+
+                mensagem:
+                    "Prato atualizado com sucesso!",
+
+                prato:
+                    resultado.rows[0]
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO EDITAR PRATO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao editar prato."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// EXCLUIR PRATO
+// ==========================================
+
+app.delete(
+    "/pratos/:id",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const resultado =
+                await pool.query(
+                    `
+                    DELETE FROM pratos p
+
+                    USING estabelecimentos e
+
+                    WHERE p.id = $1
+
+                    AND p.estabelecimento_id = e.id
+
+                    AND e.usuario_id = $2
+
+                    RETURNING p.*
+                    `,
+                    [
+                        id,
+                        req.usuario.id
+                    ]
+                );
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Prato não encontrado ou não pertence ao usuário."
+
+                });
+
+            }
+
+            res.json({
+
+                sucesso: true,
+
+                mensagem:
+                    "Prato excluído com sucesso!"
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO EXCLUIR PRATO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao excluir prato."
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// BUSCAR UM PRATO
+// ==========================================
+
+app.get(
+    "/pratos/:id",
+    async (req, res) => {
+
+        try {
+
+            const {
+                id
+            } = req.params;
+
+            const resultado =
+                await pool.query(
+                    `
+                    SELECT *
+                    FROM pratos
+                    WHERE id = $1
+                    `,
+                    [
+                        id
+                    ]
+                );
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Prato não encontrado."
+
+                });
+
+            }
+
+            res.json(
+                resultado.rows[0]
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    "Erro ao buscar prato."
+
+            });
+
+        }
+
+    }
+);
 
 // ==========================================
 // REDEFINIR SENHA
 // ==========================================
 
-app.post("/redefinir-senha", async (req, res) => {
+app.post(
+    "/redefinir-senha",
+    async (req, res) => {
 
-    try {
+        try {
 
-        const {
-            email,
-            novaSenha,
-            codigo
-        } = req.body;
+            const {
+                email,
+                novaSenha,
+                codigo
+            } = req.body;
 
+            if (
+                !email ||
+                !novaSenha ||
+                !codigo
+            ) {
 
-        // ======================================
-        // VALIDAR DADOS
-        // ======================================
+                return res.status(400).json({
 
-        if (!email || !novaSenha || !codigo) {
+                    sucesso: false,
 
-            return res.status(400).json({
-                sucesso: false,
-                erro: "E-mail, nova senha e código são obrigatórios."
-            });
+                    erro:
+                        "E-mail, nova senha e código são obrigatórios."
 
-        }
+                });
 
+            }
 
-        // ======================================
-        // VERIFICAR CÓDIGO DE RECUPERAÇÃO
-        // ======================================
+            if (
+                codigo !==
+                process.env.RESET_PASSWORD_CODE
+            ) {
 
-        if (
-            codigo !==
-            process.env.RESET_PASSWORD_CODE
-        ) {
+                return res.status(401).json({
 
-            return res.status(401).json({
-                sucesso: false,
-                erro: "Código de recuperação inválido."
-            });
+                    sucesso: false,
 
-        }
+                    erro:
+                        "Código de recuperação inválido."
 
+                });
 
-        // ======================================
-        // VALIDAR SENHA
-        // ======================================
+            }
 
-        if (novaSenha.length < 6) {
+            if (
+                novaSenha.length < 6
+            ) {
 
-            return res.status(400).json({
-                sucesso: false,
-                erro: "A nova senha deve ter pelo menos 6 caracteres."
-            });
+                return res.status(400).json({
 
-        }
+                    sucesso: false,
 
+                    erro:
+                        "A nova senha deve ter pelo menos 6 caracteres."
 
-        // ======================================
-        // PROCURAR USUÁRIO
-        // ======================================
+                });
 
-        const usuario =
+            }
+
+            const emailLimpo =
+                email
+                    .trim()
+                    .toLowerCase();
+
+            const usuario =
+                await pool.query(
+                    `
+                    SELECT id
+                    FROM usuarios
+                    WHERE email = $1
+                    `,
+                    [
+                        emailLimpo
+                    ]
+                );
+
+            if (
+                usuario.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Usuário não encontrado."
+
+                });
+
+            }
+
             await pool.query(
                 `
-                SELECT id, nome, email
-                FROM usuarios
-                WHERE email = $1
+                UPDATE usuarios
+
+                SET senha = $1
+
+                WHERE email = $2
                 `,
                 [
-                    email.trim().toLowerCase()
+                    novaSenha,
+                    emailLimpo
                 ]
             );
 
+            res.json({
 
-        if (usuario.rows.length === 0) {
+                sucesso: true,
 
-            return res.status(404).json({
+                mensagem:
+                    "Senha redefinida com sucesso!"
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO REDEFINIR SENHA:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
                 sucesso: false,
-                erro: "Usuário não encontrado."
+
+                erro:
+                    "Erro ao redefinir senha."
+
             });
 
         }
 
+    }
+);
 
-        // ======================================
-        // ALTERAR SENHA
-        // ======================================
+// ==========================================
+// INICIAR SERVIDOR
+// ==========================================
 
-        await pool.query(
-            `
-            UPDATE usuarios
-            SET senha = $1
-            WHERE email = $2
-            `,
-            [
-                novaSenha,
-                email.trim().toLowerCase()
-            ]
+app.listen(
+    PORT,
+    () => {
+
+        console.log(
+            `Servidor rodando na porta ${PORT}`
         );
 
-
-        // ======================================
-        // RESPOSTA
-        // ======================================
-
-        res.json({
-            sucesso: true,
-            mensagem: "Senha redefinida com sucesso!"
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "ERRO AO REDEFINIR SENHA:"
-        );
-
-        console.error(error);
-
-
-        res.status(500).json({
-            sucesso: false,
-            erro: "Erro ao redefinir senha."
-        });
-
     }
-
-});
-
-app.get("/corrigir-estabelecimento", async (req, res) => {
-
-    try {
-
-        const resultado = await pool.query(`
-            UPDATE estabelecimentos
-            SET usuario_id = 1
-            WHERE id = 1
-            RETURNING *
-        `);
-
-        res.json({
-            sucesso: true,
-            mensagem: "Estabelecimento vinculado ao usuário 1!",
-            estabelecimento: resultado.rows
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            sucesso: false,
-            erro: error.message
-        });
-
-    }
-
-});
-
-app.listen(PORT, () => {
-
-    console.log(`Servidor rodando na porta ${PORT}`);
-
-});
+);
