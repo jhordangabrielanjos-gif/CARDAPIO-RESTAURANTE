@@ -1441,51 +1441,42 @@ app.get(
 
         try {
 
-            const {
-                id
-            } = req.params;
+            const { id } = req.params;
 
-            const resultado =
-                await pool.query(
-                    `
-                    SELECT
-                        id,
-                        nome,
-                        descricao,
-                        preco,
-                        categoria,
-                        imagem,
-                        estabelecimento_id,
-                        criado_em
+            const resultado = await pool.query(
+                `
+                SELECT
+                    id,
+                    nome,
+                    descricao,
+                    preco,
+                    categoria,
+                    imagem,
+                    estabelecimento_id
 
-                    FROM pratos
+                FROM pratos
 
-                    WHERE estabelecimento_id = $1
+                WHERE estabelecimento_id = $1
 
-                    ORDER BY id DESC
-                    `,
-                    [
-                        id
-                    ]
-                );
-
-            res.json(
-                resultado.rows
+                ORDER BY id DESC
+                `,
+                [id]
             );
+
+            res.json(resultado.rows);
 
         } catch (error) {
 
-    console.error(
-        "ERRO AO BUSCAR PRATOS:"
-    );
+            console.error(
+                "ERRO AO BUSCAR PRATOS:"
+            );
 
-    console.error(error);
+            console.error(error);
 
-    res.status(500).json({
-        sucesso: false,
-        erro: error.message
-    });
-}
+            res.status(500).json({
+                sucesso: false,
+                erro: error.message
+            });
 
         }
 
