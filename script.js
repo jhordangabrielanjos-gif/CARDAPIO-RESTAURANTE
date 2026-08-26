@@ -1754,23 +1754,25 @@ async function excluirPrato(id) {
         return;
     }
 
+    
     try {
 
-        await fetch(`${API_URL}/pratos/${id}`, {
-    method: "DELETE",
+    const resposta = await fetch(
+        `${API_URL}/pratos/${id}`,
+        {
+            method: "DELETE",
 
-    headers: {
-        "Authorization":
-            `Bearer ${localStorage.getItem("token")}`
-    }
-});
+            headers: {
+                "Authorization":
+                    `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
 
-
-        const tipo =
-            resposta.headers.get(
-                "content-type"
-            ) || "";
-
+    const tipo =
+        resposta.headers.get(
+            "content-type"
+        ) || "";
 
         if (
             !tipo.includes(
