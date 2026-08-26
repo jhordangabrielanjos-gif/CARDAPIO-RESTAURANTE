@@ -268,9 +268,13 @@ let categoriaAtual = "Todos";
 let pratoEditando = null;
 let imagemAtual = "";
 
-let carrinho = JSON.parse(
-    localStorage.getItem("carrinhoRestaurante")
-) || [];
+const CHAVE_CARRINHO =
+    `carrinhoRestaurante_${ESTABELECIMENTO_ID}`;
+
+let carrinho =
+    JSON.parse(
+        localStorage.getItem(CHAVE_CARRINHO)
+    ) || [];
 
 
 // ========================================
@@ -442,7 +446,7 @@ function mostrarToast(mensagem) {
 function salvarCarrinho() {
 
     localStorage.setItem(
-        "carrinhoRestaurante",
+        CHAVE_CARRINHO,
         JSON.stringify(carrinho)
     );
 }
@@ -768,23 +772,92 @@ function limparCarrinho() {
 // WHATSAPP
 // ========================================
 
+// ========================================
+// WHATSAPP - FINALIZAR PEDIDO
+// ========================================
+
 function enviarPedidoWhatsApp() {
 
     if (carrinho.length === 0) {
 
+        mostrarToast("Seu pedido está vazio.");
+
+        return;
+    }
+
+    // ========================================
+    // TIPO DO PEDIDO
+    // ========================================
+
+    const tipoSelecionado =
+        document.querySelector(
+            'input[name="tipoPedido"]:checked'
+        );
+
+    const tipoPedido =
+        tipoSelecionado
+            ? tipoSelecionado.value
+            : "Delivery";
+
+
+    // ========================================
+    // PAGAMENTO
+    // ========================================
+
+    const pagamento =
+        metodoPagamento.value;
+
+
+    if (!pagamento) {
+
         mostrarToast(
-            "Seu pedido está vazio."
+            "Selecione a forma de pagamento."
         );
 
         return;
     }
 
 
+    // ========================================
+    // VALIDAR DELIVERY
+    // ========================================
+
+    if (tipoPedido === "Delivery") {
+
+        if (
+            !enderecoCliente.value.trim() ||
+            !numeroCliente.value.trim() ||
+            !bairroCliente.value.trim()
+        ) {
+
+            mostrarToast(
+                "Preencha o endereço de entrega."
+            );
+
+            return;
+        }
+
+    }
+
+
+    // ========================================
+    // MONTAR MENSAGEM
+    // ========================================
+
     let mensagem =
         "🍽️ *NOVO PEDIDO*\n\n";
 
+
     mensagem +=
-        "Olá! Gostaria de fazer este pedido:\n\n";
+        `🏪 *${document.getElementById("nomeEstabelecimento")?.textContent || "Restaurante"}*\n\n`;
+
+
+    // ========================================
+    // ITENS
+    // ========================================
+
+    mensagem +=
+        "🛒 *ITENS DO PEDIDO*\n\n";
 
 
     carrinho.forEach(item => {
@@ -806,6 +879,10 @@ function enviarPedidoWhatsApp() {
     });
 
 
+    // ========================================
+    // TOTAL
+    // ========================================
+
     const total =
         valorTotalCarrinho();
 
@@ -816,9 +893,143 @@ function enviarPedidoWhatsApp() {
     mensagem +=
         `💰 *TOTAL: ${formatarPreco(total)}*\n\n`;
 
-    mensagem +=
-        "Aguardo a confirmação do pedido. 😊";
 
+    // ========================================
+    // ENTREGA / RETIRADA
+    // ========================================
+
+    mensagem +=
+        "📦 *FORMA DE RECEBIMENTO*\n";
+
+    mensagem +=
+        `${tipoPedido}\n\n`;
+
+
+    if (tipoPedido === "Delivery") {
+
+        mensagem +=
+            "📍 *ENDEREÇO DE ENTREGA*\n";
+
+        mensagem +=
+            `Rua/Avenida: ${enderecoCliente.value.trim()}\n`;
+
+        mensagem +=
+            `Número: ${numeroCliente.value.trim()}\n`;
+
+        mensagem +=
+            `Bairro: ${bairroCliente.value.trim()}\n`;
+
+
+        if (complementoCliente.value.trim()) {
+
+            mensagem +=
+                `Complemento: ${complementoCliente.value.trim()}\n`;
+
+        }
+
+        mensagem += "\n";
+
+    }
+
+
+    // ========================================
+    // PAGAMENTO
+    // ========================================
+
+    mensagem +=
+        "💰 *FORMA DE PAGAMENTO*\n";
+
+    mensagem +=
+        `${pagamento}\n`;
+
+
+    // ========================================
+    // PIX
+    // ========================================
+
+    if (pagamento === "PIX") {
+
+        mensagem +=
+            "📱 Pagamento via PIX\n";
+
+        mensagem +=
+            "O pagamento será realizado via PIX.\n";
+
+    }
+
+
+    // ========================================
+    // CARTÃO
+    // ========================================
+
+    if (pagamento === "Cartão") {
+
+        if (levarMaquininha.checked) {
+
+            mensagem +=
+                "💳 Levar maquininha para pagamento.\n";
+
+        } else {
+
+            mensagem +=
+                "💳 Cliente pagará no estabelecimento.\n";
+
+        }
+
+    }
+
+
+    // ========================================
+    // DINHEIRO
+    // ========================================
+
+    if (pagamento === "Dinheiro") {
+
+        if (precisaTroco.checked) {
+
+            const valorTroco =
+                Number(trocoPara.value);
+
+
+            if (
+                !trocoPara.value ||
+                valorTroco <= 0
+            ) {
+
+                mostrarToast(
+                    "Informe o valor para o troco."
+                );
+
+                return;
+            }
+
+
+            mensagem +=
+                `💵 Precisa de troco para: ${formatarPreco(valorTroco)}\n`;
+
+        } else {
+
+            mensagem +=
+                "💵 Não precisa de troco.\n";
+
+        }
+
+    }
+
+
+    // ========================================
+    // FINAL
+    // ========================================
+
+    mensagem += "\n";
+
+    mensagem +=
+        "✅ *Aguardo a confirmação do pedido!* 😊";
+
+
+    // ========================================
+    // WHATSAPP
+    // ========================================
 
     const url =
         `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
