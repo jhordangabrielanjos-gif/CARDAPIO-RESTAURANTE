@@ -1,6 +1,246 @@
 const API_URL = "https://cardapio-restaurante-za9s.onrender.com";
 
 const WHATSAPP = "5579981021378";
+
+// ==========================================
+// ESTABELECIMENTO ATUAL
+// ==========================================
+
+const API_URL =
+    "https://cardapio-restaurante-za9s.onrender.com";
+
+
+// Pegar ID pela URL
+const parametros =
+    new URLSearchParams(window.location.search);
+
+const estabelecimentoId =
+    parametros.get("estabelecimento");
+
+
+// Se não tiver estabelecimento na URL
+if (!estabelecimentoId) {
+
+    console.warn(
+        "Nenhum estabelecimento foi informado na URL."
+    );
+
+}
+
+
+// ==========================================
+// CARREGAR PERSONALIZAÇÃO
+// ==========================================
+
+async function carregarConfiguracaoEstabelecimento() {
+
+    if (!estabelecimentoId) {
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            `${API_URL}/estabelecimentos/${estabelecimentoId}/configuracao`
+        );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!dados.sucesso) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao carregar estabelecimento."
+            );
+
+        }
+
+
+        const estabelecimento =
+            dados.estabelecimento;
+
+
+        // ======================================
+        // NOME
+        // ======================================
+
+        const nome =
+            document.getElementById(
+                "nomeEstabelecimento"
+            );
+
+        if (nome) {
+
+            nome.textContent =
+                estabelecimento.nome ||
+                "Meu Restaurante";
+
+        }
+
+
+        // ======================================
+        // DESCRIÇÃO
+        // ======================================
+
+        const descricao =
+            document.getElementById(
+                "descricaoEstabelecimento"
+            );
+
+        if (descricao) {
+
+            descricao.textContent =
+                estabelecimento.descricao ||
+                "Escolha seus pratos favoritos e monte seu pedido.";
+
+        }
+
+
+        // ======================================
+        // LOGO
+        // ======================================
+
+        const logo =
+            document.getElementById(
+                "logoEstabelecimento"
+            );
+
+        if (logo) {
+
+            if (estabelecimento.logo) {
+
+                logo.innerHTML = `
+                    <img
+                        src="${estabelecimento.logo}"
+                        alt="Logo"
+                        style="
+                            width:60px;
+                            height:60px;
+                            object-fit:cover;
+                            border-radius:50%;
+                        "
+                    >
+                `;
+
+            } else {
+
+                logo.textContent = "🍽️";
+
+            }
+
+        }
+
+
+        // ======================================
+        // COR
+        // ======================================
+
+        if (estabelecimento.cor) {
+
+            document.documentElement.style.setProperty(
+                "--cor-estabelecimento",
+                estabelecimento.cor
+            );
+
+        }
+
+
+        // ======================================
+        // INFORMAÇÕES
+        // ======================================
+
+        const informacoes =
+            document.getElementById(
+                "informacoesEstabelecimento"
+            );
+
+        if (informacoes) {
+
+            let html = "";
+
+
+            if (estabelecimento.endereco) {
+
+                html += `
+                    <div>
+                        📍 ${escaparHTML(
+                            estabelecimento.endereco
+                        )}
+                    </div>
+                `;
+
+            }
+
+
+            if (estabelecimento.horario) {
+
+                html += `
+                    <div>
+                        🕐 ${escaparHTML(
+                            estabelecimento.horario
+                        )}
+                    </div>
+                `;
+
+            }
+
+
+            informacoes.innerHTML = html;
+
+        }
+
+
+        // ======================================
+        // WHATSAPP
+        // ======================================
+
+        if (estabelecimento.whatsapp) {
+
+            window.WHATSAPP =
+                estabelecimento.whatsapp
+                    .replace(/\D/g, "");
+
+        }
+
+
+        // ======================================
+        // TÍTULO DA PÁGINA
+        // ======================================
+
+        document.title =
+            estabelecimento.nome ||
+            "Cardápio";
+
+
+        console.log(
+            "Estabelecimento carregado:",
+            estabelecimento
+        );
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar estabelecimento:",
+            erro
+        );
+
+    }
+
+}
+
 // ========================================
 // ESTABELECIMENTO ATUAL
 // ========================================
@@ -1894,3 +2134,5 @@ async function editarEstabelecimento(id, nomeAtual) {
 atualizarCarrinho();
 
 carregarPratos();
+
+carregarConfiguracaoEstabelecimento();
