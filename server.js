@@ -1475,20 +1475,17 @@ app.get(
 
         } catch (error) {
 
-            console.error(
-                "ERRO AO BUSCAR PRATOS:"
-            );
+    console.error(
+        "ERRO AO BUSCAR PRATOS:"
+    );
 
-            console.error(error);
+    console.error(error);
 
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao buscar pratos."
-
-            });
+    res.status(500).json({
+        sucesso: false,
+        erro: error.message
+    });
+}
 
         }
 
