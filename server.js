@@ -191,6 +191,22 @@ await pool.query(`
     ADD COLUMN IF NOT EXISTS usuario_id INTEGER
 `);
 
+// ======================================
+// 9. PERSONALIZAÇÃO DO CARDÁPIO
+// ======================================
+
+await pool.query(`
+    ALTER TABLE estabelecimentos
+    ADD COLUMN IF NOT EXISTS descricao TEXT,
+    ADD COLUMN IF NOT EXISTS logo TEXT,
+    ADD COLUMN IF NOT EXISTS cor VARCHAR(20),
+    ADD COLUMN IF NOT EXISTS whatsapp VARCHAR(30),
+    ADD COLUMN IF NOT EXISTS endereco TEXT,
+    ADD COLUMN IF NOT EXISTS horario TEXT
+`);
+
+console.log("Colunas de personalização prontas!");
+
 console.log("Coluna usuario_id pronta!");
 
         console.log("======================================");
@@ -650,6 +666,195 @@ app.delete("/pratos/:id", async (req, res) => {
 });
 
 // ==========================================
+// SALVAR PERSONALIZAÇÃO DO ESTABELECIMENTO
+// ==========================================
+
+app.put(
+    "/estabelecimentos/:id/configuracao",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            const {
+                nome,
+                descricao,
+                logo,
+                cor,
+                whatsapp,
+                endereco,
+                horario
+            } = req.body;
+
+
+            // ======================================
+            // VALIDAR NOME
+            // ======================================
+
+            if (!nome || !nome.trim()) {
+
+                return res.status(400).json({
+                    sucesso: false,
+                    erro: "O nome do estabelecimento é obrigatório."
+                });
+
+            }
+
+
+            // ======================================
+            // ATUALIZAR
+            // ======================================
+
+            const resultado = await pool.query(
+                `
+                UPDATE estabelecimentos
+                SET
+                    nome = $1,
+                    descricao = $2,
+                    logo = $3,
+                    cor = $4,
+                    whatsapp = $5,
+                    endereco = $6,
+                    horario = $7
+                WHERE id = $8
+                AND usuario_id = $9
+                RETURNING
+                    id,
+                    nome,
+                    descricao,
+                    logo,
+                    cor,
+                    whatsapp,
+                    endereco,
+                    horario
+                `,
+                [
+                    nome.trim(),
+                    descricao || "",
+                    logo || "",
+                    cor || "#222222",
+                    whatsapp || "",
+                    endereco || "",
+                    horario || "",
+                    id,
+                    req.usuario.id
+                ]
+            );
+
+
+            // ======================================
+            // VERIFICAR ESTABELECIMENTO
+            // ======================================
+
+            if (resultado.rows.length === 0) {
+
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: "Estabelecimento não encontrado ou não pertence ao usuário."
+                });
+
+            }
+
+
+            res.json({
+                sucesso: true,
+                mensagem: "Configuração salva com sucesso!",
+                estabelecimento: resultado.rows[0]
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO SALVAR CONFIGURAÇÃO:"
+            );
+
+            console.error(error);
+
+
+            res.status(500).json({
+                sucesso: false,
+                erro: "Erro ao salvar configuração"
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
+// BUSCAR PERSONALIZAÇÃO DO ESTABELECIMENTO
+// ==========================================
+
+app.get(
+    "/estabelecimentos/:id/configuracao",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            const resultado = await pool.query(
+                `
+                SELECT
+                    id,
+                    nome,
+                    descricao,
+                    logo,
+                    cor,
+                    whatsapp,
+                    endereco,
+                    horario
+                FROM estabelecimentos
+                WHERE id = $1
+                AND usuario_id = $2
+                `,
+                [
+                    id,
+                    req.usuario.id
+                ]
+            );
+
+
+            if (resultado.rows.length === 0) {
+
+                return res.status(404).json({
+                    sucesso: false,
+                    erro: "Estabelecimento não encontrado ou não pertence ao usuário."
+                });
+
+            }
+
+
+            res.json({
+                sucesso: true,
+                estabelecimento: resultado.rows[0]
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO BUSCAR CONFIGURAÇÃO:"
+            );
+
+            console.error(error);
+
+
+            res.status(500).json({
+                sucesso: false,
+                erro: "Erro ao buscar configuração"
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
 // INICIAR SERVIDOR
 // ==========================================
 // ==========================================
@@ -759,7 +964,10 @@ app.delete("/estabelecimentos/:id", autenticarUsuario, async (req, res) => {
 // EDITAR ESTABELECIMENTO
 // ==========================================
 
-app.put("/estabelecimentos/:id", async (req, res) => {
+app.put(
+    "/estabelecimentos/:id",
+    autenticarUsuario,
+    async (req, res) => {
 
     try {
 
