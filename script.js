@@ -909,22 +909,24 @@ async function carregarPratos() {
 function criarCategorias() {
 
     const nomes = [
-        "Todos",
-        "Hambúrgueres",
-        "Pizzas",
-        "Porções",
-        "Cachorros-quentes",
-        "Frangos",
-        "Carnes",
-        "Massas",
-        "Saladas",
-        "Pratos Executivos",
-        "Lanches",
-        "Sobremesas",
-        "Bebidas",
-        "Açaí",
-        "Cafés"
-    ];
+    "Todos",
+    "Hambúrgueres",
+    "Pizzas",
+    "Porções",
+    "Cachorros-quentes",
+    "Frangos",
+    "Carnes",
+    "Massas",
+    "Saladas",
+    "Pratos Executivos",
+    "Lanches",
+    "Sobremesas",
+    "Bebidas",
+    "Açaí",
+    "Cafés",
+    "Pastéis",
+    "Geladinhos"
+];
 
 
     const icones = {
@@ -957,7 +959,11 @@ function criarCategorias() {
 
         "Açaí": "🍨",
 
-        "Cafés": "☕"
+"Cafés": "☕",
+
+"Pastéis": "🥟",
+
+"Geladinhos": "🍧"
 
     };
 
