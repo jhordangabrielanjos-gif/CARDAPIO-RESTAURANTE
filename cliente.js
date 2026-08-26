@@ -63,14 +63,38 @@ if (!CLIENTE_ID) {
 // CARRINHO SEPARADO POR CLIENTE
 // ==========================================
 
+// ==========================================
+// USUÁRIO LOGADO
+// ==========================================
+
+const usuarioLogado =
+    JSON.parse(
+        localStorage.getItem("usuario")
+    );
+
+
+// ==========================================
+// ID DO USUÁRIO
+// ==========================================
+
+const USUARIO_ID =
+    usuarioLogado?.id || "visitante";
+
+
+// ==========================================
+// CARRINHO SEPARADO
+// POR USUÁRIO E ESTABELECIMENTO
+// ==========================================
+
 const CHAVE_CARRINHO =
-    `carrinho_${ESTABELECIMENTO_ID}_${CLIENTE_ID}`;
+    `carrinho_${USUARIO_ID}_${ESTABELECIMENTO_ID}`;
+
 
 let carrinho =
     JSON.parse(
         localStorage.getItem(CHAVE_CARRINHO)
-    ) || []; 
-
+    ) || [];
+     
 // ==========================================
 // ELEMENTOS
 // ==========================================
@@ -1406,4 +1430,4 @@ atualizarCarrinho();
 
 carregarPratos();
 
-carregarConfiguracaoEstabelecimento(); 
+carregarConfiguracaoEstabelecimento();
