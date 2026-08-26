@@ -202,8 +202,8 @@ async function carregarConfiguracaoEstabelecimento() {
 
         if (estabelecimento.whatsapp) {
 
-            window.WHATSAPP =
-                estabelecimento.whatsapp
+            WHATSAPP =
+                estabelecwindowimento.whatsapp
                     .replace(/\D/g, "");
 
         }
@@ -832,6 +832,120 @@ function enviarPedidoWhatsApp() {
     );
 }
 
+// ========================================
+// TIPO DO PEDIDO
+// ========================================
+
+function atualizarTipoPedido() {
+
+    const tipoSelecionado =
+        document.querySelector(
+            'input[name="tipoPedido"]:checked'
+        );
+
+
+    if (!tipoSelecionado) {
+        return;
+    }
+
+
+    const tipo =
+        tipoSelecionado.value;
+
+
+    if (tipo === "Delivery") {
+
+        dadosEndereco.style.display =
+            "block";
+
+    } else {
+
+        dadosEndereco.style.display =
+            "none";
+
+
+        if (levarMaquininha) {
+
+            levarMaquininha.checked =
+                false;
+
+        }
+
+    }
+
+}
+
+
+// ========================================
+// FORMA DE PAGAMENTO
+// ========================================
+
+function atualizarPagamento() {
+
+    const pagamento =
+        metodoPagamento.value;
+
+
+    opcaoPix.style.display =
+        "none";
+
+    opcaoCartao.style.display =
+        "none";
+
+    opcaoDinheiro.style.display =
+        "none";
+
+
+    if (pagamento === "PIX") {
+
+        opcaoPix.style.display =
+            "block";
+
+    }
+
+
+    if (pagamento === "Cartão") {
+
+        opcaoCartao.style.display =
+            "block";
+
+    }
+
+
+    if (pagamento === "Dinheiro") {
+
+        opcaoDinheiro.style.display =
+            "block";
+
+    }
+
+}
+
+
+// ========================================
+// TROCO
+// ========================================
+
+function atualizarTroco() {
+
+    if (!precisaTroco) {
+        return;
+    }
+
+
+    campoTroco.style.display =
+        precisaTroco.checked
+            ? "block"
+            : "none";
+
+
+    if (!precisaTroco.checked) {
+
+        trocoPara.value = "";
+
+    }
+
+}
 
 // ========================================
 // EVENTOS DO CARRINHO
@@ -862,6 +976,96 @@ finalizarPedido.addEventListener(
     enviarPedidoWhatsApp
 );
 
+// ========================================
+// EVENTOS DO TIPO DE PEDIDO
+// ========================================
+
+document
+    .querySelectorAll(
+        'input[name="tipoPedido"]'
+    )
+    .forEach(input => {
+
+        input.addEventListener(
+            "change",
+            atualizarTipoPedido
+        );
+
+    });
+
+
+// ========================================
+// EVENTO PAGAMENTO
+// ========================================
+
+metodoPagamento.addEventListener(
+    "change",
+    atualizarPagamento
+);
+
+
+// ========================================
+// EVENTO TROCO
+// ========================================
+
+precisaTroco.addEventListener(
+    "change",
+    atualizarTroco
+);
+
+
+// ========================================
+// COPIAR PIX
+// ========================================
+
+copiarPix.addEventListener(
+    "click",
+    async () => {
+
+        const pix =
+            chavePix.textContent.trim();
+
+
+        if (
+            !pix ||
+            pix === "COLOQUE_SUA_CHAVE_PIX_AQUI"
+        ) {
+
+            mostrarToast(
+                "Configure a chave PIX primeiro."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                pix
+            );
+
+
+            mostrarToast(
+                "✅ Chave PIX copiada!"
+            );
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao copiar PIX:",
+                erro
+            );
+
+
+            mostrarToast(
+                "Não foi possível copiar a chave PIX."
+            );
+
+        }
+
+    }
+);
 
 // ========================================
 // ================= PRATOS ===============
@@ -2163,6 +2367,12 @@ async function editarEstabelecimento(id, nomeAtual) {
 // ========================================
 
 atualizarCarrinho();
+
+atualizarTipoPedido();
+
+atualizarPagamento();
+
+atualizarTroco();
 
 carregarPratos();
 
