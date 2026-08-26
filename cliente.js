@@ -40,16 +40,36 @@ let categoriaAtual = "Todos";
 // CARRINHO
 // ==========================================
 
-// Carrinho separado por estabelecimento
+// ==========================================
+// ID ÚNICO DO CLIENTE
+// ==========================================
+
+let CLIENTE_ID =
+    localStorage.getItem("clienteId");
+
+if (!CLIENTE_ID) {
+
+    CLIENTE_ID =
+        crypto.randomUUID();
+
+    localStorage.setItem(
+        "clienteId",
+        CLIENTE_ID
+    );
+}
+
+
+// ==========================================
+// CARRINHO SEPARADO POR CLIENTE
+// ==========================================
 
 const CHAVE_CARRINHO =
-    `carrinhoRestaurante_${ESTABELECIMENTO_ID}`;
+    `carrinho_${ESTABELECIMENTO_ID}_${CLIENTE_ID}`;
 
 let carrinho =
     JSON.parse(
         localStorage.getItem(CHAVE_CARRINHO)
-    ) || [];
-
+    ) || []; 
 
 // ==========================================
 // ELEMENTOS
@@ -1386,4 +1406,4 @@ atualizarCarrinho();
 
 carregarPratos();
 
-carregarConfiguracaoEstabelecimento();
+carregarConfiguracaoEstabelecimento(); 
