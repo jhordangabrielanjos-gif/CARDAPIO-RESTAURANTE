@@ -40,61 +40,55 @@ let categoriaAtual = "Todos";
 // CARRINHO
 // ==========================================
 
-// ==========================================
-// ID ÚNICO DO CLIENTE
-// ==========================================
-
+// ID único deste navegador/cliente
 let CLIENTE_ID =
     localStorage.getItem("clienteId");
 
 if (!CLIENTE_ID) {
 
-    CLIENTE_ID =
-        crypto.randomUUID();
+    // Criar um ID único
+    if (crypto.randomUUID) {
+
+        CLIENTE_ID =
+            crypto.randomUUID();
+
+    } else {
+
+        CLIENTE_ID =
+            Date.now().toString() +
+            Math.random().toString(36);
+
+    }
+
 
     localStorage.setItem(
         "clienteId",
         CLIENTE_ID
     );
+
 }
 
 
 // ==========================================
-// CARRINHO SEPARADO POR CLIENTE
-// ==========================================
-
-// ==========================================
-// USUÁRIO LOGADO
-// ==========================================
-
-const usuarioLogado =
-    JSON.parse(
-        localStorage.getItem("usuario")
-    );
-
-
-// ==========================================
-// ID DO USUÁRIO
-// ==========================================
-
-const USUARIO_ID =
-    usuarioLogado?.id || "visitante";
-
-
-// ==========================================
-// CARRINHO SEPARADO
-// POR USUÁRIO E ESTABELECIMENTO
+// CHAVE DO CARRINHO
+// CLIENTE + ESTABELECIMENTO
 // ==========================================
 
 const CHAVE_CARRINHO =
-    `carrinho_${USUARIO_ID}_${ESTABELECIMENTO_ID}`;
+    `carrinhoRestaurante_${CLIENTE_ID}_${ESTABELECIMENTO_ID}`;
 
+
+// ==========================================
+// CARREGAR CARRINHO
+// ==========================================
 
 let carrinho =
     JSON.parse(
-        localStorage.getItem(CHAVE_CARRINHO)
+        localStorage.getItem(
+            CHAVE_CARRINHO
+        )
     ) || [];
-     
+
 // ==========================================
 // ELEMENTOS
 // ==========================================
