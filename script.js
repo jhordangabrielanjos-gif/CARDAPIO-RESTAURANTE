@@ -35,7 +35,7 @@ async function carregarConfiguracaoEstabelecimento() {
     try {
 
         const resposta = await fetch(
-    `${API_URL}/estabelecimentos/${estabelecimentoId}`
+    `${API_URL}/publico/estabelecimentos/${estabelecimentoId}`
 );
 
 
