@@ -980,6 +980,138 @@ app.post("/login", async (req, res) => {
 
 });
 
+// ==========================================
+// REDEFINIR SENHA
+// ==========================================
+
+app.post("/redefinir-senha", async (req, res) => {
+
+    try {
+
+        const {
+            email,
+            novaSenha,
+            codigo
+        } = req.body;
+
+
+        // ======================================
+        // VALIDAR DADOS
+        // ======================================
+
+        if (!email || !novaSenha || !codigo) {
+
+            return res.status(400).json({
+                sucesso: false,
+                erro: "E-mail, nova senha e código são obrigatórios."
+            });
+
+        }
+
+
+        // ======================================
+        // VERIFICAR CÓDIGO DE RECUPERAÇÃO
+        // ======================================
+
+        if (
+            codigo !==
+            process.env.RESET_PASSWORD_CODE
+        ) {
+
+            return res.status(401).json({
+                sucesso: false,
+                erro: "Código de recuperação inválido."
+            });
+
+        }
+
+
+        // ======================================
+        // VALIDAR SENHA
+        // ======================================
+
+        if (novaSenha.length < 6) {
+
+            return res.status(400).json({
+                sucesso: false,
+                erro: "A nova senha deve ter pelo menos 6 caracteres."
+            });
+
+        }
+
+
+        // ======================================
+        // PROCURAR USUÁRIO
+        // ======================================
+
+        const usuario =
+            await pool.query(
+                `
+                SELECT id, nome, email
+                FROM usuarios
+                WHERE email = $1
+                `,
+                [
+                    email.trim().toLowerCase()
+                ]
+            );
+
+
+        if (usuario.rows.length === 0) {
+
+            return res.status(404).json({
+                sucesso: false,
+                erro: "Usuário não encontrado."
+            });
+
+        }
+
+
+        // ======================================
+        // ALTERAR SENHA
+        // ======================================
+
+        await pool.query(
+            `
+            UPDATE usuarios
+            SET senha = $1
+            WHERE email = $2
+            `,
+            [
+                novaSenha,
+                email.trim().toLowerCase()
+            ]
+        );
+
+
+        // ======================================
+        // RESPOSTA
+        // ======================================
+
+        res.json({
+            sucesso: true,
+            mensagem: "Senha redefinida com sucesso!"
+        });
+
+
+    } catch (error) {
+
+        console.error(
+            "ERRO AO REDEFINIR SENHA:"
+        );
+
+        console.error(error);
+
+
+        res.status(500).json({
+            sucesso: false,
+            erro: "Erro ao redefinir senha."
+        });
+
+    }
+
+});
+
 app.get("/corrigir-estabelecimento", async (req, res) => {
 
     try {
