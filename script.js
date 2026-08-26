@@ -294,6 +294,55 @@ const totalCarrinho = document.getElementById("totalCarrinho");
 const finalizarPedido = document.getElementById("finalizarPedido");
 const limparCarrinhoBtn = document.getElementById("limparCarrinho");
 
+// ========================================
+// DADOS DO PEDIDO
+// ========================================
+
+const dadosEndereco =
+    document.getElementById("dadosEndereco");
+
+const enderecoCliente =
+    document.getElementById("enderecoCliente");
+
+const numeroCliente =
+    document.getElementById("numeroCliente");
+
+const bairroCliente =
+    document.getElementById("bairroCliente");
+
+const complementoCliente =
+    document.getElementById("complementoCliente");
+
+const metodoPagamento =
+    document.getElementById("metodoPagamento");
+
+const opcaoPix =
+    document.getElementById("opcaoPix");
+
+const opcaoCartao =
+    document.getElementById("opcaoCartao");
+
+const opcaoDinheiro =
+    document.getElementById("opcaoDinheiro");
+
+const levarMaquininha =
+    document.getElementById("levarMaquininha");
+
+const precisaTroco =
+    document.getElementById("precisaTroco");
+
+const campoTroco =
+    document.getElementById("campoTroco");
+
+const trocoPara =
+    document.getElementById("trocoPara");
+
+const copiarPix =
+    document.getElementById("copiarPix");
+
+const chavePix =
+    document.getElementById("chavePix");
+    
 // MODAL
 
 const modal = document.getElementById("modal");
