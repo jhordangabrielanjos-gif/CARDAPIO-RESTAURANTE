@@ -158,6 +158,15 @@
     opacity: 0.9;
 }
 
+
+.cliente {
+    background: #198754;
+    color: white;
+}
+
+.cliente:hover {
+    opacity: 0.9;
+}
     </style>
 
 </head>
@@ -358,6 +367,12 @@
                                         🍽️ Abrir cardápio
                                     </button>
 
+<button
+    class="botao cliente"
+    onclick="abrirCardapioCliente(${estabelecimento.id})"
+>
+    👥 Cardápio do cliente
+</button>
 
                                     <button
                                         class="botao editar"
@@ -429,6 +444,12 @@
 
         }
 
+function abrirCardapioCliente(id) {
+
+    window.location.href =
+        `/cliente.html?estabelecimento=${id}`;
+
+}
 
         // ======================================
         // NOVO ESTABELECIMENTO
