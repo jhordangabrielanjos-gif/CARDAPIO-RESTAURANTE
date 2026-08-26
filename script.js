@@ -1,2138 +1,2379 @@
-/* ========================================
-   RESET
-======================================== */
+const API_URL = "https://cardapio-restaurante-za9s.onrender.com";
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+// ==========================================
+// ESTABELECIMENTO ATUAL
+// ==========================================
 
-html {
-    scroll-behavior: smooth;
-}
+const parametros = new URLSearchParams(
+    window.location.search
+);
 
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f7f7f7;
-    color: #222;
-    min-height: 100vh;
-}
+const estabelecimentoId =
+    parametros.get("estabelecimento");
 
-button,
-input,
-textarea,
-select {
-    font-family: inherit;
-}
+const ESTABELECIMENTO_ID =
+    Number(estabelecimentoId) || 1;
 
-button {
-    cursor: pointer;
-}
+console.log(
+    "Estabelecimento atual:",
+    ESTABELECIMENTO_ID
+);
 
-body.sem-scroll {
-    overflow: hidden;
-}
+// WhatsApp padrão
+let WHATSAPP = "5579981021378";
 
+// ==========================================
+// CARREGAR PERSONALIZAÇÃO
+// ==========================================
 
-/* ========================================
-   HEADER
-======================================== */
+async function carregarConfiguracaoEstabelecimento() {
 
-.header {
-    position: sticky;
-    top: 0;
-    z-index: 500;
-
-    width: 100%;
-
-    background: white;
-
-    border-bottom: 1px solid #eeeeee;
-
-    box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.04);
-}
-
-.header-conteudo {
-    width: 90%;
-    max-width: 1250px;
-
-    min-height: 78px;
-
-    margin: auto;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 20px;
-}
-
-
-/* ========================================
-   LOGO
-======================================== */
-
-.logo {
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-}
-
-.logo-icone {
-    width: 48px;
-    height: 48px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: #ff6b35;
-
-    border-radius: 14px;
-
-    font-size: 24px;
-
-    box-shadow:
-        0 7px 18px rgba(255, 107, 53, 0.25);
-}
-
-.logo h1 {
-    font-size: 19px;
-    font-weight: 800;
-}
-
-.logo span {
-    display: block;
-
-    margin-top: 3px;
-
-    color: #999;
-
-    font-size: 12px;
-}
-
-
-/* ========================================
-   NOVO PRATO
-======================================== */
-
-.btn-novo {
-    border: none;
-
-    background: #ff6b35;
-
-    color: white;
-
-    padding: 12px 18px;
-
-    border-radius: 12px;
-
-    font-size: 13px;
-    font-weight: 800;
-
-    transition: 0.25s;
-}
-
-.btn-novo:hover {
-    background: #e95725;
-
-    transform: translateY(-2px);
-}
-
-
-/* ========================================
-   CONTAINER
-======================================== */
-
-.container {
-    width: 90%;
-    max-width: 1250px;
-
-    margin: auto;
-
-    padding-bottom: 100px;
-}
-
-
-/* ========================================
-   HERO
-======================================== */
-
-.hero {
-    position: relative;
-
-    min-height: 300px;
-
-    margin-top: 32px;
-
-    padding: 50px;
-
-    display: flex;
-    align-items: center;
-
-    overflow: hidden;
-
-    border-radius: 25px;
-
-    color: white;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(0, 0, 0, 0.85),
-            rgba(0, 0, 0, 0.45)
-        ),
-        url("img/fundo-restaurante.jpg");
-
-    background-size: cover;
-    background-position: center;
-}
-
-.hero > div {
-    position: relative;
-    z-index: 2;
-}
-
-.hero::after {
-    content: "🍔";
-
-    position: absolute;
-
-    right: 7%;
-    bottom: -30px;
-
-    font-size: 160px;
-
-    opacity: 0.12;
-
-    transform: rotate(-12deg);
-}
-
-.hero-tag {
-    display: inline-block;
-
-    padding: 8px 13px;
-
-    margin-bottom: 15px;
-
-    border-radius: 20px;
-
-    background: white;
-
-    color: #ff6b35;
-
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.hero h2 {
-    font-size: 44px;
-
-    line-height: 1.1;
-
-    margin-bottom: 14px;
-}
-
-.hero h2 span {
-    color: #ff7b45;
-}
-
-.hero p {
-    color: #eeeeee;
-
-    font-size: 15px;
-}
-
-
-/* ========================================
-   FILTROS
-======================================== */
-
-.filtros {
-    margin-top: 30px;
-}
-
-.pesquisa {
-    height: 54px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 0 17px;
-
-    background: white;
-
-    border: 1px solid #eeeeee;
-
-    border-radius: 14px;
-
-    box-shadow:
-        0 5px 18px rgba(0, 0, 0, 0.03);
-}
-
-.pesquisa span {
-    font-size: 18px;
-}
-
-.pesquisa input {
-    width: 100%;
-
-    border: none;
-    outline: none;
-
-    font-size: 14px;
-
-    background: transparent;
-}
-
-.pesquisa input::placeholder {
-    color: #aaa;
-}
-
-
-/* ========================================
-   CATEGORIAS
-======================================== */
-
-.categorias {
-    display: flex;
-
-    gap: 9px;
-
-    flex-wrap: wrap;
-
-    margin-top: 15px;
-}
-
-.categoria {
-    border: 1px solid #e5e5e5;
-
-    background: white;
-
-    color: #555;
-
-    padding: 10px 15px;
-
-    border-radius: 12px;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    transition: 0.2s;
-}
-
-.categoria:hover {
-    border-color: #ff6b35;
-
-    color: #ff6b35;
-}
-
-.categoria.ativa {
-    background: #ff6b35;
-
-    color: white;
-
-    border-color: #ff6b35;
-}
-
-
-/* ========================================
-   RESULTADO
-======================================== */
-
-.resultado {
-    margin-top: 30px;
-    margin-bottom: 18px;
-
-    color: #888;
-
-    font-size: 13px;
-    font-weight: 600;
-}
-
-
-/* ========================================
-   LISTA
-======================================== */
-
-.lista-pratos {
-    display: grid;
-
-    grid-template-columns:
-        repeat(
-            auto-fill,
-            minmax(270px, 1fr)
-        );
-
-    gap: 24px;
-}
-
-
-/* ========================================
-   CARD
-======================================== */
-
-.card {
-    overflow: hidden;
-
-    background: white;
-
-    border: 1px solid #eeeeee;
-
-    border-radius: 20px;
-
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.05);
-
-    transition: 0.25s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-
-    box-shadow:
-        0 15px 35px rgba(0, 0, 0, 0.10);
-}
-
-
-/* ========================================
-   IMAGEM
-======================================== */
-
-.card-imagem {
-    position: relative;
-
-    width: 100%;
-    height: 210px;
-
-    overflow: hidden;
-
-    background: #eeeeee;
-}
-
-.card-imagem img {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-
-    transition: 0.4s;
-}
-
-.card:hover .card-imagem img {
-    transform: scale(1.05);
-}
-
-.sem-imagem {
-    width: 100%;
-    height: 100%;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 55px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #f4f4f4,
-            #e8e8e8
-        );
-}
-
-.card-categoria {
-    position: absolute;
-
-    top: 12px;
-    left: 12px;
-
-    padding: 7px 11px;
-
-    border-radius: 20px;
-
-    background: white;
-
-    color: #ff6b35;
-
-    font-size: 11px;
-    font-weight: 800;
-
-    box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.10);
-}
-
-
-/* ========================================
-   CORPO
-======================================== */
-
-.card-corpo {
-    padding: 18px;
-}
-
-.card-topo {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-
-    gap: 12px;
-}
-
-.card-topo h3 {
-    font-size: 18px;
-
-    line-height: 1.3;
-}
-
-.preco {
-    color: #ff6b35;
-
-    font-size: 15px;
-    font-weight: 800;
-
-    white-space: nowrap;
-}
-
-.descricao {
-    min-height: 42px;
-
-    margin-top: 10px;
-
-    color: #777;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-}
-
-
-/* ========================================
-   ADICIONAR
-======================================== */
-
-.btn-adicionar-pedido {
-    width: 100%;
-
-    margin-top: 17px;
-
-    padding: 13px;
-
-    border: none;
-
-    border-radius: 12px;
-
-    background: #25d366;
-
-    color: white;
-
-    font-size: 13px;
-    font-weight: 800;
-
-    box-shadow:
-        0 6px 15px rgba(37, 211, 102, 0.18);
-
-    transition: 0.2s;
-}
-
-.btn-adicionar-pedido:hover {
-    background: #20bd5a;
-
-    transform: translateY(-2px);
-}
-
-
-/* ========================================
-   AÇÕES
-======================================== */
-
-.acoes {
-    display: flex;
-
-    gap: 8px;
-
-    margin-top: 10px;
-}
-
-.btn-editar,
-.btn-excluir {
-    flex: 1;
-
-    padding: 10px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    transition: 0.2s;
-}
-
-.btn-editar {
-    background: #fff1eb;
-
-    color: #ff6b35;
-}
-
-.btn-editar:hover {
-    background: #ff6b35;
-    color: white;
-}
-
-.btn-excluir {
-    background: #f2f2f2;
-
-    color: #777;
-}
-
-.btn-excluir:hover {
-    background: #e74c3c;
-
-    color: white;
-}
-
-
-/* ========================================
-   LOADING
-======================================== */
-
-.loading {
-    grid-column: 1 / -1;
-
-    min-height: 250px;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 10px;
-
-    text-align: center;
-
-    color: #888;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-
-    border: 4px solid #eeeeee;
-
-    border-top-color: #ff6b35;
-
-    border-radius: 50%;
-
-    animation:
-        girar 0.8s linear infinite;
-}
-
-@keyframes girar {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.erro-icone {
-    font-size: 50px;
-}
-
-
-/* ========================================
-   CARRINHO - OVERLAY
-======================================== */
-
-.overlay-carrinho {
-    position: fixed;
-
-    inset: 0;
-
-    background:
-        rgba(0, 0, 0, 0.55);
-
-    backdrop-filter: blur(3px);
-
-    opacity: 0;
-    visibility: hidden;
-
-    transition: 0.25s;
-
-    z-index: 1000;
-}
-
-.overlay-carrinho.aberto {
-    opacity: 1;
-    visibility: visible;
-}
-
-
-/* ========================================
-   CARRINHO
-======================================== */
-
-.carrinho {
-    position: fixed;
-
-    top: 0;
-    right: 0;
-
-    width: 430px;
-    max-width: 100%;
-
-    height: 100vh;
-
-    display: flex;
-    flex-direction: column;
-
-    background: white;
-
-    box-shadow:
-        -10px 0 40px rgba(0, 0, 0, 0.18);
-
-    transform: translateX(100%);
-
-    transition:
-        transform 0.3s ease;
-
-    z-index: 1100;
-}
-
-.carrinho.aberto {
-    transform: translateX(0);
-}
-
-
-/* ========================================
-   HEADER CARRINHO
-======================================== */
-
-.carrinho-header {
-    min-height: 85px;
-
-    padding: 18px 20px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    border-bottom: 1px solid #eeeeee;
-}
-
-.carrinho-titulo {
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-}
-
-.carrinho-icone {
-    width: 45px;
-    height: 45px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 13px;
-
-    background: #eafff0;
-
-    font-size: 21px;
-}
-
-.carrinho-titulo h2 {
-    font-size: 19px;
-}
-
-.carrinho-titulo small {
-    display: block;
-
-    margin-top: 3px;
-
-    color: #999;
-
-    font-size: 11px;
-}
-
-.fechar-carrinho {
-    width: 38px;
-    height: 38px;
-
-    border: none;
-
-    border-radius: 50%;
-
-    background: #f2f2f2;
-
-    color: #555;
-
-    font-size: 20px;
-
-    transition: 0.2s;
-}
-
-.fechar-carrinho:hover {
-    background: #25d366;
-
-    color: white;
-}
-
-
-/* ========================================
-   LISTA CARRINHO
-======================================== */
-
-.lista-carrinho {
-    flex: 1;
-
-    overflow-y: auto;
-
-    padding: 18px;
-}
-
-
-/* ========================================
-   VAZIO
-======================================== */
-
-.carrinho-vazio {
-    min-height: 400px;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    text-align: center;
-}
-
-.icone-vazio {
-    font-size: 58px;
-
-    margin-bottom: 15px;
-}
-
-.carrinho-vazio h3 {
-    font-size: 17px;
-}
-
-.carrinho-vazio p {
-    max-width: 280px;
-
-    margin-top: 7px;
-
-    color: #999;
-
-    font-size: 13px;
-
-    line-height: 1.5;
-}
-
-.botao-continuar {
-    margin-top: 20px;
-
-    padding: 11px 18px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: #ff6b35;
-
-    color: white;
-
-    font-size: 12px;
-    font-weight: 800;
-}
-
-
-/* ========================================
-   ITEM
-======================================== */
-
-.item-carrinho {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    gap: 15px;
-
-    padding: 14px;
-
-    margin-bottom: 10px;
-
-    border: 1px solid #eeeeee;
-
-    border-radius: 14px;
-
-    background: #fafafa;
-}
-
-.item-info {
-    flex: 1;
-
-    min-width: 0;
-}
-
-.item-info h3 {
-    overflow: hidden;
-
-    color: #222;
-
-    font-size: 14px;
-
-    white-space: nowrap;
-
-    text-overflow: ellipsis;
-}
-
-.item-info p {
-    margin-top: 5px;
-
-    color: #999;
-
-    font-size: 11px;
-}
-
-.item-direita {
-    display: flex;
-
-    flex-direction: column;
-
-    align-items: flex-end;
-
-    gap: 7px;
-}
-
-.controle-quantidade {
-    display: flex;
-
-    align-items: center;
-
-    gap: 7px;
-}
-
-.controle-quantidade button {
-    width: 28px;
-    height: 28px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background: #eeeeee;
-
-    font-size: 17px;
-    font-weight: 800;
-
-    transition: 0.2s;
-}
-
-.controle-quantidade button:hover {
-    background: #25d366;
-
-    color: white;
-}
-
-.controle-quantidade strong {
-    min-width: 18px;
-
-    text-align: center;
-
-    font-size: 13px;
-}
-
-.subtotal {
-    color: #25a85a;
-
-    font-size: 13px;
-}
-
-
-/* ========================================
-   FOOTER
-======================================== */
-
-.carrinho-footer {
-    padding: 18px 20px;
-
-    border-top: 1px solid #eeeeee;
-
-    background: white;
-}
-
-.linha-total {
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
-    margin-bottom: 15px;
-}
-
-.linha-total span {
-    color: #666;
-
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.linha-total strong {
-    font-size: 22px;
-}
-
-
-/* ========================================
-   WHATSAPP
-======================================== */
-
-.botao-whatsapp {
-    width: 100%;
-
-    min-height: 52px;
-
-    border: none;
-
-    border-radius: 12px;
-
-    background: #25d366;
-
-    color: white;
-
-    font-size: 13px;
-    font-weight: 800;
-
-    box-shadow:
-        0 7px 18px rgba(37, 211, 102, 0.25);
-
-    transition: 0.2s;
-}
-
-.botao-whatsapp:hover:not(:disabled) {
-    background: #20bd5a;
-
-    transform: translateY(-2px);
-}
-
-.botao-whatsapp:disabled {
-    opacity: 0.45;
-
-    cursor: not-allowed;
-
-    box-shadow: none;
-}
-
-
-/* ========================================
-   LIMPAR
-======================================== */
-
-.botao-limpar {
-    width: 100%;
-
-    margin-top: 9px;
-
-    padding: 11px;
-
-    border: none;
-
-    border-radius: 10px;
-
-    background: #f2f2f2;
-
-    color: #777;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    transition: 0.2s;
-}
-
-.botao-limpar:hover {
-    background: #e74c3c;
-
-    color: white;
-}
-
-
-/* ========================================
-   BOTÃO FLUTUANTE
-======================================== */
-
-.botao-carrinho {
-    position: fixed;
-
-    right: 24px;
-    bottom: 24px;
-
-    min-height: 58px;
-
-    padding: 0 18px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 9px;
-
-    border: none;
-
-    border-radius: 17px;
-
-    background: #25d366;
-
-    color: white;
-
-    font-size: 13px;
-    font-weight: 800;
-
-    box-shadow:
-        0 10px 30px rgba(37, 211, 102, 0.35);
-
-    z-index: 900;
-
-    transition: 0.25s;
-}
-
-.botao-carrinho:hover {
-    transform: translateY(-4px);
-
-    background: #20bd5a;
-}
-
-.icone-carrinho {
-    font-size: 21px;
-}
-
-#contadorCarrinho {
-    min-width: 25px;
-    height: 25px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background: white;
-
-    color: #20bd5a;
-
-    font-size: 11px;
-}
-
-
-/* ========================================
-   MODAL
-======================================== */
-
-.modal {
-    position: fixed;
-
-    inset: 0;
-
-    display: none;
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-
-    background:
-        rgba(0, 0, 0, 0.55);
-
-    backdrop-filter: blur(4px);
-
-    z-index: 2000;
-}
-
-.modal.aberto {
-    display: flex;
-}
-
-.modal-conteudo {
-    position: relative;
-
-    width: 100%;
-    max-width: 600px;
-
-    max-height: 92vh;
-
-    overflow-y: auto;
-
-    padding: 28px;
-
-    border-radius: 22px;
-
-    background: white;
-
-    box-shadow:
-        0 25px 70px rgba(0, 0, 0, 0.25);
-
-    animation: subir 0.25s ease;
-}
-
-@keyframes subir {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.98);
+    if (!estabelecimentoId) {
+        return;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
+    try {
 
-.fechar {
-    position: absolute;
+        const resposta = await fetch(
+    `${API_URL}/publico/estabelecimentos/${estabelecimentoId}`
+);
 
-    top: 15px;
-    right: 15px;
 
-    width: 36px;
-    height: 36px;
+        if (!resposta.ok) {
 
-    border: none;
-
-    border-radius: 50%;
-
-    background: #f2f2f2;
-
-    color: #555;
-
-    font-size: 20px;
-}
-
-.fechar:hover {
-    background: #ff6b35;
-
-    color: white;
-}
-
-
-/* ========================================
-   MODAL HEADER
-======================================== */
-
-.modal-header {
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-
-    margin-bottom: 25px;
-
-    padding-right: 40px;
-}
-
-.modal-header > span {
-    width: 45px;
-    height: 45px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 13px;
-
-    background: #fff1eb;
-
-    font-size: 21px;
-}
-
-.modal-header h2 {
-    font-size: 20px;
-}
-
-.modal-header p {
-    margin-top: 4px;
-
-    color: #999;
-
-    font-size: 12px;
-}
-
-
-/* ========================================
-   CAMPOS
-======================================== */
-
-.campo {
-    margin-bottom: 17px;
-}
-
-.campo label {
-    display: block;
-
-    margin-bottom: 7px;
-
-    color: #333;
-
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.campo input,
-.campo textarea {
-    width: 100%;
-
-    padding: 13px;
-
-    border: 1px solid #dddddd;
-
-    border-radius: 11px;
-
-    outline: none;
-
-    font-size: 14px;
-}
-
-.campo input:focus,
-.campo textarea:focus {
-    border-color: #ff6b35;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(255, 107, 53, 0.10);
-}
-
-.campo textarea {
-    min-height: 100px;
-
-    resize: vertical;
-}
-
-
-/* ========================================
-   LINHA
-======================================== */
-
-.linha {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    gap: 15px;
-}
-
-
-/* ========================================
-   PREÇO
-======================================== */
-
-.input-preco {
-    display: flex;
-
-    align-items: center;
-
-    overflow: hidden;
-
-    border: 1px solid #dddddd;
-
-    border-radius: 11px;
-}
-
-.input-preco span {
-    padding-left: 13px;
-
-    color: #ff6b35;
-
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.input-preco input {
-    border: none;
-}
-
-
-/* ========================================
-   UPLOAD
-======================================== */
-
-.btn-escolher-imagem {
-    width: 100%;
-
-    min-height: 75px;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 14px;
-
-    padding: 13px;
-
-    border: 2px dashed #ddd7d1;
-
-    border-radius: 13px;
-
-    background: #fcfbfa;
-
-    cursor: pointer;
-}
-
-.btn-escolher-imagem:hover {
-    border-color: #ff6b35;
-
-    background: #fff7f3;
-}
-
-.upload-icone {
-    width: 45px;
-    height: 45px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    flex-shrink: 0;
-
-    border-radius: 12px;
-
-    background: #ff6b35;
-
-    color: white;
-
-    font-size: 21px;
-}
-
-.upload-texto {
-    flex: 1;
-
-    display: flex;
-    flex-direction: column;
-
-    gap: 4px;
-}
-
-.upload-texto strong {
-    font-size: 13px;
-}
-
-.upload-texto small {
-    color: #999;
-
-    font-size: 10px;
-}
-
-.upload-seta {
-    font-size: 20px;
-
-    color: #888;
-}
-
-
-/* ========================================
-   PREVIEW
-======================================== */
-
-.preview {
-    width: 100%;
-    min-height: 170px;
-
-    margin-bottom: 20px;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    overflow: hidden;
-
-    border: 2px dashed #ddd7d1;
-
-    border-radius: 12px;
-
-    background: #fcfbfa;
-
-    color: #aaa;
-
-    text-align: center;
-}
-
-.preview span {
-    font-size: 40px;
-}
-
-.preview p {
-    margin-top: 8px;
-
-    font-size: 12px;
-}
-
-.preview img {
-    width: 100%;
-    height: 250px;
-
-    object-fit: cover;
-}
-
-
-/* ========================================
-   BOTÕES FORM
-======================================== */
-
-.botoes-form {
-    display: flex;
-
-    gap: 10px;
-}
-
-.btn-cancelar,
-.btn-salvar {
-    flex: 1;
-
-    padding: 13px;
-
-    border: none;
-
-    border-radius: 11px;
-
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.btn-cancelar {
-    background: #eeeeee;
-
-    color: #555;
-}
-
-.btn-salvar {
-    background: #ff6b35;
-
-    color: white;
-}
-
-.btn-salvar:hover {
-    background: #e95725;
-}
-
-
-/* ========================================
-   TOAST
-======================================== */
-
-.toast {
-    position: fixed;
-
-    left: 50%;
-
-    bottom: 25px;
-
-    transform:
-        translate(-50%, 100px);
-
-    opacity: 0;
-
-    pointer-events: none;
-
-    z-index: 3000;
-
-    max-width: 90%;
-
-    padding: 13px 18px;
-
-    border-radius: 12px;
-
-    background: #222;
-
-    color: white;
-
-    font-size: 13px;
-    font-weight: 600;
-
-    box-shadow:
-        0 10px 30px rgba(0, 0, 0, 0.2);
-
-    transition: 0.3s;
-}
-
-.toast.mostrar {
-    transform:
-        translate(-50%, 0);
-
-    opacity: 1;
-}
-
-/* ========================================
-   DADOS DO PEDIDO
-======================================== */
-
-.dados-pedido {
-    margin-top: 20px;
-
-    padding-top: 20px;
-
-    border-top: 1px solid #eeeeee;
-}
-
-.dados-pedido h3 {
-    display: flex;
-    align-items: center;
-
-    gap: 8px;
-
-    margin-bottom: 16px;
-
-    color: #222;
-
-    font-size: 16px;
-}
-
-
-/* ========================================
-   ENDEREÇO
-======================================== */
-
-.dados-endereco {
-    display: flex;
-    flex-direction: column;
-
-    gap: 10px;
-}
-
-.dados-endereco input {
-    width: 100%;
-
-    min-height: 46px;
-
-    padding: 0 13px;
-
-    border: 1px solid #dddddd;
-
-    border-radius: 11px;
-
-    outline: none;
-
-    background: #fafafa;
-
-    color: #222;
-
-    font-size: 13px;
-
-    transition: 0.2s;
-}
-
-.dados-endereco input:focus {
-    border-color: #ff6b35;
-
-    background: white;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(255, 107, 53, 0.10);
-}
-
-.dados-endereco input::placeholder {
-    color: #aaa;
-}
-
-
-/* ========================================
-   LINHA ENDEREÇO
-======================================== */
-
-.linha-endereco {
-    display: grid;
-
-    grid-template-columns:
-        1fr 110px;
-
-    gap: 10px;
-}
-
-
-/* ========================================
-   PAGAMENTO
-======================================== */
-
-.metodo-pagamento {
-    margin-top: 22px;
-
-    padding-top: 20px;
-
-    border-top: 1px solid #eeeeee;
-}
-
-.metodo-pagamento h3 {
-    display: flex;
-    align-items: center;
-
-    gap: 8px;
-
-    margin-bottom: 14px;
-
-    font-size: 16px;
-}
-
-
-/* ========================================
-   OPÇÕES DE PAGAMENTO
-======================================== */
-
-.opcoes-pagamento {
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 9px;
-}
-
-.opcao-pagamento {
-    min-height: 70px;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 5px;
-
-    padding: 8px;
-
-    border: 2px solid #eeeeee;
-
-    border-radius: 13px;
-
-    background: #fafafa;
-
-    color: #666;
-
-    font-size: 11px;
-    font-weight: 700;
-
-    transition: 0.2s;
-}
-
-.opcao-pagamento:hover {
-    border-color: #25d366;
-
-    background: #f2fff6;
-
-    transform: translateY(-2px);
-}
-
-.opcao-pagamento.ativo {
-    border-color: #25d366;
-
-    background: #eafff0;
-
-    color: #168c43;
-
-    box-shadow:
-        0 5px 14px
-        rgba(37, 211, 102, 0.12);
-}
-
-.opcao-pagamento .icone-pagamento {
-    font-size: 22px;
-}
-
-
-/* ========================================
-   PIX
-======================================== */
-
-.dados-pix {
-    margin-top: 14px;
-
-    padding: 14px;
-
-    border-radius: 13px;
-
-    background: #f5fff8;
-
-    border: 1px solid #d7f5e1;
-}
-
-.dados-pix p {
-    margin-bottom: 9px;
-
-    color: #666;
-
-    font-size: 12px;
-}
-
-.chave-pix {
-    display: flex;
-
-    align-items: center;
-
-    gap: 8px;
-}
-
-.chave-pix input {
-    flex: 1;
-
-    min-width: 0;
-
-    height: 42px;
-
-    padding: 0 10px;
-
-    border: 1px solid #d8e8dd;
-
-    border-radius: 9px;
-
-    outline: none;
-
-    background: white;
-
-    color: #333;
-
-    font-size: 12px;
-}
-
-.btn-copiar-pix {
-    height: 42px;
-
-    padding: 0 12px;
-
-    border: none;
-
-    border-radius: 9px;
-
-    background: #25d366;
-
-    color: white;
-
-    font-size: 11px;
-    font-weight: 800;
-
-    transition: 0.2s;
-}
-
-.btn-copiar-pix:hover {
-    background: #20bd5a;
-}
-
-
-/* ========================================
-   CARTÃO
-======================================== */
-
-.opcao-maquininha {
-    margin-top: 14px;
-
-    padding: 14px;
-
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    border-radius: 12px;
-
-    background: #f8f8f8;
-
-    border: 1px solid #eeeeee;
-
-    color: #555;
-
-    font-size: 12px;
-}
-
-.opcao-maquininha input {
-    width: 18px;
-    height: 18px;
-
-    accent-color: #25d366;
-}
-
-
-/* ========================================
-   DINHEIRO
-======================================== */
-
-.opcao-troco {
-    margin-top: 14px;
-
-    padding: 14px;
-
-    border-radius: 12px;
-
-    background: #fffaf0;
-
-    border: 1px solid #f3e4bd;
-}
-
-.opcao-troco label {
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    color: #555;
-
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.opcao-troco input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-
-    accent-color: #ff6b35;
-}
-
-
-/* ========================================
-   CAMPO TROCO
-======================================== */
-
-.campo-troco {
-    margin-top: 13px;
-}
-
-.campo-troco label {
-    display: block;
-
-    margin-bottom: 7px;
-
-    color: #555;
-
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.campo-troco input {
-    width: 100%;
-
-    height: 46px;
-
-    padding: 0 13px;
-
-    border: 1px solid #dddddd;
-
-    border-radius: 10px;
-
-    outline: none;
-
-    background: white;
-
-    font-size: 13px;
-}
-
-.campo-troco input:focus {
-    border-color: #ff6b35;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(255, 107, 53, 0.10);
-}
-
-
-/* ========================================
-   SEÇÕES OCULTAS
-======================================== */
-
-.oculto {
-    display: none !important;
-}
-
-
-/* ========================================
-   RESPONSIVO PEDIDO
-======================================== */
-
-@media (max-width: 600px) {
-
-    .opcoes-pagamento {
-        gap: 7px;
-    }
-
-    .opcao-pagamento {
-        min-height: 65px;
-
-        font-size: 10px;
-    }
-
-    .linha-endereco {
-        grid-template-columns:
-            1fr 90px;
-    }
-
-    .chave-pix {
-        flex-direction: column;
-
-        align-items: stretch;
-    }
-
-    .btn-copiar-pix {
-        width: 100%;
-    }
-
-}
-
-/* ========================================
-   RESPONSIVO
-======================================== */
-
-@media (max-width: 768px) {
-
-    .header-conteudo {
-        width: 92%;
-    }
-
-    .container {
-        width: 92%;
-    }
-
-    .hero {
-        min-height: 250px;
-
-        padding: 35px 25px;
-    }
-
-    .hero h2 {
-        font-size: 34px;
-    }
-
-    .lista-pratos {
-        grid-template-columns:
-            repeat(
-                2,
-                minmax(0, 1fr)
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
             );
 
-        gap: 15px;
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!dados.sucesso) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao carregar estabelecimento."
+            );
+
+        }
+
+
+        const estabelecimento =
+            dados.estabelecimento;
+
+
+        // ======================================
+        // NOME
+        // ======================================
+
+        const nome =
+            document.getElementById(
+                "nomeEstabelecimento"
+            );
+
+        if (nome) {
+
+            nome.textContent =
+                estabelecimento.nome ||
+                "Meu Restaurante";
+
+        }
+
+
+        // ======================================
+        // DESCRIÇÃO
+        // ======================================
+
+        const descricao =
+            document.getElementById(
+                "descricaoEstabelecimento"
+            );
+
+        if (descricao) {
+
+            descricao.textContent =
+                estabelecimento.descricao ||
+                "Escolha seus pratos favoritos e monte seu pedido.";
+
+        }
+
+
+        // ======================================
+        // LOGO
+        // ======================================
+
+        const logo =
+            document.getElementById(
+                "logoEstabelecimento"
+            );
+
+        if (logo) {
+
+            if (estabelecimento.logo) {
+
+                logo.innerHTML = `
+                    <img
+                        src="${estabelecimento.logo}"
+                        alt="Logo"
+                        style="
+                            width:60px;
+                            height:60px;
+                            object-fit:cover;
+                            border-radius:50%;
+                        "
+                    >
+                `;
+
+            } else {
+
+                logo.textContent = "🍽️";
+
+            }
+
+        }
+
+
+        // ======================================
+        // COR
+        // ======================================
+
+        if (estabelecimento.cor) {
+
+            document.documentElement.style.setProperty(
+                "--cor-estabelecimento",
+                estabelecimento.cor
+            );
+
+        }
+
+
+        // ======================================
+        // INFORMAÇÕES
+        // ======================================
+
+        const informacoes =
+            document.getElementById(
+                "informacoesEstabelecimento"
+            );
+
+        if (informacoes) {
+
+            let html = "";
+
+
+            if (estabelecimento.endereco) {
+
+                html += `
+                    <div>
+                        📍 ${escaparHTML(
+                            estabelecimento.endereco
+                        )}
+                    </div>
+                `;
+
+            }
+
+
+            if (estabelecimento.horario) {
+
+                html += `
+                    <div>
+                        🕐 ${escaparHTML(
+                            estabelecimento.horario
+                        )}
+                    </div>
+                `;
+
+            }
+
+
+            informacoes.innerHTML = html;
+
+        }
+
+
+        // ======================================
+        // WHATSAPP
+        // ======================================
+
+        if (estabelecimento.whatsapp) {
+
+          WHATSAPP =
+    estabelecimento.whatsapp
+        .replace(/\D/g, "");  
+
+        }
+
+
+        // ======================================
+        // TÍTULO DA PÁGINA
+        // ======================================
+
+        document.title =
+            estabelecimento.nome ||
+            "Cardápio";
+
+
+        console.log(
+            "Estabelecimento carregado:",
+            estabelecimento
+        );
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar estabelecimento:",
+            erro
+        );
+
     }
 
-    .card-imagem {
-        height: 190px;
+}
+
+// ========================================
+// SENHA ADMINISTRATIVA
+// ========================================
+
+const SENHA_ADMIN = "1234";
+
+function verificarSenhaAdmin() {
+
+    const senha = prompt("🔐 Digite a senha administrativa:");
+
+    if (senha === null) {
+        return false;
+    }
+
+    if (senha !== SENHA_ADMIN) {
+
+        mostrarToast("❌ Senha incorreta!");
+
+        return false;
+    }
+
+    return true;
+}
+
+// ========================================
+// VARIÁVEIS
+// ========================================
+
+let pratos = [];
+let categoriaAtual = "Todos";
+let pratoEditando = null;
+let imagemAtual = "";
+
+let carrinho = JSON.parse(
+    localStorage.getItem("carrinhoRestaurante")
+) || [];
+
+
+// ========================================
+// ELEMENTOS
+// ========================================
+
+const listaPratos = document.getElementById("listaPratos");
+const contador = document.getElementById("contador");
+const pesquisa = document.getElementById("pesquisa");
+const categorias = document.getElementById("categorias");
+
+// CARRINHO
+
+const abrirCarrinhoBtn = document.getElementById("abrirCarrinho");
+const fecharCarrinhoBtn = document.getElementById("fecharCarrinho");
+const overlayCarrinho = document.getElementById("overlayCarrinho");
+const carrinhoElemento = document.getElementById("carrinho");
+const listaCarrinho = document.getElementById("listaCarrinho");
+const contadorCarrinho = document.getElementById("contadorCarrinho");
+const totalCarrinho = document.getElementById("totalCarrinho");
+const finalizarPedido = document.getElementById("finalizarPedido");
+const limparCarrinhoBtn = document.getElementById("limparCarrinho");
+
+// ========================================
+// DADOS DO PEDIDO
+// ========================================
+
+const dadosEndereco =
+    document.getElementById("dadosEndereco");
+
+const enderecoCliente =
+    document.getElementById("enderecoCliente");
+
+const numeroCliente =
+    document.getElementById("numeroCliente");
+
+const bairroCliente =
+    document.getElementById("bairroCliente");
+
+const complementoCliente =
+    document.getElementById("complementoCliente");
+
+const metodoPagamento =
+    document.getElementById("metodoPagamento");
+
+const opcaoPix =
+    document.getElementById("opcaoPix");
+
+const opcaoCartao =
+    document.getElementById("opcaoCartao");
+
+const opcaoDinheiro =
+    document.getElementById("opcaoDinheiro");
+
+const levarMaquininha =
+    document.getElementById("levarMaquininha");
+
+const precisaTroco =
+    document.getElementById("precisaTroco");
+
+const campoTroco =
+    document.getElementById("campoTroco");
+
+const trocoPara =
+    document.getElementById("trocoPara");
+
+const copiarPix =
+    document.getElementById("copiarPix");
+
+const chavePix =
+    document.getElementById("chavePix");
+    
+// MODAL
+
+const modal = document.getElementById("modal");
+const fecharModalBtn = document.getElementById("fecharModal");
+const cancelarFormulario = document.getElementById("cancelarFormulario");
+const form = document.getElementById("formPrato");
+
+const nome = document.getElementById("nome");
+const descricao = document.getElementById("descricao");
+const preco = document.getElementById("preco");
+const imagem = document.getElementById("imagem");
+const categoria = document.getElementById("categoria");
+const preview = document.getElementById("preview");
+
+const tituloFormulario =
+    document.getElementById("tituloFormulario");
+
+const textoBotao =
+    document.getElementById("textoBotao");
+
+const toast =
+    document.getElementById("toast");
+
+
+// ========================================
+// VERIFICAR ELEMENTOS
+// ========================================
+
+console.log("JavaScript carregado!");
+
+console.log("API:", API_URL);
+
+console.log("Carrinho:", abrirCarrinhoBtn);
+
+console.log("Novo prato:", document.getElementById("abrirFormulario"));
+
+
+// ========================================
+// FORMATAÇÃO
+// ========================================
+
+function formatarPreco(valor) {
+
+    return Number(valor).toLocaleString(
+        "pt-BR",
+        {
+            style: "currency",
+            currency: "BRL"
+        }
+    );
+}
+
+
+// ========================================
+// SEGURANÇA HTML
+// ========================================
+
+function escaparHTML(texto) {
+
+    return String(texto ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+// ========================================
+// TOAST
+// ========================================
+
+function mostrarToast(mensagem) {
+
+    if (!toast) return;
+
+    toast.textContent = mensagem;
+
+    toast.classList.add("mostrar");
+
+    clearTimeout(mostrarToast.timer);
+
+    mostrarToast.timer = setTimeout(() => {
+
+        toast.classList.remove("mostrar");
+
+    }, 3000);
+}
+
+
+// ========================================
+// ================= CARRINHO =============
+// ========================================
+
+// SALVAR
+
+function salvarCarrinho() {
+
+    localStorage.setItem(
+        "carrinhoRestaurante",
+        JSON.stringify(carrinho)
+    );
+}
+
+
+// CONTAGEM
+
+function quantidadeTotalCarrinho() {
+
+    return carrinho.reduce(
+        (total, item) => {
+
+            return total + Number(item.quantidade || 0);
+
+        },
+        0
+    );
+}
+
+
+// TOTAL
+
+function valorTotalCarrinho() {
+
+    return carrinho.reduce(
+        (total, item) => {
+
+            return total +
+                Number(item.preco || 0) *
+                Number(item.quantidade || 0);
+
+        },
+        0
+    );
+}
+
+
+// ========================================
+// ADICIONAR AO CARRINHO
+// ========================================
+
+function adicionarAoCarrinho(id) {
+
+    const prato = pratos.find(
+        item => Number(item.id) === Number(id)
+    );
+
+    if (!prato) {
+
+        mostrarToast("Prato não encontrado.");
+
+        return;
+    }
+
+
+    const existente = carrinho.find(
+        item => Number(item.id) === Number(id)
+    );
+
+
+    if (existente) {
+
+        existente.quantidade++;
+
+    } else {
+
+        carrinho.push({
+
+            id: prato.id,
+
+            nome: prato.nome,
+
+            preco: Number(prato.preco),
+
+            quantidade: 1
+
+        });
+    }
+
+
+    salvarCarrinho();
+
+    atualizarCarrinho();
+
+    mostrarToast(
+        `${prato.nome} foi adicionado ao pedido!`
+    );
+}
+
+
+// ========================================
+// AUMENTAR QUANTIDADE
+// ========================================
+
+function aumentarQuantidade(id) {
+
+    const item = carrinho.find(
+        produto => Number(produto.id) === Number(id)
+    );
+
+    if (!item) return;
+
+    item.quantidade++;
+
+    salvarCarrinho();
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// DIMINUIR QUANTIDADE
+// ========================================
+
+function diminuirQuantidade(id) {
+
+    const item = carrinho.find(
+        produto => Number(produto.id) === Number(id)
+    );
+
+    if (!item) return;
+
+    item.quantidade--;
+
+
+    if (item.quantidade <= 0) {
+
+        carrinho = carrinho.filter(
+            produto =>
+                Number(produto.id) !== Number(id)
+        );
+    }
+
+
+    salvarCarrinho();
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// ATUALIZAR CARRINHO
+// ========================================
+
+function atualizarCarrinho() {
+
+    const quantidade = quantidadeTotalCarrinho();
+
+    const total = valorTotalCarrinho();
+
+
+    contadorCarrinho.textContent = quantidade;
+
+    totalCarrinho.textContent = formatarPreco(total);
+
+    finalizarPedido.disabled =
+        carrinho.length === 0;
+
+
+    if (carrinho.length === 0) {
+
+        listaCarrinho.innerHTML = `
+
+            <div class="carrinho-vazio">
+
+                <div class="icone-vazio">
+                    🛒
+                </div>
+
+                <h3>
+                    Seu carrinho está vazio
+                </h3>
+
+                <p>
+                    Adicione pratos para começar seu pedido.
+                </p>
+
+                <button
+                    class="botao-continuar"
+                    type="button"
+                    onclick="fecharCarrinho()"
+                >
+                    Ver cardápio
+                </button>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    listaCarrinho.innerHTML = carrinho
+        .map(item => {
+
+            const subtotal =
+                Number(item.preco) *
+                Number(item.quantidade);
+
+
+            return `
+
+                <div class="item-carrinho">
+
+                    <div class="item-info">
+
+                        <h3>
+                            ${escaparHTML(item.nome)}
+                        </h3>
+
+                        <p>
+                            ${formatarPreco(item.preco)}
+                            cada
+                        </p>
+
+                    </div>
+
+
+                    <div class="item-direita">
+
+                        <div class="controle-quantidade">
+
+                            <button
+                                type="button"
+                                onclick="diminuirQuantidade(${item.id})"
+                            >
+                                −
+                            </button>
+
+                            <strong>
+                                ${item.quantidade}
+                            </strong>
+
+                            <button
+                                type="button"
+                                onclick="aumentarQuantidade(${item.id})"
+                            >
+                                +
+                            </button>
+
+                        </div>
+
+
+                        <strong class="subtotal">
+                            ${formatarPreco(subtotal)}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        })
+        .join("");
+}
+
+
+// ========================================
+// ABRIR CARRINHO
+// ========================================
+
+function abrirCarrinho() {
+
+    carrinhoElemento.classList.add("aberto");
+
+    overlayCarrinho.classList.add("aberto");
+
+    document.body.classList.add("sem-scroll");
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// FECHAR CARRINHO
+// ========================================
+
+function fecharCarrinho() {
+
+    carrinhoElemento.classList.remove("aberto");
+
+    overlayCarrinho.classList.remove("aberto");
+
+    document.body.classList.remove("sem-scroll");
+}
+
+
+// ========================================
+// LIMPAR CARRINHO
+// ========================================
+
+function limparCarrinho() {
+
+    if (carrinho.length === 0) {
+
+        mostrarToast("O carrinho já está vazio.");
+
+        return;
+    }
+
+
+    const confirmar = confirm(
+        "Deseja realmente limpar seu pedido?"
+    );
+
+
+    if (!confirmar) return;
+
+
+    carrinho = [];
+
+    salvarCarrinho();
+
+    atualizarCarrinho();
+
+    mostrarToast("Pedido limpo.");
+}
+
+
+// ========================================
+// WHATSAPP
+// ========================================
+
+function enviarPedidoWhatsApp() {
+
+    if (carrinho.length === 0) {
+
+        mostrarToast(
+            "Seu pedido está vazio."
+        );
+
+        return;
+    }
+
+
+    let mensagem =
+        "🍽️ *NOVO PEDIDO*\n\n";
+
+    mensagem +=
+        "Olá! Gostaria de fazer este pedido:\n\n";
+
+
+    carrinho.forEach(item => {
+
+        const subtotal =
+            Number(item.preco) *
+            Number(item.quantidade);
+
+
+        mensagem +=
+            `🍴 *${item.nome}*\n`;
+
+        mensagem +=
+            `Quantidade: ${item.quantidade}\n`;
+
+        mensagem +=
+            `Valor: ${formatarPreco(subtotal)}\n\n`;
+
+    });
+
+
+    const total =
+        valorTotalCarrinho();
+
+
+    mensagem +=
+        "━━━━━━━━━━━━━━━━━━\n";
+
+    mensagem +=
+        `💰 *TOTAL: ${formatarPreco(total)}*\n\n`;
+
+    mensagem +=
+        "Aguardo a confirmação do pedido. 😊";
+
+
+    const url =
+        `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+            mensagem
+        )}`;
+
+
+    window.open(
+        url,
+        "_blank"
+    );
+}
+
+// ========================================
+// TIPO DO PEDIDO
+// ========================================
+
+function atualizarTipoPedido() {
+
+    const tipoSelecionado =
+        document.querySelector(
+            'input[name="tipoPedido"]:checked'
+        );
+
+
+    if (!tipoSelecionado) {
+        return;
+    }
+
+
+    const tipo =
+        tipoSelecionado.value;
+
+
+    if (tipo === "Delivery") {
+
+        dadosEndereco.style.display =
+            "block";
+
+    } else {
+
+        dadosEndereco.style.display =
+            "none";
+
+
+        if (levarMaquininha) {
+
+            levarMaquininha.checked =
+                false;
+
+        }
+
     }
 
 }
 
 
-@media (max-width: 600px) {
+// ========================================
+// FORMA DE PAGAMENTO
+// ========================================
 
-    .header-conteudo {
-        min-height: 68px;
+function atualizarPagamento() {
+
+    const pagamento =
+        metodoPagamento.value;
+
+
+    opcaoPix.style.display =
+        "none";
+
+    opcaoCartao.style.display =
+        "none";
+
+    opcaoDinheiro.style.display =
+        "none";
+
+
+    if (pagamento === "PIX") {
+
+        opcaoPix.style.display =
+            "block";
+
     }
 
-    .logo-icone {
-        width: 40px;
-        height: 40px;
 
-        font-size: 20px;
+    if (pagamento === "Cartão") {
+
+        opcaoCartao.style.display =
+            "block";
+
     }
 
-    .logo h1 {
-        font-size: 15px;
-    }
 
-    .logo span {
-        font-size: 10px;
-    }
+    if (pagamento === "Dinheiro") {
 
-    .btn-novo {
-        padding: 9px 11px;
+        opcaoDinheiro.style.display =
+            "block";
 
-        font-size: 11px;
-    }
-
-    .hero {
-        margin-top: 20px;
-
-        padding: 28px 20px;
-
-        border-radius: 20px;
-    }
-
-    .hero h2 {
-        font-size: 28px;
-    }
-
-    .hero p {
-        font-size: 13px;
-    }
-
-    .hero::after {
-        font-size: 90px;
-    }
-
-    .categorias {
-        flex-wrap: nowrap;
-
-        overflow-x: auto;
-
-        padding-bottom: 5px;
-    }
-
-    .categoria {
-        flex-shrink: 0;
-    }
-
-    .lista-pratos {
-        grid-template-columns: 1fr;
-    }
-
-    .card-imagem {
-        height: 220px;
-    }
-
-    .carrinho {
-        width: 100%;
-    }
-
-    .botao-carrinho {
-        right: 15px;
-        bottom: 15px;
-
-        min-height: 54px;
-
-        padding: 0 15px;
-
-        border-radius: 15px;
-    }
-
-    .linha {
-        grid-template-columns: 1fr;
-
-        gap: 0;
-    }
-
-    .modal {
-        padding: 10px;
-    }
-
-    .modal-conteudo {
-        max-height: 95vh;
-
-        padding: 20px 17px;
-
-        border-radius: 18px;
-    }
-
-    .botoes-form {
-        flex-direction: column;
-    }
-
-    .item-carrinho {
-        align-items: flex-start;
     }
 
 }
+
+
+// ========================================
+// TROCO
+// ========================================
+
+function atualizarTroco() {
+
+    if (!precisaTroco) {
+        return;
+    }
+
+
+    campoTroco.style.display =
+        precisaTroco.checked
+            ? "block"
+            : "none";
+
+
+    if (!precisaTroco.checked) {
+
+        trocoPara.value = "";
+
+    }
+
+}
+
+// ========================================
+// EVENTOS DO CARRINHO
+// ========================================
+
+abrirCarrinhoBtn.addEventListener(
+    "click",
+    abrirCarrinho
+);
+
+fecharCarrinhoBtn.addEventListener(
+    "click",
+    fecharCarrinho
+);
+
+overlayCarrinho.addEventListener(
+    "click",
+    fecharCarrinho
+);
+
+limparCarrinhoBtn.addEventListener(
+    "click",
+    limparCarrinho
+);
+
+finalizarPedido.addEventListener(
+    "click",
+    enviarPedidoWhatsApp
+);
+
+// ========================================
+// EVENTOS DO TIPO DE PEDIDO
+// ========================================
+
+document
+    .querySelectorAll(
+        'input[name="tipoPedido"]'
+    )
+    .forEach(input => {
+
+        input.addEventListener(
+            "change",
+            atualizarTipoPedido
+        );
+
+    });
+
+
+// ========================================
+// EVENTO PAGAMENTO
+// ========================================
+
+metodoPagamento.addEventListener(
+    "change",
+    atualizarPagamento
+);
+
+
+// ========================================
+// EVENTO TROCO
+// ========================================
+
+precisaTroco.addEventListener(
+    "change",
+    atualizarTroco
+);
+
+
+// ========================================
+// COPIAR PIX
+// ========================================
+
+copiarPix.addEventListener(
+    "click",
+    async () => {
+
+        const pix =
+            chavePix.textContent.trim();
+
+
+        if (
+            !pix ||
+            pix === "COLOQUE_SUA_CHAVE_PIX_AQUI"
+        ) {
+
+            mostrarToast(
+                "Configure a chave PIX primeiro."
+            );
+
+            return;
+        }
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                pix
+            );
+
+
+            mostrarToast(
+                "✅ Chave PIX copiada!"
+            );
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao copiar PIX:",
+                erro
+            );
+
+
+            mostrarToast(
+                "Não foi possível copiar a chave PIX."
+            );
+
+        }
+
+    }
+);
+
+// ========================================
+// ================= PRATOS ===============
+// ========================================
+
+
+// ========================================
+// CARREGAR PRATOS
+// ========================================
+
+async function carregarPratos() {
+
+    try {
+
+        listaPratos.innerHTML = `
+
+            <div class="loading">
+
+                <div class="spinner"></div>
+
+                <p>
+                    Carregando cardápio...
+                </p>
+
+            </div>
+
+        `;
+
+
+        const resposta = await fetch(
+            `${API_URL}/estabelecimentos/${ESTABELECIMENTO_ID}/pratos`
+        );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+        }
+
+
+        pratos = await resposta.json();
+
+
+        if (!Array.isArray(pratos)) {
+
+            throw new Error(
+                "A API não retornou uma lista de pratos."
+            );
+        }
+
+
+        criarCategorias();
+
+        mostrarPratos();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar pratos:",
+            erro
+        );
+
+
+        listaPratos.innerHTML = `
+
+            <div class="loading">
+
+                <div class="erro-icone">
+                    ⚠️
+                </div>
+
+                <h3>
+                    Não foi possível carregar o cardápio.
+                </h3>
+
+                <small>
+                    ${escaparHTML(erro.message)}
+                </small>
+
+            </div>
+
+        `;
+    }
+}
+
+
+// ========================================
+// CATEGORIAS
+// ========================================
+
+function criarCategorias() {
+
+    const nomes = [
+    "Todos",
+    "Hambúrgueres",
+    "Pizzas",
+    "Porções",
+    "Cachorros-quentes",
+    "Frangos",
+    "Carnes",
+    "Massas",
+    "Saladas",
+    "Pratos Executivos",
+    "Lanches",
+    "Sobremesas",
+    "Bebidas",
+    "Açaí",
+    "Cafés",
+    "Pastéis",
+    "Geladinhos"
+];
+
+
+    const icones = {
+
+        "Todos": "🍽️",
+
+        "Hambúrgueres": "🍔",
+
+        "Pizzas": "🍕",
+
+        "Porções": "🍟",
+
+        "Cachorros-quentes": "🌭",
+
+        "Frangos": "🍗",
+
+        "Carnes": "🥩",
+
+        "Massas": "🍝",
+
+        "Saladas": "🥗",
+
+        "Pratos Executivos": "🍛",
+
+        "Lanches": "🥪",
+
+        "Sobremesas": "🍰",
+
+        "Bebidas": "🥤",
+
+        "Açaí": "🍨",
+
+"Cafés": "☕",
+
+"Pastéis": "🥟",
+
+"Geladinhos": "🍧"
+
+    };
+
+
+    categorias.innerHTML =
+        nomes.map(nome => {
+
+            return `
+
+                <button
+                    class="categoria ${
+                        nome === categoriaAtual
+                            ? "ativa"
+                            : ""
+                    }"
+                    data-categoria="${escaparHTML(nome)}"
+                    type="button"
+                >
+
+                    ${icones[nome] || "🍽️"}
+                    ${escaparHTML(nome)}
+
+                </button>
+
+            `;
+
+        })
+        .join("");
+
+
+    categorias
+        .querySelectorAll(".categoria")
+        .forEach(botao => {
+
+            botao.addEventListener(
+                "click",
+                () => {
+
+                    categorias
+                        .querySelectorAll(".categoria")
+                        .forEach(item => {
+
+                            item.classList.remove(
+                                "ativa"
+                            );
+
+                        });
+
+
+                    botao.classList.add(
+                        "ativa"
+                    );
+
+
+                    categoriaAtual =
+                        botao.dataset.categoria;
+
+
+                    mostrarPratos();
+
+                }
+            );
+
+        });
+}
+
+
+// ========================================
+// MOSTRAR PRATOS
+// ========================================
+
+function mostrarPratos() {
+
+    const busca =
+        pesquisa.value
+            .toLowerCase()
+            .trim();
+
+
+    const filtrados =
+        pratos.filter(prato => {
+
+            const categoriaOK =
+                categoriaAtual === "Todos" ||
+                prato.categoria === categoriaAtual;
+
+
+            const buscaOK =
+                String(prato.nome || "")
+                    .toLowerCase()
+                    .includes(busca) ||
+
+                String(prato.descricao || "")
+                    .toLowerCase()
+                    .includes(busca);
+
+
+            return categoriaOK && buscaOK;
+
+        });
+
+
+    contador.textContent =
+        `${filtrados.length} ${
+            filtrados.length === 1
+                ? "prato encontrado"
+                : "pratos encontrados"
+        }`;
+
+
+    if (filtrados.length === 0) {
+
+        listaPratos.innerHTML = `
+
+            <div class="loading">
+
+                <div class="erro-icone">
+                    🍽️
+                </div>
+
+                <h3>
+                    Nenhum prato encontrado.
+                </h3>
+
+                <p>
+                    Tente pesquisar outro prato.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    listaPratos.innerHTML =
+        filtrados
+            .map(criarCard)
+            .join("");
+}
+
+
+// ========================================
+// CRIAR CARD
+// ========================================
+
+function criarCard(prato) {
+
+    const imagemHTML =
+        prato.imagem
+            ? `
+
+                <img
+                    src="${escaparHTML(prato.imagem)}"
+                    alt="${escaparHTML(prato.nome)}"
+                    loading="lazy"
+                >
+
+            `
+            : `
+
+                <div class="sem-imagem">
+                    🍽️
+                </div>
+
+            `;
+
+
+    return `
+
+        <article class="card">
+
+            <div class="card-imagem">
+
+                ${imagemHTML}
+
+                <span class="card-categoria">
+
+                    ${escaparHTML(
+                        prato.categoria
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <div class="card-corpo">
+
+                <div class="card-topo">
+
+                    <h3>
+                        ${escaparHTML(
+                            prato.nome
+                        )}
+                    </h3>
+
+                    <span class="preco">
+
+                        ${formatarPreco(
+                            prato.preco
+                        )}
+
+                    </span>
+
+                </div>
+
+
+                <p class="descricao">
+
+                    ${escaparHTML(
+                        prato.descricao ||
+                        "Delicioso prato da casa."
+                    )}
+
+                </p>
+
+
+                <button
+                    class="btn-adicionar-pedido"
+                    type="button"
+                    onclick="adicionarAoCarrinho(${prato.id})"
+                >
+
+                    🛒 Adicionar ao pedido
+
+                </button>
+
+
+                <div class="acoes">
+
+                    <button
+                        class="btn-editar"
+                        type="button"
+                        onclick="editarPrato(${prato.id})"
+                    >
+
+                        ✏️ Editar
+
+                    </button>
+
+
+                    <button
+                        class="btn-excluir"
+                        type="button"
+                        onclick="excluirPrato(${prato.id})"
+                    >
+
+                        🗑️ Excluir
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    `;
+}
+
+
+// ========================================
+// ================= MODAL ================
+// ========================================
+
+
+// ========================================
+// ABRIR FORMULÁRIO
+// ========================================
+
+function abrirFormulario() {
+
+    limparFormulario();
+
+
+    modal.classList.add("aberto");
+
+    document.body.classList.add(
+        "sem-scroll"
+    );
+
+
+    setTimeout(() => {
+
+        nome.focus();
+
+    }, 100);
+}
+
+
+// ========================================
+// FECHAR FORMULÁRIO
+// ========================================
+
+function fecharFormulario() {
+
+    modal.classList.remove(
+        "aberto"
+    );
+
+    document.body.classList.remove(
+        "sem-scroll"
+    );
+
+    limparFormulario();
+}
+
+
+// ========================================
+// LIMPAR FORMULÁRIO
+// ========================================
+
+function limparFormulario() {
+
+    form.reset();
+
+    pratoEditando = null;
+
+    imagemAtual = "";
+
+
+    tituloFormulario.textContent =
+        "Novo prato";
+
+
+    textoBotao.textContent =
+        "Cadastrar prato";
+
+
+    preview.innerHTML = `
+
+        <span>
+            🖼️
+        </span>
+
+        <p>
+            A imagem aparecerá aqui
+        </p>
+
+    `;
+}
+
+
+// ========================================
+// EVENTO NOVO PRATO
+// ========================================
+
+const abrirFormularioBtn =
+    document.getElementById(
+        "abrirFormulario"
+    );
+
+
+abrirFormularioBtn.addEventListener(
+    "click",
+    () => {
+
+        if (!verificarSenhaAdmin()) {
+            return;
+        }
+
+        abrirFormulario();
+    }
+);
+
+
+fecharModalBtn.addEventListener(
+    "click",
+    fecharFormulario
+);
+
+
+cancelarFormulario.addEventListener(
+    "click",
+    fecharFormulario
+);
+
+
+// ========================================
+// FECHAR MODAL CLICANDO FORA
+// ========================================
+
+modal.addEventListener(
+    "click",
+    evento => {
+
+        if (
+            evento.target === modal
+        ) {
+
+            fecharFormulario();
+
+        }
+
+    }
+);
+
+
+// ========================================
+// IMAGEM
+// ========================================
+
+imagem.addEventListener(
+    "change",
+    evento => {
+
+        const arquivo =
+            evento.target.files[0];
+
+
+        if (!arquivo) {
+
+            return;
+        }
+
+
+        if (
+            arquivo.size >
+            5 * 1024 * 1024
+        ) {
+
+            imagem.value = "";
+
+            mostrarToast(
+                "A imagem deve ter no máximo 5 MB."
+            );
+
+            return;
+        }
+
+
+        if (
+            !arquivo.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            imagem.value = "";
+
+            mostrarToast(
+                "Escolha uma imagem válida."
+            );
+
+            return;
+        }
+
+
+        const leitor =
+            new FileReader();
+
+
+        leitor.onload =
+            eventoLeitura => {
+
+                imagemAtual =
+                    eventoLeitura.target.result;
+
+
+                mostrarPreview(
+                    imagemAtual
+                );
+
+            };
+
+
+        leitor.onerror =
+            () => {
+
+                mostrarToast(
+                    "Erro ao carregar imagem."
+                );
+
+            };
+
+
+        leitor.readAsDataURL(
+            arquivo
+        );
+
+    }
+);
+
+
+// ========================================
+// PREVIEW
+// ========================================
+
+function mostrarPreview(src) {
+
+    preview.innerHTML = `
+
+        <img
+            src="${escaparHTML(src)}"
+            alt="Preview da imagem"
+        >
+
+    `;
+}
+
+
+// ========================================
+// CADASTRAR / EDITAR
+// ========================================
+
+form.addEventListener(
+    "submit",
+    async evento => {
+
+        evento.preventDefault();
+
+
+        const precoNumerico =
+            Number(preco.value);
+
+
+        if (
+            !nome.value.trim() ||
+            !categoria.value.trim() ||
+            !preco.value ||
+            precoNumerico < 0
+        ) {
+
+            mostrarToast(
+                "Preencha corretamente os campos obrigatórios."
+            );
+
+            return;
+        }
+
+        const dados = {
+
+    nome:
+        nome.value.trim(),
+
+    descricao:
+        descricao.value.trim(),
+
+    preco:
+        precoNumerico,
+
+    imagem:
+        imagemAtual || "",
+
+    categoria:
+        categoria.value.trim(),
+
+    estabelecimento_id:
+        ESTABELECIMENTO_ID
+
+};
+
+
+        try {
+
+            textoBotao.textContent =
+                "Salvando...";
+
+
+            let resposta;
+
+
+            if (pratoEditando) {
+
+                resposta = await fetch(
+    `${API_URL}/pratos/${pratoEditando}`,
+    {
+        method: "PUT",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                `Bearer ${localStorage.getItem("token")}`
+        },
+
+        body: JSON.stringify(dados)
+    }
+);
+
+            } else {
+
+                resposta = await fetch(
+    `${API_URL}/pratos`,
+    {
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                `Bearer ${localStorage.getItem("token")}`
+        },
+
+        body: JSON.stringify(dados)
+    }
+);
+
+            }
+
+
+            const tipo =
+                resposta.headers.get(
+                    "content-type"
+                ) || "";
+
+
+            if (
+                !tipo.includes(
+                    "application/json"
+                )
+            ) {
+
+                throw new Error(
+                    "O servidor não retornou JSON."
+                );
+            }
+
+
+            const resultado =
+                await resposta.json();
+
+
+            if (!resposta.ok) {
+
+                throw new Error(
+                    resultado.erro ||
+                    "Erro ao salvar prato."
+                );
+            }
+
+
+            fecharFormulario();
+
+
+            mostrarToast(
+                resultado.mensagem ||
+                "Prato salvo com sucesso!"
+            );
+
+
+            await carregarPratos();
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao salvar:",
+                erro
+            );
+
+
+            textoBotao.textContent =
+                pratoEditando
+                    ? "Salvar alterações"
+                    : "Cadastrar prato";
+
+
+            mostrarToast(
+                erro.message
+            );
+
+        }
+
+    }
+);
+
+
+// ========================================
+// EDITAR PRATO
+// ========================================
+
+function editarPrato(id) {
+
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+ 
+
+    const prato =
+        pratos.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+
+    if (!prato) {
+
+        mostrarToast(
+            "Prato não encontrado."
+        );
+
+        return;
+    }
+
+
+    pratoEditando =
+        prato.id;
+
+
+    imagemAtual =
+        prato.imagem || "";
+
+
+    nome.value =
+        prato.nome || "";
+
+
+    descricao.value =
+        prato.descricao || "";
+
+
+    preco.value =
+        prato.preco || "";
+
+
+    categoria.value =
+        prato.categoria || "";
+
+
+    tituloFormulario.textContent =
+        "Editar prato";
+
+
+    textoBotao.textContent =
+        "Salvar alterações";
+
+
+    if (imagemAtual) {
+
+        mostrarPreview(
+            imagemAtual
+        );
+
+    } else {
+
+        preview.innerHTML = `
+
+            <span>
+                🖼️
+            </span>
+
+            <p>
+                A imagem aparecerá aqui
+            </p>
+
+        `;
+    }
+
+
+    modal.classList.add(
+        "aberto"
+    );
+
+
+    document.body.classList.add(
+        "sem-scroll"
+    );
+}
+
+
+// ========================================
+// EXCLUIR PRATO
+// ========================================
+
+async function excluirPrato(id) {
+
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+
+    const prato =
+        pratos.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+    if (!prato) {
+
+        mostrarToast(
+            "Prato não encontrado."
+        );
+
+        return;
+    }
+
+    const confirmar =
+        confirm(
+            `Deseja excluir "${prato.nome}"?`
+        );
+
+    if (!confirmar) {
+        return;
+    }
+
+    
+    try {
+
+    const resposta = await fetch(
+        `${API_URL}/pratos/${id}`,
+        {
+            method: "DELETE",
+
+            headers: {
+                "Authorization":
+                    `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    const tipo =
+        resposta.headers.get(
+            "content-type"
+        ) || "";
+
+        if (
+            !tipo.includes(
+                "application/json"
+            )
+        ) {
+
+            throw new Error(
+                "O servidor não retornou JSON."
+            );
+        }
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado.erro ||
+                "Erro ao excluir prato."
+            );
+        }
+
+
+        carrinho =
+            carrinho.filter(
+                item =>
+                    Number(item.id) !==
+                    Number(id)
+            );
+
+
+        salvarCarrinho();
+
+        atualizarCarrinho();
+
+
+        mostrarToast(
+            resultado.mensagem ||
+            "Prato excluído com sucesso!"
+        );
+
+
+        await carregarPratos();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao excluir:",
+            erro
+        );
+
+
+        mostrarToast(
+            erro.message
+        );
+    }
+}
+
+
+// ========================================
+// PESQUISA
+// ========================================
+
+pesquisa.addEventListener(
+    "input",
+    mostrarPratos
+);
+
+
+// ========================================
+// TECLA ESC
+// ========================================
+
+document.addEventListener(
+    "keydown",
+    evento => {
+
+        if (
+            evento.key !== "Escape"
+        ) {
+
+            return;
+        }
+
+
+        if (
+            carrinhoElemento.classList.contains(
+                "aberto"
+            )
+        ) {
+
+            fecharCarrinho();
+
+        }
+
+
+        if (
+            modal.classList.contains(
+                "aberto"
+            )
+        ) {
+
+            fecharFormulario();
+
+        }
+
+    }
+);
+
+// ======================================
+// EXCLUIR ESTABELECIMENTO
+// ======================================
+
+async function excluirEstabelecimento(id) {
+
+    const senha = prompt(
+        "🔐 Digite a senha administrativa:"
+    );
+
+    if (senha === null) {
+        return;
+    }
+
+    if (senha !== "1234") {
+
+        alert("❌ Senha incorreta!");
+
+        return;
+    }
+
+
+    const estabelecimento =
+        document.querySelector(
+            `[onclick*="abrirCardapio(${id})"]`
+        );
+
+
+    const confirmar = confirm(
+        "⚠️ Tem certeza que deseja excluir este estabelecimento?\n\n" +
+        "Todos os pratos vinculados a ele também serão excluídos."
+    );
+
+
+    if (!confirmar) {
+        return;
+    }
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `${API_URL}/estabelecimentos/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        const tipo =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        if (!tipo.includes("application/json")) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao excluir estabelecimento."
+            );
+
+        }
+
+
+        alert(
+            "✅ Estabelecimento excluído com sucesso!"
+        );
+
+
+        carregarEstabelecimentos();
+
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert(
+            "❌ " + erro.message
+        );
+
+    }
+
+}
+// ========================================
+// EDITAR ESTABELECIMENTO
+// ========================================
+
+async function editarEstabelecimento(id, nomeAtual) {
+
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+
+    const novoNome = prompt(
+        "✏️ Digite o novo nome da lanchonete:",
+        nomeAtual
+    );
+
+    if (novoNome === null) {
+        return;
+    }
+
+    if (!novoNome.trim()) {
+
+        mostrarToast(
+            "❌ O nome não pode ficar vazio."
+        );
+
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            `${API_URL}/estabelecimentos/${id}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    nome: novoNome.trim()
+                })
+            }
+        );
+
+
+        const tipo =
+            resposta.headers.get("content-type") || "";
+
+
+        if (!tipo.includes("application/json")) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+
+        }
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado.erro ||
+                "Erro ao editar estabelecimento."
+            );
+
+        }
+
+
+        mostrarToast(
+            "✅ Lanchonete atualizada com sucesso!"
+        );
+
+
+        // Atualizar o nome na tela
+        const elemento =
+            document.querySelector(
+                `[data-estabelecimento-id="${id}"]`
+            );
+
+
+        if (elemento) {
+
+            elemento.textContent =
+                resultado.estabelecimento.nome;
+
+        }
+
+
+        // Recarregar a lista caso a função exista
+        if (
+            typeof carregarEstabelecimentos ===
+            "function"
+        ) {
+
+            await carregarEstabelecimentos();
+
+        }
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao editar estabelecimento:",
+            erro
+        );
+
+
+        mostrarToast(
+            "❌ " + erro.message
+        );
+
+    }
+}
+
+// ========================================
+// INICIAR
+// ========================================
+
+atualizarCarrinho();
+
+atualizarTipoPedido();
+
+atualizarPagamento();
+
+atualizarTroco();
+
+carregarPratos();
+
+carregarConfiguracaoEstabelecimento();
