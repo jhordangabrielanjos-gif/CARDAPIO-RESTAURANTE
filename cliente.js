@@ -180,6 +180,7 @@ const toast =
 // VARIÁVEIS DO NOVO CARRINHO
 // ==========================================
 
+let nomeCliente = null;
 let enderecoCliente = null;
 let numeroCliente = null;
 let bairroCliente = null;
@@ -542,6 +543,26 @@ function criarFormularioPedido() {
             📦 Dados do pedido
         </h3>
 
+        <div style="margin-bottom:15px;">
+
+    <strong>
+        👤 Nome do cliente
+    </strong>
+
+    <input
+        type="text"
+        id="nomeCliente"
+        placeholder="Digite seu nome"
+        style="
+            width:100%;
+            padding:11px;
+            margin-top:8px;
+            border:1px solid #ccc;
+            border-radius:8px;
+        "
+    >
+
+</div>
 
         <!-- TIPO DO PEDIDO -->
 
@@ -875,6 +896,11 @@ function criarFormularioPedido() {
     // ======================================
     // PEGAR ELEMENTOS
     // ======================================
+
+    nomeCliente =
+    document.getElementById(
+        "nomeCliente"
+    );
 
     enderecoCliente =
         document.getElementById(
@@ -1674,6 +1700,18 @@ function enviarPedidoWhatsApp() {
 
     }
 
+if (
+    !nomeCliente ||
+    !nomeCliente.value.trim()
+) {
+
+    mostrarToast(
+        "Informe seu nome."
+    );
+
+    return;
+
+}
 
     // ======================================
     // TIPO
@@ -1807,6 +1845,8 @@ function enviarPedidoWhatsApp() {
     mensagem +=
         "Olá! Gostaria de fazer este pedido:\n\n";
 
+    mensagem +=
+        `👤 *Cliente: ${nomeCliente.value.trim()}*\n\n`;
 
     // ======================================
     // ITENS
@@ -1901,6 +1941,7 @@ function enviarPedidoWhatsApp() {
 
         mensagem +=
             "🏪 Buscar no estabelecimento\n\n";
+
 
     }
 
