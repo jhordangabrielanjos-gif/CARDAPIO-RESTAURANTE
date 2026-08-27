@@ -2874,3 +2874,34 @@ body.sem-scroll {
     }
 
 }
+.acoes-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-configuracao {
+    width: 45px;
+    height: 45px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #333;
+    color: white;
+
+    font-size: 22px;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: 0.2s;
+}
+
+.btn-configuracao:hover {
+    transform: rotate(30deg);
+    opacity: 0.9;
+}
