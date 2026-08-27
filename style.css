@@ -2812,10 +2812,10 @@ body.sem-scroll {
 }
 
 /* ========================================
-   CARRINHO ADMINISTRATIVO - ROLAGEM
+   APENAS CARRINHO ADMINISTRATIVO
 ======================================== */
 
-.carrinho {
+.carrinho-administrativo {
     display: flex;
     flex-direction: column;
 
@@ -2825,13 +2825,10 @@ body.sem-scroll {
     overflow: hidden;
 }
 
-/* Cabeçalho fixo */
-.carrinho-header {
-    flex-shrink: 0;
-}
 
-/* Lista dos pratos do pedido */
-#listaCarrinho {
+/* LISTA DOS ITENS COM ROLAGEM */
+
+.carrinho-administrativo #listaCarrinho {
     flex: 1;
 
     min-height: 0;
@@ -2842,8 +2839,10 @@ body.sem-scroll {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Dados do pedido */
-.dados-pedido {
+
+/* DADOS DO PEDIDO */
+
+.carrinho-administrativo .dados-pedido {
     flex-shrink: 0;
 
     max-height: 45vh;
@@ -2854,25 +2853,24 @@ body.sem-scroll {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Rodapé fixo */
-.carrinho-footer {
+
+/* FOOTER FIXO */
+
+.carrinho-administrativo .carrinho-footer {
     flex-shrink: 0;
 }
 
 
+/* CELULAR */
+
 @media (max-width: 600px) {
 
-    .carrinho {
-        width: 100%;
+    .carrinho-administrativo {
         height: 100dvh;
     }
 
-    #listaCarrinho {
+    .carrinho-administrativo #listaCarrinho {
         padding: 12px;
-    }
-
-    .dados-pedido {
-        max-height: 45vh;
     }
 
 }
