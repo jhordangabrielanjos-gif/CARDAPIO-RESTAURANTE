@@ -1596,7 +1596,7 @@ app.post(
                         $6
                     )
 
-                     *
+                    RETURNING *
                     `,
                     [
                         nome.trim(),
@@ -1717,7 +1717,7 @@ app.put(
 
                     WHERE id = $6
 
-                     *
+                    RETURNING *
                     `,
                     [
                         nome,
@@ -1791,7 +1791,7 @@ app.delete(
 
                     AND e.usuario_id = $2
 
-                     p.*
+                    RETURNING p.*
                     `,
                     [
                         id,
