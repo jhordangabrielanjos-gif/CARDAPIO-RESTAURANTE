@@ -1141,6 +1141,92 @@ app.delete(
 );
 
 // ==========================================
+// BUSCAR CONFIGURAÇÃO DO ESTABELECIMENTO
+// ADMIN
+// ==========================================
+
+app.get(
+    "/estabelecimentos/:id/configuracao",
+    autenticarUsuario,
+    async (req, res) => {
+
+        try {
+
+            const { id } = req.params;
+
+            const resultado =
+                await pool.query(
+                    `
+                    SELECT
+                        id,
+                        nome,
+                        descricao,
+                        logo,
+                        imagem_fundo,
+                        cor,
+                        whatsapp,
+                        pix,
+                        endereco,
+                        horario
+
+                    FROM estabelecimentos
+
+                    WHERE id = $1
+                    AND usuario_id = $2
+                    `,
+                    [
+                        id,
+                        req.usuario.id
+                    ]
+                );
+
+            if (
+                resultado.rows.length === 0
+            ) {
+
+                return res.status(404).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "Estabelecimento não encontrado ou não pertence ao usuário."
+
+                });
+
+            }
+
+            res.json({
+
+                sucesso: true,
+
+                estabelecimento:
+                    resultado.rows[0]
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "ERRO AO BUSCAR CONFIGURAÇÃO:"
+            );
+
+            console.error(error);
+
+            res.status(500).json({
+
+                sucesso: false,
+
+                erro:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+// ==========================================
 // CONFIGURAÇÃO DO ESTABELECIMENTO
 // ADMIN
 // ==========================================
