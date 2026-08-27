@@ -805,7 +805,7 @@ body.sem-scroll {
     min-height: 0;
 }
 
-#dadosPedido {
+.dados-Pedido {
     width: calc(100% - 30px);
     margin: 0 auto 15px auto !important;
 
