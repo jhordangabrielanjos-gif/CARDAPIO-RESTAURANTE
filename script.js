@@ -136,6 +136,25 @@ async function carregarConfiguracaoEstabelecimento() {
 
         }
 
+        // ======================================
+// IMAGEM DO HERO
+// ======================================
+
+const hero =
+    document.getElementById(
+        "heroEstabelecimento"
+    );
+
+if (hero && estabelecimento.imagem_capa) {
+
+    hero.style.backgroundImage =
+        `url("${estabelecimento.imagem_capa}")`;
+
+    hero.style.backgroundSize = "cover";
+    hero.style.backgroundPosition = "center";
+    hero.style.backgroundRepeat = "no-repeat";
+
+}
 
         // ======================================
         // COR
