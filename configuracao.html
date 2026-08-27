@@ -711,15 +711,15 @@ const pix =
             "logoPreview"
         );
 
-    const imagemfundo =
+const imagemFundo =
     document.getElementById(
         "imagemFundo"
     );
 
-const imagemfundoPreview =
+const imagemFundoPreview =
     document.getElementById(
         "imagemFundoPreview"
-    );    
+    );
 
     const botaoSalvar =
         document.getElementById(
@@ -1050,8 +1050,8 @@ const dados =
             logo.value =
                 estabelecimento.logo || "";
 
-            imagemfundo.value =
-                estabelecimento.imagemfundo || "";
+            imagemFundo.value =
+                estabelecimento.imagem_fundo || "";
 
             cor.value =
                 estabelecimento.cor ||
@@ -1163,8 +1163,8 @@ endereco.value =
                                 logo:
                                     logo.value.trim(),
 
-                                "imagemfundo":
-                                    imagemfundo.value.trim(),    
+                                 imagem_fundo:
+                                    imagemFundo.value.trim(),  
 
                                 cor:
                                     corTexto.value.trim() ||
