@@ -138,6 +138,11 @@ async function prepararBanco() {
 
         await pool.query(`
     ALTER TABLE estabelecimentos
+    ADD COLUMN IF NOT EXISTS logo_pedido TEXT
+`);
+
+        await pool.query(`
+    ALTER TABLE estabelecimentos
     ADD COLUMN IF NOT EXISTS imagem_fundo TEXT
 `);
 
@@ -824,6 +829,7 @@ app.get(
                         nome,
                         descricao,
                         logo,
+                        logo_pedido,
                         imagem_fundo,
                         cor,
                         whatsapp,
@@ -1162,6 +1168,7 @@ app.get(
                         nome,
                         descricao,
                         logo,
+                        logo_pedido,
                         imagem_fundo,
                         cor,
                         whatsapp,
@@ -1246,6 +1253,7 @@ app.put(
                 nome,
                 descricao,
                 logo,
+                logo_pedido,
                 imagem_fundo,
                 cor,
                 whatsapp,
@@ -1279,21 +1287,23 @@ app.put(
             nome = $1,
             descricao = $2,
             logo = $3,
-            imagem_fundo = $4,
-            cor = $5,
-            whatsapp = $6,
-            pix = $7,
-            endereco = $8,
-            horario = $9
+            logo_pedido = $4,
+            imagem_fundo = $5,
+            cor = $6,
+            whatsapp = $7,
+            pix = $8,
+            endereco = $9,
+            horario = $10
 
-        WHERE id = $10
-        AND usuario_id = $11
+        WHERE id = $11
+        AND usuario_id = $12
 
         RETURNING
             id,
             nome,
             descricao,
             logo,
+            logo_pedido,
             imagem_fundo,
             cor,
             whatsapp,
@@ -1305,6 +1315,7 @@ app.put(
             nome.trim(),
             descricao || "",
             logo || "",
+            logo_pedido || "",
             imagem_fundo || "",
             cor || "#222222",
             whatsapp || "",
@@ -1388,6 +1399,7 @@ app.get(
                         nome,
                         descricao,
                         logo,
+                        logo_pedido,
                         imagem_fundo,
                         cor,
                         whatsapp,
