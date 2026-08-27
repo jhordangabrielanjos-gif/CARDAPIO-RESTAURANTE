@@ -443,6 +443,27 @@
 
         </div>
 
+        <!-- PIX -->
+
+<div class="campo">
+
+    <label for="pix">
+
+        💰 Chave PIX
+
+    </label>
+
+    <input
+        type="text"
+        id="pix"
+        placeholder="Digite sua chave PIX"
+    >
+
+    <small>
+        Informe a chave PIX que seus clientes usarão para pagamento.
+    </small>
+
+</div>
 
         <!-- ENDEREÇO -->
 
@@ -607,6 +628,11 @@
         document.getElementById(
             "whatsapp"
         );
+
+const pix =
+    document.getElementById(
+        "pix"
+    );
 
     const endereco =
         document.getElementById(
@@ -944,10 +970,13 @@
                 "#222222";
 
             whatsapp.value =
-                estabelecimento.whatsapp || "";
+    estabelecimento.whatsapp || "";
 
-            endereco.value =
-                estabelecimento.endereco || "";
+pix.value =
+    estabelecimento.pix || "";
+
+endereco.value =
+    estabelecimento.endereco || "";
 
             horario.value =
                 estabelecimento.horario || "";
@@ -1045,10 +1074,13 @@
                                     "#222222",
 
                                 whatsapp:
-                                    whatsapp.value.trim(),
+    whatsapp.value.trim(),
 
-                                endereco:
-                                    endereco.value.trim(),
+pix:
+    pix.value.trim(),
+
+endereco:
+    endereco.value.trim(),
 
                                 horario:
                                     horario.value.trim()
