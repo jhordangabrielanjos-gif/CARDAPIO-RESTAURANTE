@@ -1984,6 +1984,15 @@ body.sem-scroll {
         width: 100%;
     }
 
+        .opcoes-pedido {
+        grid-template-columns: 1fr;
+    }
+
+    .opcao-pedido {
+        justify-content: center;
+
+        min-height: 52px;
+    }
 }
 
 /* ========================================
@@ -2158,24 +2167,33 @@ body.sem-scroll {
     font-weight: 800;
 }
 
+/* ========================================
+   OPÇÕES DE ENTREGA
+======================================== */
+
 .opcoes-pedido {
-    display: flex;
+    display: grid;
 
-    flex-direction: column;
+    grid-template-columns: 1fr 1fr;
 
-    gap: 9px;
+    gap: 10px;
+
+    width: 100%;
 
     margin-bottom: 18px;
 }
 
 .opcao-pedido {
+    min-height: 55px;
+
     display: flex;
 
     align-items: center;
+    justify-content: center;
 
-    gap: 10px;
+    gap: 8px;
 
-    padding: 12px 13px;
+    padding: 10px;
 
     border: 1px solid #e5e5e5;
 
@@ -2188,13 +2206,15 @@ body.sem-scroll {
     font-size: 12px;
     font-weight: 700;
 
+    text-align: center;
+
     cursor: pointer;
 
     transition: 0.2s;
 }
 
 .opcao-pedido:hover {
-    border-color: #ff6b35;
+    border-color: var(--cor-estabelecimento);
 
     background: #fff8f5;
 }
@@ -2203,11 +2223,14 @@ body.sem-scroll {
     width: 17px;
     height: 17px;
 
-    accent-color: #ff6b35;
+    margin: 0;
+
+    flex-shrink: 0;
+
+    accent-color: var(--cor-estabelecimento);
 
     cursor: pointer;
 }
-
 
 /* ========================================
    ENDEREÇO
