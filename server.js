@@ -1190,50 +1190,50 @@ app.put(
             }
 
             const resultado =
-                await pool.query(
-                    `
-                    UPDATE estabelecimentos
+    await pool.query(
+        `
+        UPDATE estabelecimentos
 
-                    SET
-                        nome = $1,
-                        descricao = $2,
-                        logo = $3,
-                        imagem_fundo = $4,
-                        cor = $5,
-                        whatsapp = $6,
-                        pix = $7,
-                        endereco = $8,
-                        horario = $9
+        SET
+            nome = $1,
+            descricao = $2,
+            logo = $3,
+            imagem_fundo = $4,
+            cor = $5,
+            whatsapp = $6,
+            pix = $7,
+            endereco = $8,
+            horario = $9
 
-                    WHERE id = $9
-                    AND usuario_id = $10
+        WHERE id = $10
+        AND usuario_id = $11
 
-                    RETURNING
-                        id,
-                        nome,
-                        descricao,
-                        logo,
-                        imagem_fundo,
-                        cor,
-                        whatsapp,
-                        pix,
-                        endereco,
-                        horario
-                    `,
-                    [
-                        nome.trim(),
-                        descricao || "",
-                        logo || "",
-                        imagem_fundo || "",
-                        cor || "#222222",
-                        whatsapp || "",
-                        pix || "",
-                        endereco || "",
-                        horario || "",
-                        id,
-                        req.usuario.id
-                    ]
-                );
+        RETURNING
+            id,
+            nome,
+            descricao,
+            logo,
+            imagem_fundo,
+            cor,
+            whatsapp,
+            pix,
+            endereco,
+            horario
+        `,
+        [
+            nome.trim(),
+            descricao || "",
+            logo || "",
+            imagem_fundo || "",
+            cor || "#222222",
+            whatsapp || "",
+            pix || "",
+            endereco || "",
+            horario || "",
+            id,
+            req.usuario.id
+        ]
+    );
 
             if (
                 resultado.rows.length === 0
