@@ -21,10 +21,12 @@ console.log(
 
 
 // ==========================================
-// WHATSAPP
+// CONFIGURAÇÕES DO ESTABELECIMENTO
 // ==========================================
 
 let WHATSAPP = "5579981021378";
+
+let CHAVE_PIX = "";
 
 
 // ==========================================
@@ -40,14 +42,15 @@ let categoriaAtual = "Todos";
 // CARRINHO
 // ==========================================
 
-// ID único deste navegador/cliente
 let CLIENTE_ID =
     localStorage.getItem("clienteId");
 
 if (!CLIENTE_ID) {
 
-    // Criar um ID único
-    if (crypto.randomUUID) {
+    if (
+        typeof crypto !== "undefined" &&
+        crypto.randomUUID
+    ) {
 
         CLIENTE_ID =
             crypto.randomUUID();
@@ -60,7 +63,6 @@ if (!CLIENTE_ID) {
 
     }
 
-
     localStorage.setItem(
         "clienteId",
         CLIENTE_ID
@@ -71,7 +73,6 @@ if (!CLIENTE_ID) {
 
 // ==========================================
 // CHAVE DO CARRINHO
-// CLIENTE + ESTABELECIMENTO
 // ==========================================
 
 const CHAVE_CARRINHO =
@@ -89,21 +90,30 @@ let carrinho =
         )
     ) || [];
 
+
 // ==========================================
-// ELEMENTOS
+// ELEMENTOS PRINCIPAIS
 // ==========================================
 
 const listaPratos =
-    document.getElementById("listaPratos");
+    document.getElementById(
+        "listaPratos"
+    );
 
 const contador =
-    document.getElementById("contador");
+    document.getElementById(
+        "contador"
+    );
 
 const pesquisa =
-    document.getElementById("pesquisa");
+    document.getElementById(
+        "pesquisa"
+    );
 
 const categorias =
-    document.getElementById("categorias");
+    document.getElementById(
+        "categorias"
+    );
 
 
 // ==========================================
@@ -111,41 +121,78 @@ const categorias =
 // ==========================================
 
 const abrirCarrinhoBtn =
-    document.getElementById("abrirCarrinho");
+    document.getElementById(
+        "abrirCarrinho"
+    );
 
 const fecharCarrinhoBtn =
-    document.getElementById("fecharCarrinho");
+    document.getElementById(
+        "fecharCarrinho"
+    );
 
 const overlayCarrinho =
-    document.getElementById("overlayCarrinho");
+    document.getElementById(
+        "overlayCarrinho"
+    );
 
 const carrinhoElemento =
-    document.getElementById("carrinho");
+    document.getElementById(
+        "carrinho"
+    );
 
 const listaCarrinho =
-    document.getElementById("listaCarrinho");
+    document.getElementById(
+        "listaCarrinho"
+    );
 
 const contadorCarrinho =
-    document.getElementById("contadorCarrinho");
+    document.getElementById(
+        "contadorCarrinho"
+    );
 
 const totalCarrinho =
-    document.getElementById("totalCarrinho");
+    document.getElementById(
+        "totalCarrinho"
+    );
 
 const finalizarPedido =
-    document.getElementById("finalizarPedido");
+    document.getElementById(
+        "finalizarPedido"
+    );
 
 const limparCarrinhoBtn =
-    document.getElementById("limparCarrinho");
+    document.getElementById(
+        "limparCarrinho"
+    );
 
 const continuarComprando =
-    document.getElementById("continuarComprando");
+    document.getElementById(
+        "continuarComprando"
+    );
 
 const toast =
-    document.getElementById("toast");
+    document.getElementById(
+        "toast"
+    );
 
 
 // ==========================================
-// FORMATAÇÃO DE PREÇO
+// VARIÁVEIS DO NOVO CARRINHO
+// ==========================================
+
+let enderecoCliente = null;
+let numeroCliente = null;
+let bairroCliente = null;
+let complementoCliente = null;
+
+let metodoPagamento = null;
+let precisaTroco = null;
+let trocoPara = null;
+let levarMaquininha = null;
+
+
+// ==========================================
+// FORMATAÇÃO
 // ==========================================
 
 function formatarPreco(valor) {
@@ -157,6 +204,7 @@ function formatarPreco(valor) {
             currency: "BRL"
         }
     );
+
 }
 
 
@@ -172,6 +220,7 @@ function escaparHTML(texto) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+
 }
 
 
@@ -183,9 +232,12 @@ function mostrarToast(mensagem) {
 
     if (!toast) return;
 
-    toast.textContent = mensagem;
+    toast.textContent =
+        mensagem;
 
-    toast.classList.add("mostrar");
+    toast.classList.add(
+        "mostrar"
+    );
 
     clearTimeout(
         mostrarToast.timer
@@ -199,6 +251,7 @@ function mostrarToast(mensagem) {
             );
 
         }, 3000);
+
 }
 
 
@@ -313,7 +366,8 @@ async function carregarConfiguracaoEstabelecimento() {
 
             } else {
 
-                logo.textContent = "🍽️";
+                logo.textContent =
+                    "🍽️";
 
             }
 
@@ -321,7 +375,7 @@ async function carregarConfiguracaoEstabelecimento() {
 
 
         // ======================================
-        // COR DO ESTABELECIMENTO
+        // COR
         // ======================================
 
         if (estabelecimento.cor) {
@@ -374,7 +428,8 @@ async function carregarConfiguracaoEstabelecimento() {
             }
 
 
-            informacoes.innerHTML = html;
+            informacoes.innerHTML =
+                html;
 
         }
 
@@ -393,6 +448,24 @@ async function carregarConfiguracaoEstabelecimento() {
 
 
         // ======================================
+        // PIX
+        // ======================================
+
+        if (estabelecimento.pix) {
+
+            CHAVE_PIX =
+                String(
+                    estabelecimento.pix
+                ).trim();
+
+        } else {
+
+            CHAVE_PIX = "";
+
+        }
+
+
+        // ======================================
         // TÍTULO
         // ======================================
 
@@ -406,12 +479,721 @@ async function carregarConfiguracaoEstabelecimento() {
             estabelecimento
         );
 
+        console.log(
+            "Chave PIX:",
+            CHAVE_PIX
+        );
+
 
     } catch (erro) {
 
         console.error(
             "Erro ao carregar estabelecimento:",
             erro
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// CRIAR FORMULÁRIO DO CARRINHO
+// ==========================================
+
+function criarFormularioPedido() {
+
+    if (!listaCarrinho) return;
+
+
+    const formularioExistente =
+        document.getElementById(
+            "dadosPedido"
+        );
+
+
+    if (formularioExistente) {
+
+        formularioExistente.remove();
+
+    }
+
+
+    const formulario =
+        document.createElement(
+            "div"
+        );
+
+    formulario.id =
+        "dadosPedido";
+
+
+    formulario.style.cssText = `
+        margin-top:20px;
+        padding:16px;
+        background:#f5f5f5;
+        border-radius:12px;
+    `;
+
+
+    formulario.innerHTML = `
+
+        <h3 style="margin-top:0;">
+            📦 Dados do pedido
+        </h3>
+
+
+        <!-- TIPO DO PEDIDO -->
+
+        <div style="margin-bottom:15px;">
+
+            <strong>
+                Como você vai receber?
+            </strong>
+
+            <div style="
+                display:flex;
+                gap:10px;
+                margin-top:10px;
+                flex-wrap:wrap;
+            ">
+
+                <label style="
+                    padding:10px;
+                    background:white;
+                    border:1px solid #ddd;
+                    border-radius:8px;
+                    cursor:pointer;
+                ">
+
+                    <input
+                        type="radio"
+                        name="tipoPedido"
+                        value="Delivery"
+                    >
+
+                    🚚 Delivery
+
+                </label>
+
+
+                <label style="
+                    padding:10px;
+                    background:white;
+                    border:1px solid #ddd;
+                    border-radius:8px;
+                    cursor:pointer;
+                ">
+
+                    <input
+                        type="radio"
+                        name="tipoPedido"
+                        value="Buscar"
+                    >
+
+                    🏪 Buscar no estabelecimento
+
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <!-- ENDEREÇO -->
+
+        <div
+            id="areaEnderecoCliente"
+            style="display:none;"
+        >
+
+            <strong>
+                📍 Endereço de entrega
+            </strong>
+
+
+            <input
+                type="text"
+                id="enderecoCliente"
+                placeholder="Rua / Avenida"
+                style="
+                    width:100%;
+                    padding:11px;
+                    margin-top:8px;
+                    margin-bottom:8px;
+                    border:1px solid #ccc;
+                    border-radius:8px;
+                "
+            >
+
+
+            <input
+                type="text"
+                id="numeroCliente"
+                placeholder="Número"
+                style="
+                    width:100%;
+                    padding:11px;
+                    margin-bottom:8px;
+                    border:1px solid #ccc;
+                    border-radius:8px;
+                "
+            >
+
+
+            <input
+                type="text"
+                id="bairroCliente"
+                placeholder="Bairro"
+                style="
+                    width:100%;
+                    padding:11px;
+                    margin-bottom:8px;
+                    border:1px solid #ccc;
+                    border-radius:8px;
+                "
+            >
+
+
+            <input
+                type="text"
+                id="complementoCliente"
+                placeholder="Complemento (opcional)"
+                style="
+                    width:100%;
+                    padding:11px;
+                    margin-bottom:15px;
+                    border:1px solid #ccc;
+                    border-radius:8px;
+                "
+            >
+
+        </div>
+
+
+        <!-- PAGAMENTO -->
+
+        <div style="margin-top:10px;">
+
+            <strong>
+                💰 Forma de pagamento
+            </strong>
+
+
+            <select
+                id="metodoPagamento"
+                style="
+                    width:100%;
+                    padding:11px;
+                    margin-top:8px;
+                    border:1px solid #ccc;
+                    border-radius:8px;
+                    background:white;
+                "
+            >
+
+                <option value="">
+                    Selecione
+                </option>
+
+                <option value="PIX">
+                    📱 PIX
+                </option>
+
+                <option value="Cartão">
+                    💳 Cartão
+                </option>
+
+                <option value="Dinheiro">
+                    💵 Dinheiro
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- PIX -->
+
+        <div
+            id="pixPedido"
+            style="
+                display:none;
+                margin-top:15px;
+                padding:15px;
+                background:white;
+                border-radius:10px;
+                border:1px solid #ddd;
+            "
+        >
+
+            <strong>
+                💰 Pagamento via PIX
+            </strong>
+
+
+            <p style="margin:8px 0;">
+                Chave PIX:
+            </p>
+
+
+            <div style="
+                display:flex;
+                gap:8px;
+            ">
+
+                <input
+                    type="text"
+                    id="chavePix"
+                    readonly
+                    style="
+                        flex:1;
+                        padding:10px;
+                        border:1px solid #ccc;
+                        border-radius:8px;
+                    "
+                >
+
+
+                <button
+                    type="button"
+                    onclick="copiarPix()"
+                    style="
+                        padding:10px 14px;
+                        border:none;
+                        border-radius:8px;
+                        cursor:pointer;
+                    "
+                >
+                    📋 Copiar
+                </button>
+
+            </div>
+
+
+            <small
+                id="pixAviso"
+                style="
+                    display:block;
+                    margin-top:8px;
+                    color:#777;
+                "
+            ></small>
+
+        </div>
+
+
+        <!-- DINHEIRO -->
+
+        <div
+            id="areaDinheiro"
+            style="display:none; margin-top:15px;"
+        >
+
+            <label
+                style="
+                    display:block;
+                    margin-bottom:8px;
+                "
+            >
+
+                <input
+                    type="checkbox"
+                    id="precisaTroco"
+                >
+
+                Preciso de troco
+
+            </label>
+
+
+            <input
+                type="number"
+                id="trocoPara"
+                placeholder="Troco para quanto?"
+                min="0"
+                step="0.01"
+                style="
+                    display:none;
+                    width:100%;
+                    padding:11px;
+                    border:1px solid #ccc;
+                    border-radius:8px;
+                "
+            >
+
+        </div>
+
+
+        <!-- CARTÃO -->
+
+        <div
+            id="areaCartao"
+            style="display:none; margin-top:15px;"
+        >
+
+            <label>
+
+                <input
+                    type="checkbox"
+                    id="levarMaquininha"
+                >
+
+                📱 Levar maquininha para a entrega
+
+            </label>
+
+        </div>
+
+    `;
+
+
+    // Coloca o formulário antes do footer
+
+    const footer =
+        document.querySelector(
+            ".carrinho-footer"
+        );
+
+
+    if (footer) {
+
+        carrinhoElemento.insertBefore(
+            formulario,
+            footer
+        );
+
+    } else {
+
+        carrinhoElemento.appendChild(
+            formulario
+        );
+
+    }
+
+
+    // ======================================
+    // PEGAR ELEMENTOS
+    // ======================================
+
+    enderecoCliente =
+        document.getElementById(
+            "enderecoCliente"
+        );
+
+    numeroCliente =
+        document.getElementById(
+            "numeroCliente"
+        );
+
+    bairroCliente =
+        document.getElementById(
+            "bairroCliente"
+        );
+
+    complementoCliente =
+        document.getElementById(
+            "complementoCliente"
+        );
+
+    metodoPagamento =
+        document.getElementById(
+            "metodoPagamento"
+        );
+
+    precisaTroco =
+        document.getElementById(
+            "precisaTroco"
+        );
+
+    trocoPara =
+        document.getElementById(
+            "trocoPara"
+        );
+
+    levarMaquininha =
+        document.getElementById(
+            "levarMaquininha"
+        );
+
+
+    // ======================================
+    // TIPO DO PEDIDO
+    // ======================================
+
+    document
+        .querySelectorAll(
+            'input[name="tipoPedido"]'
+        )
+        .forEach(radio => {
+
+            radio.addEventListener(
+                "change",
+                atualizarTipoPedido
+            );
+
+        });
+
+
+    // ======================================
+    // PAGAMENTO
+    // ======================================
+
+    metodoPagamento.addEventListener(
+        "change",
+        atualizarPagamento
+    );
+
+
+    // ======================================
+    // TROCO
+    // ======================================
+
+    precisaTroco.addEventListener(
+        "change",
+        () => {
+
+            trocoPara.style.display =
+                precisaTroco.checked
+                    ? "block"
+                    : "none";
+
+        }
+    );
+
+}
+
+
+// ==========================================
+// TIPO DO PEDIDO
+// ==========================================
+
+function atualizarTipoPedido() {
+
+    const selecionado =
+        document.querySelector(
+            'input[name="tipoPedido"]:checked'
+        );
+
+
+    const areaEndereco =
+        document.getElementById(
+            "areaEnderecoCliente"
+        );
+
+
+    if (!areaEndereco) return;
+
+
+    if (
+        selecionado &&
+        selecionado.value === "Delivery"
+    ) {
+
+        areaEndereco.style.display =
+            "block";
+
+    } else {
+
+        areaEndereco.style.display =
+            "none";
+
+    }
+
+
+    atualizarPagamento();
+
+}
+
+
+// ==========================================
+// PAGAMENTO
+// ==========================================
+
+function atualizarPagamento() {
+
+    if (!metodoPagamento) return;
+
+
+    const pagamento =
+        metodoPagamento.value;
+
+
+    const pixPedido =
+        document.getElementById(
+            "pixPedido"
+        );
+
+    const areaDinheiro =
+        document.getElementById(
+            "areaDinheiro"
+        );
+
+    const areaCartao =
+        document.getElementById(
+            "areaCartao"
+        );
+
+
+    if (pixPedido) {
+
+        pixPedido.style.display =
+            pagamento === "PIX"
+                ? "block"
+                : "none";
+
+    }
+
+
+    if (areaDinheiro) {
+
+        areaDinheiro.style.display =
+            pagamento === "Dinheiro"
+                ? "block"
+                : "none";
+
+    }
+
+
+    if (areaCartao) {
+
+        areaCartao.style.display =
+            pagamento === "Cartão"
+                ? "block"
+                : "none";
+
+    }
+
+
+    // ======================================
+    // PREENCHER PIX
+    // ======================================
+
+    if (pagamento === "PIX") {
+
+        const chavePix =
+            document.getElementById(
+                "chavePix"
+            );
+
+        const pixAviso =
+            document.getElementById(
+                "pixAviso"
+            );
+
+
+        if (chavePix) {
+
+            chavePix.value =
+                CHAVE_PIX || "";
+
+        }
+
+
+        if (pixAviso) {
+
+            if (CHAVE_PIX) {
+
+                pixAviso.textContent =
+                    "Use esta chave para realizar o pagamento.";
+
+            } else {
+
+                pixAviso.textContent =
+                    "⚠️ O estabelecimento ainda não cadastrou uma chave PIX.";
+
+            }
+
+        }
+
+    }
+
+
+    // ======================================
+    // MAQUININHA
+    // ======================================
+
+    if (
+        areaCartao &&
+        levarMaquininha
+    ) {
+
+        const tipo =
+            document.querySelector(
+                'input[name="tipoPedido"]:checked'
+            );
+
+
+        if (
+            pagamento === "Cartão" &&
+            tipo &&
+            tipo.value === "Delivery"
+        ) {
+
+            areaCartao.style.display =
+                "block";
+
+        } else {
+
+            areaCartao.style.display =
+                "none";
+
+            levarMaquininha.checked =
+                false;
+
+        }
+
+    }
+
+}
+
+
+// ==========================================
+// COPIAR PIX
+// ==========================================
+
+async function copiarPix() {
+
+    if (!CHAVE_PIX) {
+
+        mostrarToast(
+            "O estabelecimento não cadastrou uma chave PIX."
+        );
+
+        return;
+
+    }
+
+
+    try {
+
+        await navigator.clipboard.writeText(
+            CHAVE_PIX
+        );
+
+        mostrarToast(
+            "Chave PIX copiada!"
+        );
+
+    } catch (erro) {
+
+        const campo =
+            document.getElementById(
+                "chavePix"
+            );
+
+        if (campo) {
+
+            campo.select();
+
+            document.execCommand(
+                "copy"
+            );
+
+        }
+
+        mostrarToast(
+            "Chave PIX copiada!"
         );
 
     }
@@ -434,7 +1216,7 @@ function salvarCarrinho() {
 
 
 // ==========================================
-// QUANTIDADE TOTAL
+// QUANTIDADE
 // ==========================================
 
 function quantidadeTotalCarrinho() {
@@ -475,7 +1257,7 @@ function valorTotalCarrinho() {
 
 
 // ==========================================
-// ADICIONAR AO CARRINHO
+// ADICIONAR
 // ==========================================
 
 function adicionarAoCarrinho(id) {
@@ -495,6 +1277,7 @@ function adicionarAoCarrinho(id) {
         );
 
         return;
+
     }
 
 
@@ -631,6 +1414,22 @@ function atualizarCarrinho() {
         carrinho.length === 0;
 
 
+    // ======================================
+    // FORMULÁRIO
+    // ======================================
+
+    if (
+        carrinho.length > 0 &&
+        !document.getElementById(
+            "dadosPedido"
+        )
+    ) {
+
+        criarFormularioPedido();
+
+    }
+
+
     if (carrinho.length === 0) {
 
         listaCarrinho.innerHTML = `
@@ -661,9 +1460,28 @@ function atualizarCarrinho() {
 
         `;
 
+
+        const formulario =
+            document.getElementById(
+                "dadosPedido"
+            );
+
+
+        if (formulario) {
+
+            formulario.remove();
+
+        }
+
+
         return;
+
     }
 
+
+    // ======================================
+    // ITENS
+    // ======================================
 
     listaCarrinho.innerHTML =
         carrinho
@@ -736,6 +1554,21 @@ function atualizarCarrinho() {
             })
             .join("");
 
+
+    // ======================================
+    // GARANTIR FORMULÁRIO
+    // ======================================
+
+    if (
+        !document.getElementById(
+            "dadosPedido"
+        )
+    ) {
+
+        criarFormularioPedido();
+
+    }
+
 }
 
 
@@ -785,7 +1618,7 @@ function fecharCarrinho() {
 
 
 // ==========================================
-// LIMPAR CARRINHO
+// LIMPAR
 // ==========================================
 
 function limparCarrinho() {
@@ -797,6 +1630,7 @@ function limparCarrinho() {
         );
 
         return;
+
     }
 
 
@@ -825,7 +1659,7 @@ function limparCarrinho() {
 
 
 // ==========================================
-// WHATSAPP
+// ENVIAR PEDIDO
 // ==========================================
 
 function enviarPedidoWhatsApp() {
@@ -837,8 +1671,134 @@ function enviarPedidoWhatsApp() {
         );
 
         return;
+
     }
 
+
+    // ======================================
+    // TIPO
+    // ======================================
+
+    const tipoSelecionado =
+        document.querySelector(
+            'input[name="tipoPedido"]:checked'
+        );
+
+
+    if (!tipoSelecionado) {
+
+        mostrarToast(
+            "Escolha Delivery ou Buscar no estabelecimento."
+        );
+
+        return;
+
+    }
+
+
+    const tipoPedido =
+        tipoSelecionado.value;
+
+
+    // ======================================
+    // DELIVERY
+    // ======================================
+
+    if (
+        tipoPedido === "Delivery"
+    ) {
+
+        if (
+            !enderecoCliente ||
+            !numeroCliente ||
+            !bairroCliente
+        ) {
+
+            mostrarToast(
+                "Preencha o endereço de entrega."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !enderecoCliente.value.trim() ||
+            !numeroCliente.value.trim() ||
+            !bairroCliente.value.trim()
+        ) {
+
+            mostrarToast(
+                "Preencha o endereço de entrega."
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    // ======================================
+    // PAGAMENTO
+    // ======================================
+
+    if (!metodoPagamento) {
+
+        mostrarToast(
+            "Escolha a forma de pagamento."
+        );
+
+        return;
+
+    }
+
+
+    const pagamento =
+        metodoPagamento.value;
+
+
+    if (!pagamento) {
+
+        mostrarToast(
+            "Escolha a forma de pagamento."
+        );
+
+        return;
+
+    }
+
+
+    // ======================================
+    // TROCO
+    // ======================================
+
+    if (
+        pagamento === "Dinheiro" &&
+        precisaTroco &&
+        precisaTroco.checked
+    ) {
+
+        if (
+            !trocoPara.value ||
+            Number(trocoPara.value) <= 0
+        ) {
+
+            mostrarToast(
+                "Informe para quanto precisa de troco."
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    // ======================================
+    // MENSAGEM
+    // ======================================
 
     let mensagem =
         "🍽️ *NOVO PEDIDO*\n\n";
@@ -847,6 +1807,10 @@ function enviarPedidoWhatsApp() {
     mensagem +=
         "Olá! Gostaria de fazer este pedido:\n\n";
 
+
+    // ======================================
+    // ITENS
+    // ======================================
 
     carrinho.forEach(item => {
 
@@ -869,6 +1833,10 @@ function enviarPedidoWhatsApp() {
     });
 
 
+    // ======================================
+    // TOTAL
+    // ======================================
+
     const total =
         valorTotalCarrinho();
 
@@ -881,9 +1849,179 @@ function enviarPedidoWhatsApp() {
             total
         )}*\n\n`;
 
+
+    // ======================================
+    // ENTREGA
+    // ======================================
+
+    mensagem +=
+        "📦 *COMO VAI RECEBER*\n";
+
+
+    if (
+        tipoPedido === "Delivery"
+    ) {
+
+        mensagem +=
+            "🚚 Delivery\n\n";
+
+
+        mensagem +=
+            "📍 *ENDEREÇO DE ENTREGA*\n";
+
+
+        mensagem +=
+            `Rua: ${enderecoCliente.value.trim()}\n`;
+
+
+        mensagem +=
+            `Número: ${numeroCliente.value.trim()}\n`;
+
+
+        mensagem +=
+            `Bairro: ${bairroCliente.value.trim()}\n`;
+
+
+        if (
+            complementoCliente &&
+            complementoCliente.value.trim()
+        ) {
+
+            mensagem +=
+                `Complemento: ${
+                    complementoCliente.value.trim()
+                }\n`;
+
+        }
+
+
+        mensagem += "\n";
+
+    } else {
+
+        mensagem +=
+            "🏪 Buscar no estabelecimento\n\n";
+
+    }
+
+
+    // ======================================
+    // PAGAMENTO
+    // ======================================
+
+    mensagem +=
+        "💰 *FORMA DE PAGAMENTO*\n";
+
+
+    // ======================================
+    // PIX
+    // ======================================
+
+    if (
+        pagamento === "PIX"
+    ) {
+
+        mensagem +=
+            "📱 PIX\n";
+
+
+        if (CHAVE_PIX) {
+
+            mensagem +=
+                `🔑 Chave PIX: ${CHAVE_PIX}\n`;
+
+        }
+
+
+        mensagem +=
+            "Cliente escolheu pagar via PIX.\n\n";
+
+    }
+
+
+    // ======================================
+    // CARTÃO
+    // ======================================
+
+    if (
+        pagamento === "Cartão"
+    ) {
+
+        mensagem +=
+            "💳 Cartão\n";
+
+
+        if (
+            tipoPedido === "Delivery" &&
+            levarMaquininha &&
+            levarMaquininha.checked
+        ) {
+
+            mensagem +=
+                "📱 LEVAR MAQUININHA PARA A ENTREGA\n";
+
+        }
+
+
+        mensagem += "\n";
+
+    }
+
+
+    // ======================================
+    // DINHEIRO
+    // ======================================
+
+    if (
+        pagamento === "Dinheiro"
+    ) {
+
+        mensagem +=
+            "💵 Dinheiro\n";
+
+
+        if (
+            precisaTroco &&
+            precisaTroco.checked
+        ) {
+
+            const valorTroco =
+                Number(
+                    trocoPara.value
+                );
+
+
+            mensagem +=
+                `💰 Troco para: ${
+                    formatarPreco(
+                        valorTroco
+                    )
+                }\n`;
+
+        } else {
+
+            mensagem +=
+                "Não precisa de troco.\n";
+
+        }
+
+
+        mensagem += "\n";
+
+    }
+
+
+    // ======================================
+    // FINAL
+    // ======================================
+
     mensagem +=
         "Aguardo a confirmação do pedido. 😊";
 
+
+    // ======================================
+    // WHATSAPP
+    // ======================================
 
     const url =
         `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
@@ -900,7 +2038,7 @@ function enviarPedidoWhatsApp() {
 
 
 // ==========================================
-// EVENTOS DO CARRINHO
+// EVENTOS
 // ==========================================
 
 abrirCarrinhoBtn.addEventListener(
@@ -1034,40 +2172,24 @@ function criarCategorias() {
     const nomes = [
 
         "Todos",
-
         "Hambúrgueres",
-
         "Pizzas",
-
         "Porções",
-
         "Cachorros-quentes",
-
         "Frangos",
-
         "Carnes",
-
         "Massas",
-
         "Saladas",
-
         "Pratos Executivos",
-
         "Lanches",
-
         "Sobremesas",
-
         "Bebidas",
+        "Açaí",
+        "Cafés",
+        "Pastéis",
+        "Geladinhos"
 
-         "Açaí",
-
-"Cafés",
-
-"Pastéis",
-
-"Geladinhos"
-
-];
+    ];
 
 
     const icones = {
@@ -1100,13 +2222,14 @@ function criarCategorias() {
 
         "Açaí": "🍨",
 
-"Cafés": "☕",
+        "Cafés": "☕",
 
-"Pastéis": "🥟",
+        "Pastéis": "🥟",
 
-"Geladinhos": "🍧"
+        "Geladinhos": "🍧"
 
-};
+    };
+
 
     categorias.innerHTML =
         nomes
@@ -1248,6 +2371,7 @@ function mostrarPratos() {
         `;
 
         return;
+
     }
 
 
@@ -1260,7 +2384,7 @@ function mostrarPratos() {
 
 
 // ==========================================
-// CRIAR CARD DO CLIENTE
+// CARD
 // ==========================================
 
 function criarCard(prato) {
@@ -1341,8 +2465,6 @@ function criarCard(prato) {
                 </p>
 
 
-                <!-- SOMENTE O BOTÃO DO CLIENTE -->
-
                 <button
                     class="btn-adicionar-pedido"
                     type="button"
@@ -1373,7 +2495,7 @@ pesquisa.addEventListener(
 
 
 // ==========================================
-// TECLA ESC
+// ESC
 // ==========================================
 
 document.addEventListener(
