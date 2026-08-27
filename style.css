@@ -677,27 +677,38 @@ body.sem-scroll {
 
 
 /* ========================================
-   CARRINHO
+   CARRINHO - ESCONDIDO POR PADRÃO
 ======================================== */
 
 .carrinho {
     position: fixed;
+
     top: 0;
     right: 0;
 
-    width: 100%;
-    max-width: 450px;
-    height: 100vh;
+    width: 430px;
+    max-width: 100%;
 
-    background: white;
+    height: 100vh;
+    height: 100dvh;
 
     display: flex;
     flex-direction: column;
 
-    z-index: 1000;
+    background: white;
+
+    z-index: 1001;
 
     overflow: hidden;
+
+    /* ESCONDE O CARRINHO */
+    transform: translateX(100%);
+
+    transition: transform 0.3s ease;
 }
+
+
+/* QUANDO ABERTO */
 
 .carrinho.aberto {
     transform: translateX(0);
@@ -2979,6 +2990,19 @@ body.sem-scroll {
 /* ========================================
    CELULAR
 ======================================== */
+
+@media (max-width: 600px) {
+
+    .carrinho {
+        width: 100%;
+        transform: translateX(100%);
+    }
+
+    .carrinho.aberto {
+        transform: translateX(0);
+    }
+
+}
 
 @media (max-width: 600px) {
 
