@@ -147,9 +147,9 @@ async function prepararBanco() {
         `);
 
         await pool.query(`
-    ALTER TABLE estabelecimentos
-    ADD COLUMN IF NOT EXISTS pix VARCHAR(255)
-`);
+            ALTER TABLE estabelecimentos
+            ADD COLUMN IF NOT EXISTS pix VARCHAR(255)
+       `);
 
         await pool.query(`
             ALTER TABLE estabelecimentos
@@ -1156,15 +1156,15 @@ app.put(
             } = req.params;
 
             const {
-    nome,
-    descricao,
-    logo,
-    cor,
-    whatsapp,
-    pix,
-    endereco,
-    horario,
-} = req.body;
+                nome,
+                descricao,
+                logo,
+                cor,
+                whatsapp,
+                pix,
+                endereco,
+                horario
+            } = req.body;
 
             if (
                 !nome ||
@@ -1193,23 +1193,23 @@ app.put(
                         logo = $3,
                         cor = $4,
                         whatsapp = $5,
-                        endereco = $6,
-                        horario = $7,
-                        pix = $8
+                        pix = $6,
+                        endereco = $7,
+                        horario = $8
 
                     WHERE id = $9
                     AND usuario_id = $10
 
-                    
+                    RETURNING
                         id,
                         nome,
                         descricao,
                         logo,
                         cor,
                         whatsapp,
+                        pix,
                         endereco,
-                        horario,
-                        pix
+                        horario
                     `,
                     [
                         nome.trim(),
@@ -1217,9 +1217,9 @@ app.put(
                         logo || "",
                         cor || "#222222",
                         whatsapp || "",
+                        pix || "",
                         endereco || "",
                         horario || "",
-                        pix || "",
                         id,
                         req.usuario.id
                     ]
@@ -1265,7 +1265,7 @@ app.put(
                 sucesso: false,
 
                 erro:
-                    "Erro ao salvar configuração."
+                    error.message
 
             });
 
