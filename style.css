@@ -2810,3 +2810,69 @@ body.sem-scroll {
     }
 
 }
+
+/* ========================================
+   CARRINHO ADMINISTRATIVO - ROLAGEM
+======================================== */
+
+.carrinho {
+    display: flex;
+    flex-direction: column;
+
+    height: 100vh;
+    height: 100dvh;
+
+    overflow: hidden;
+}
+
+/* Cabeçalho fixo */
+.carrinho-header {
+    flex-shrink: 0;
+}
+
+/* Lista dos pratos do pedido */
+#listaCarrinho {
+    flex: 1;
+
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Dados do pedido */
+.dados-pedido {
+    flex-shrink: 0;
+
+    max-height: 45vh;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Rodapé fixo */
+.carrinho-footer {
+    flex-shrink: 0;
+}
+
+
+@media (max-width: 600px) {
+
+    .carrinho {
+        width: 100%;
+        height: 100dvh;
+    }
+
+    #listaCarrinho {
+        padding: 12px;
+    }
+
+    .dados-pedido {
+        max-height: 45vh;
+    }
+
+}
