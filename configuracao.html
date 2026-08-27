@@ -452,6 +452,31 @@
 
 </div>
 
+<!-- LOGO FAÇA SEU PEDIDO -->
+
+<div class="campo">
+
+    <label for="logoPedido">
+        🛒 Logo do "Faça seu pedido"
+    </label>
+
+    <input
+        type="text"
+        id="logoPedido"
+        placeholder="Cole aqui o link da imagem"
+    >
+
+    <div
+        id="logoPedidoPreview"
+        class="logo-preview"
+    >
+        <span>
+            A logo do "Faça seu pedido" aparecerá aqui
+        </span>
+    </div>
+
+</div>
+
         <!-- COR -->
 
         <div class="campo">
@@ -710,6 +735,12 @@ const pix =
         document.getElementById(
             "logoPreview"
         );
+
+     const logoPedido =
+    document.getElementById("logoPedido");
+
+const logoPedidoPreview =
+    document.getElementById("logoPedidoPreview");   
 
 const imagemFundo =
     document.getElementById(
@@ -1050,6 +1081,9 @@ const dados =
             logo.value =
                 estabelecimento.logo || "";
 
+            logoPedido.value =
+                estabelecimento.logo_pedido || "";
+
             imagemFundo.value =
                 estabelecimento.imagem_fundo || "";
 
@@ -1077,6 +1111,8 @@ endereco.value =
             atualizarPreviewLogo();
 
             atualizarPreviewImagemFundo();
+
+            atualizarPreviewLogoPedido();
 
 
         } catch (erro) {
@@ -1162,6 +1198,9 @@ endereco.value =
 
                                 logo:
                                     logo.value.trim(),
+
+                                logo_pedido:
+                                    logoPedido.value.trim(),    
 
                                  imagem_fundo:
                                     imagemFundo.value.trim(),  
@@ -1331,6 +1370,37 @@ const dados =
     imagemFundo.addEventListener(
     "input",
     atualizarPreviewImagemFundo
+);
+
+function atualizarPreviewLogoPedido() {
+
+    const url =
+        logoPedido.value.trim();
+
+    if (!url) {
+
+        logoPedidoPreview.innerHTML = `
+            <span>
+                A logo do "Faça seu pedido" aparecerá aqui
+            </span>
+        `;
+
+        return;
+    }
+
+    logoPedidoPreview.innerHTML = `
+        <img
+            src="${url}"
+            alt="Logo Faça seu pedido"
+            onerror="this.parentElement.innerHTML =
+                '<span>❌ Não foi possível carregar a imagem</span>'"
+        >
+    `;
+}
+
+logoPedido.addEventListener(
+    "input",
+    atualizarPreviewLogoPedido
 );
 
     // ==========================================
