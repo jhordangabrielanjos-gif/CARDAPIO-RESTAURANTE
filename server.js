@@ -147,6 +147,11 @@ async function prepararBanco() {
         `);
 
         await pool.query(`
+    ALTER TABLE estabelecimentos
+    ADD COLUMN IF NOT EXISTS pix VARCHAR(255)
+`);
+
+        await pool.query(`
             ALTER TABLE estabelecimentos
             ADD COLUMN IF NOT EXISTS endereco TEXT
         `);
@@ -160,6 +165,10 @@ async function prepararBanco() {
             "Colunas de personalização prontas!"
         );
 
+await pool.query(`
+    ALTER TABLE estabelecimentos
+    ADD COLUMN IF NOT EXISTS pix VARCHAR(255)
+`);
 
         // ======================================
         // PRATOS
@@ -1147,14 +1156,15 @@ app.put(
             } = req.params;
 
             const {
-                nome,
-                descricao,
-                logo,
-                cor,
-                whatsapp,
-                endereco,
-                horario
-            } = req.body;
+    nome,
+    descricao,
+    logo,
+    cor,
+    whatsapp,
+    pix,
+    endereco,
+    horario,
+} = req.body;
 
             if (
                 !nome ||
@@ -1184,12 +1194,13 @@ app.put(
                         cor = $4,
                         whatsapp = $5,
                         endereco = $6,
-                        horario = $7
+                        horario = $7,
+                        pix = $8
 
-                    WHERE id = $8
-                    AND usuario_id = $9
+                    WHERE id = $9
+                    AND usuario_id = $10
 
-                    RETURNING
+                    
                         id,
                         nome,
                         descricao,
@@ -1197,7 +1208,8 @@ app.put(
                         cor,
                         whatsapp,
                         endereco,
-                        horario
+                        horario,
+                        pix
                     `,
                     [
                         nome.trim(),
@@ -1207,6 +1219,7 @@ app.put(
                         whatsapp || "",
                         endereco || "",
                         horario || "",
+                        pix || "",
                         id,
                         req.usuario.id
                     ]
@@ -1288,7 +1301,8 @@ app.get(
                         cor,
                         whatsapp,
                         endereco,
-                        horario
+                        horario,
+                        pix
 
                     FROM estabelecimentos
 
@@ -1373,7 +1387,8 @@ app.get(
                         cor,
                         whatsapp,
                         endereco,
-                        horario
+                        horario,
+                        pix
 
                     FROM estabelecimentos
 
@@ -1581,7 +1596,7 @@ app.post(
                         $6
                     )
 
-                    RETURNING *
+                     *
                     `,
                     [
                         nome.trim(),
@@ -1702,7 +1717,7 @@ app.put(
 
                     WHERE id = $6
 
-                    RETURNING *
+                     *
                     `,
                     [
                         nome,
@@ -1776,7 +1791,7 @@ app.delete(
 
                     AND e.usuario_id = $2
 
-                    RETURNING p.*
+                     p.*
                     `,
                     [
                         id,
