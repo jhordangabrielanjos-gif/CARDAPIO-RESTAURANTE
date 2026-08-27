@@ -1,2082 +1,2907 @@
-const express = require("express");
-const cors = require("cors");
-const { Pool } = require("pg");
-const path = require("path");
-const jwt = require("jsonwebtoken");
+/* ========================================
+   RESET
+======================================== */
 
-const app = express();
-
-const PORT = process.env.PORT || 3000;
-
-const JWT_SECRET =
-    process.env.JWT_SECRET || "chave-temporaria-restaurante";
-
-// ==========================================
-// CONFIGURAÇÕES
-// ==========================================
-
-app.use(cors());
-
-app.use(express.json({
-    limit: "10mb"
-}));
-
-app.use(express.static(__dirname));
-
-// ==========================================
-// POSTGRESQL
-// ==========================================
-
-if (!process.env.DATABASE_URL) {
-
-    console.error(
-        "ERRO: DATABASE_URL não foi configurada."
-    );
-
-    process.exit(1);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+html {
+    scroll-behavior: smooth;
+}
 
-    ssl: {
-        rejectUnauthorized: false
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f7f7f7;
+    color: #222;
+    min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+body.sem-scroll {
+    overflow: hidden;
+}
+
+
+/* ========================================
+   HEADER
+======================================== */
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+
+    width: 100%;
+
+    background: white;
+
+    border-bottom: 1px solid #eeeeee;
+
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.header-conteudo {
+    width: 90%;
+    max-width: 1250px;
+
+    min-height: 78px;
+
+    margin: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+/* ========================================
+   LOGO
+======================================== */
+
+.logo {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+}
+
+.logo-icone {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--cor-estabelecimento);
+
+    border-radius: 14px;
+
+    font-size: 24px;
+
+    box-shadow:
+        0 7px 18px rgba(255, 107, 53, 0.25);
+}
+
+.logo h1 {
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.logo span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #999;
+
+    font-size: 12px;
+}
+
+
+/* ========================================
+   NOVO PRATO
+======================================== */
+
+.btn-novo {
+    border: none;
+
+    background: #ff6b35;
+
+    color: white;
+
+    padding: 12px 18px;
+
+    border-radius: 12px;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    transition: 0.25s;
+}
+
+.btn-novo:hover {
+    background: #e95725;
+
+    transform: translateY(-2px);
+}
+
+
+/* ========================================
+   CONTAINER
+======================================== */
+
+.container {
+    width: 90%;
+    max-width: 1250px;
+
+    margin: auto;
+
+    padding-bottom: 100px;
+}
+
+
+/* ========================================
+   HERO
+======================================== */
+
+.hero {
+    position: relative;
+
+    min-height: 300px;
+
+    margin-top: 32px;
+
+    padding: 50px;
+
+    display: flex;
+    align-items: center;
+
+    overflow: hidden;
+
+    border-radius: 25px;
+
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.85),
+            rgba(0, 0, 0, 0.45)
+        ),
+        url(" ");
+
+    background-size: cover;
+    background-position: center;
+}
+
+.hero > div {
+    position: relative;
+    z-index: 2;
+}
+
+.hero::after {
+    content: "🍔";
+
+    position: absolute;
+
+    right: 7%;
+    bottom: -30px;
+
+    font-size: 160px;
+
+    opacity: 0.12;
+
+    transform: rotate(-12deg);
+}
+
+.hero-tag {
+    display: inline-block;
+
+    padding: 8px 13px;
+
+    margin-bottom: 15px;
+
+    border-radius: 20px;
+
+    background: white;
+
+    color: #ff6b35;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.hero h2 {
+    font-size: 44px;
+
+    line-height: 1.1;
+
+    margin-bottom: 14px;
+}
+
+.hero h2 span {
+    color: #ff7b45;
+}
+
+.hero p {
+    color: #eeeeee;
+
+    font-size: 15px;
+}
+
+
+/* ========================================
+   FILTROS
+======================================== */
+
+.filtros {
+    margin-top: 30px;
+}
+
+.pesquisa {
+    height: 54px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 17px;
+
+    background: white;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 5px 18px rgba(0, 0, 0, 0.03);
+}
+
+.pesquisa span {
+    font-size: 18px;
+}
+
+.pesquisa input {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    font-size: 14px;
+
+    background: transparent;
+}
+
+.pesquisa input::placeholder {
+    color: #aaa;
+}
+
+
+/* ========================================
+   CATEGORIAS
+======================================== */
+
+.categorias {
+    display: flex;
+
+    gap: 9px;
+
+    flex-wrap: wrap;
+
+    margin-top: 15px;
+}
+
+.categoria {
+    border: 1px solid #e5e5e5;
+
+    background: white;
+
+    color: #555;
+
+    padding: 10px 15px;
+
+    border-radius: 12px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.categoria:hover {
+    border-color: #ff6b35;
+
+    color: #ff6b35;
+}
+
+.categoria.ativa {
+    background: #ff6b35;
+
+    color: white;
+
+    border-color: #ff6b35;
+}
+
+
+/* ========================================
+   RESULTADO
+======================================== */
+
+.resultado {
+    margin-top: 30px;
+    margin-bottom: 18px;
+
+    color: #888;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* ========================================
+   LISTA
+======================================== */
+
+.lista-pratos {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(270px, 1fr)
+        );
+
+    gap: 24px;
+}
+
+
+/* ========================================
+   CARD
+======================================== */
+
+.card {
+    overflow: hidden;
+
+    background: white;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.05);
+
+    transition: 0.25s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.10);
+}
+
+
+/* ========================================
+   IMAGEM
+======================================== */
+
+.card-imagem {
+    position: relative;
+
+    width: 100%;
+    height: 210px;
+
+    overflow: hidden;
+
+    background: #eeeeee;
+}
+
+.card-imagem img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transition: 0.4s;
+}
+
+.card:hover .card-imagem img {
+    transform: scale(1.05);
+}
+
+.sem-imagem {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 55px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f4f4f4,
+            #e8e8e8
+        );
+}
+
+.card-categoria {
+    position: absolute;
+
+    top: 12px;
+    left: 12px;
+
+    padding: 7px 11px;
+
+    border-radius: 20px;
+
+    background: white;
+
+    color: #ff6b35;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.10);
+}
+
+
+/* ========================================
+   CORPO
+======================================== */
+
+.card-corpo {
+    padding: 18px;
+}
+
+.card-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.card-topo h3 {
+    font-size: 18px;
+
+    line-height: 1.3;
+}
+
+.preco {
+    color: var(--cor-estabelecimento);
+
+    font-size: 15px;
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+.descricao {
+    min-height: 42px;
+
+    margin-top: 10px;
+
+    color: #777;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+/* ========================================
+   ADICIONAR
+======================================== */
+
+.btn-adicionar-pedido {
+    width: 100%;
+
+    margin-top: 17px;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #25d366;
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    box-shadow:
+        0 6px 15px rgba(37, 211, 102, 0.18);
+
+    transition: 0.2s;
+}
+
+.btn-adicionar-pedido:hover {
+    background: #20bd5a;
+
+    transform: translateY(-2px);
+}
+
+
+/* ========================================
+   AÇÕES
+======================================== */
+
+.acoes {
+    display: flex;
+
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.btn-editar,
+.btn-excluir {
+    flex: 1;
+
+    padding: 10px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.btn-editar {
+    background: #fff1eb;
+
+    color: var(--cor-estabelecimento);
+}
+
+.btn-editar:hover {
+    background: var(--cor-estabelecimento);
+    color: white;
+}
+
+.btn-excluir {
+    background: #f2f2f2;
+
+    color: #777;
+}
+
+.btn-excluir:hover {
+    background: #e74c3c;
+
+    color: white;
+}
+
+
+/* ========================================
+   LOADING
+======================================== */
+
+.loading {
+    grid-column: 1 / -1;
+
+    min-height: 250px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    text-align: center;
+
+    color: #888;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+
+    border: 4px solid #eeeeee;
+
+    border-top-color: #ff6b35;
+
+    border-radius: 50%;
+
+    animation:
+        girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
     }
-});
+}
 
-pool.connect()
-    .then(client => {
-
-        console.log(
-            "PostgreSQL conectado com sucesso!"
-        );
-
-        client.release();
-
-    })
-    .catch(error => {
-
-        console.error(
-            "ERRO AO CONECTAR AO POSTGRESQL:"
-        );
-
-        console.error(error);
-
-    });
-
-// ==========================================
-// PREPARAR BANCO
-// ==========================================
-
-async function prepararBanco() {
-
-    try {
-
-        // ======================================
-        // USUÁRIOS
-        // ======================================
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id SERIAL PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                senha VARCHAR(255) NOT NULL,
-                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        console.log(
-            "Tabela usuarios pronta!"
-        );
+.erro-icone {
+    font-size: 50px;
+}
 
 
-        // ======================================
-        // ESTABELECIMENTOS
-        // ======================================
+/* ========================================
+   CARRINHO - OVERLAY
+======================================== */
 
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS estabelecimentos (
-                id SERIAL PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
+.overlay-carrinho {
+    position: fixed;
 
-        console.log(
-            "Tabela estabelecimentos pronta!"
-        );
+    inset: 0;
 
+    background:
+        rgba(0, 0, 0, 0.55);
 
-        // ======================================
-        // VINCULAR ESTABELECIMENTO AO USUÁRIO
-        // ======================================
+    backdrop-filter: blur(3px);
 
-        await pool.query(`
-            ALTER TABLE estabelecimentos
-            ADD COLUMN IF NOT EXISTS usuario_id INTEGER
-        `);
+    opacity: 0;
+    visibility: hidden;
 
-        console.log(
-            "Coluna usuario_id pronta!"
-        );
+    transition: 0.25s;
+
+    z-index: 1000;
+}
+
+.overlay-carrinho.aberto {
+    opacity: 1;
+    visibility: visible;
+}
 
 
-        // ======================================
-        // PERSONALIZAÇÃO
-        // ======================================
+/* ========================================
+   CARRINHO - ESCONDIDO POR PADRÃO
+======================================== */
 
-        await pool.query(`
-            ALTER TABLE estabelecimentos
-            ADD COLUMN IF NOT EXISTS descricao TEXT
-        `);
+.carrinho {
+    position: fixed;
 
-        await pool.query(`
-            ALTER TABLE estabelecimentos
-            ADD COLUMN IF NOT EXISTS logo TEXT
-        `);
+    top: 0;
+    right: 0;
 
-        await pool.query(`
-    ALTER TABLE estabelecimentos
-    ADD COLUMN IF NOT EXISTS logo_pedido TEXT
-`);
+    width: 430px;
+    max-width: 100%;
 
-        await pool.query(`
-    ALTER TABLE estabelecimentos
-    ADD COLUMN IF NOT EXISTS imagem_fundo TEXT
-`);
+    height: 100vh;
+    height: 100dvh;
 
-        await pool.query(`
-            ALTER TABLE estabelecimentos
-            ADD COLUMN IF NOT EXISTS cor VARCHAR(20)
-        `);
+    display: flex;
+    flex-direction: column;
 
-        await pool.query(`
-            ALTER TABLE estabelecimentos
-            ADD COLUMN IF NOT EXISTS whatsapp VARCHAR(30)
-        `);
+    background: white;
 
-        await pool.query(`
-            ALTER TABLE estabelecimentos
-            ADD COLUMN IF NOT EXISTS pix VARCHAR(255)
-       `);
+    z-index: 1001;
 
-        await pool.query(`
-            ALTER TABLE estabelecimentos
-            ADD COLUMN IF NOT EXISTS endereco TEXT
-        `);
+    overflow: hidden;
 
-        await pool.query(`
-            ALTER TABLE estabelecimentos
-            ADD COLUMN IF NOT EXISTS horario TEXT
-        `);
+    /* ESCONDE O CARRINHO */
+    transform: translateX(100%);
 
-        console.log(
-            "Colunas de personalização prontas!"
-        );
-
-        // ======================================
-        // PRATOS
-        // ======================================
-
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS pratos (
-                id SERIAL PRIMARY KEY,
-                nome VARCHAR(255) NOT NULL,
-                descricao TEXT,
-                preco NUMERIC(10,2) NOT NULL,
-                categoria VARCHAR(100),
-                imagem TEXT,
-                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        console.log(
-            "Tabela pratos pronta!"
-        );
+    transition: transform 0.3s ease;
+}
 
 
-        // ======================================
-        // VINCULAR PRATOS AO ESTABELECIMENTO
-        // ======================================
+/* QUANDO ABERTO */
 
-        await pool.query(`
-            ALTER TABLE pratos
-            ADD COLUMN IF NOT EXISTS estabelecimento_id INTEGER
-        `);
-
-        console.log(
-            "Coluna estabelecimento_id pronta!"
-        );
+.carrinho.aberto {
+    transform: translateX(0);
+}
 
 
-        // ======================================
-        // RELACIONAMENTO PRATOS -> ESTABELECIMENTOS
-        // ======================================
+/* ========================================
+   HEADER CARRINHO
+======================================== */
 
-        const foreignKeyPratos =
-            await pool.query(`
-                SELECT constraint_name
-                FROM information_schema.table_constraints
-                WHERE table_name = 'pratos'
-                AND constraint_name = 'fk_pratos_estabelecimento'
-            `);
+.carrinho-header {
+    min-height: 85px;
 
-        if (
-            foreignKeyPratos.rows.length === 0
-        ) {
+    padding: 18px 20px;
 
-            try {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-                await pool.query(`
-                    ALTER TABLE pratos
-                    ADD CONSTRAINT fk_pratos_estabelecimento
-                    FOREIGN KEY (estabelecimento_id)
-                    REFERENCES estabelecimentos(id)
-                    ON DELETE CASCADE
-                `);
+    border-bottom: 1px solid #eeeeee;
+}
 
-                console.log(
-                    "FK de pratos criada!"
-                );
+.carrinho-titulo {
+    display: flex;
 
-            } catch (error) {
+    align-items: center;
 
-                console.log(
-                    "FK de pratos não foi criada. "
-                    + "Provavelmente existem dados antigos."
-                );
+    gap: 12px;
+}
 
-            }
+.carrinho-icone {
+    width: 45px;
+    height: 45px;
 
-        }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: #eafff0;
+
+    font-size: 21px;
+}
+
+.carrinho-titulo h2 {
+    font-size: 19px;
+}
+
+.carrinho-titulo small {
+    display: block;
+
+    margin-top: 3px;
+
+    color: #999;
+
+    font-size: 11px;
+}
+
+.fechar-carrinho {
+    width: 38px;
+    height: 38px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f2f2f2;
+
+    color: #555;
+
+    font-size: 20px;
+
+    transition: 0.2s;
+}
+
+.fechar-carrinho:hover {
+    background: #25d366;
+
+    color: white;
+}
 
 
-        // ======================================
-        // CRIAR ESTABELECIMENTO PADRÃO
-        // SOMENTE SE NÃO EXISTIR NENHUM
-        // ======================================
+/* ========================================
+   LISTA CARRINHO
+======================================== */
 
-        const quantidade =
-            await pool.query(`
-                SELECT COUNT(*) AS total
-                FROM estabelecimentos
-            `);
+#listaCarrinho {
+    flex: 1;
+    overflow-y: auto;
 
-        if (
-            Number(quantidade.rows[0].total) === 0
-        ) {
+    padding: 15px;
 
-            await pool.query(`
-                INSERT INTO estabelecimentos
-                (
-                    nome,
-                    descricao,
-                    cor
-                )
-                VALUES
-                (
-                    'Minha Lanchonete',
-                    'Escolha seus pratos favoritos e monte seu pedido.',
-                    '#222222'
-                )
-            `);
+    min-height: 0;
+}
 
-            console.log(
-                "Estabelecimento padrão criado!"
+.dados-Pedido {
+    width: calc(100% - 30px);
+    margin: 0 auto 15px auto !important;
+
+    flex-shrink: 0;
+}
+
+/* ========================================
+   VAZIO
+======================================== */
+
+.carrinho-vazio {
+    min-height: 400px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+.icone-vazio {
+    font-size: 58px;
+
+    margin-bottom: 15px;
+}
+
+.carrinho-vazio h3 {
+    font-size: 17px;
+}
+
+.carrinho-vazio p {
+    max-width: 280px;
+
+    margin-top: 7px;
+
+    color: #999;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.botao-continuar {
+    margin-top: 20px;
+
+    padding: 11px 18px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #ff6b35;
+
+    color: white;
+
+    font-size: 12px;
+    font-weight: 800;
+}
+
+
+/* ========================================
+   ITEM
+======================================== */
+
+.item-carrinho {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 14px;
+
+    margin-bottom: 10px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 14px;
+
+    background: #fafafa;
+}
+
+.item-info {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.item-info h3 {
+    overflow: hidden;
+
+    color: #222;
+
+    font-size: 14px;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+.item-info p {
+    margin-top: 5px;
+
+    color: #999;
+
+    font-size: 11px;
+}
+
+.item-direita {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-end;
+
+    gap: 7px;
+}
+
+.controle-quantidade {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.controle-quantidade button {
+    width: 28px;
+    height: 28px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #eeeeee;
+
+    font-size: 17px;
+    font-weight: 800;
+
+    transition: 0.2s;
+}
+
+.controle-quantidade button:hover {
+    background: #25d366;
+
+    color: white;
+}
+
+.controle-quantidade strong {
+    min-width: 18px;
+
+    text-align: center;
+
+    font-size: 13px;
+}
+
+.subtotal {
+    color: #25a85a;
+
+    font-size: 13px;
+}
+
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.carrinho-footer {
+    padding: 18px 20px;
+
+    border-top: 1px solid #eeeeee;
+
+    background: white;
+}
+
+.linha-total {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+.linha-total span {
+    color: #666;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.linha-total strong {
+    font-size: 22px;
+}
+
+
+/* ========================================
+   WHATSAPP
+======================================== */
+
+.botao-whatsapp {
+    width: 100%;
+
+    min-height: 52px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: #25d366;
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    box-shadow:
+        0 7px 18px rgba(37, 211, 102, 0.25);
+
+    transition: 0.2s;
+}
+
+.botao-whatsapp:hover:not(:disabled) {
+    background: #20bd5a;
+
+    transform: translateY(-2px);
+}
+
+.botao-whatsapp:disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+
+/* ========================================
+   LIMPAR
+======================================== */
+
+.botao-limpar {
+    width: 100%;
+
+    margin-top: 9px;
+
+    padding: 11px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #f2f2f2;
+
+    color: #777;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.botao-limpar:hover {
+    background: #e74c3c;
+
+    color: white;
+}
+
+
+/* ========================================
+   BOTÃO FLUTUANTE
+======================================== */
+
+.botao-carrinho {
+    position: fixed;
+
+    right: 24px;
+    bottom: 24px;
+
+    min-height: 58px;
+
+    padding: 0 18px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    border: none;
+
+    border-radius: 17px;
+
+    background: #25d366;
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    box-shadow:
+        0 10px 30px rgba(37, 211, 102, 0.35);
+
+    z-index: 900;
+
+    transition: 0.25s;
+}
+
+.botao-carrinho:hover {
+    transform: translateY(-4px);
+
+    background: #20bd5a;
+}
+
+.icone-carrinho {
+    font-size: 21px;
+}
+
+#contadorCarrinho {
+    min-width: 25px;
+    height: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: white;
+
+    color: #20bd5a;
+
+    font-size: 11px;
+}
+
+
+/* ========================================
+   MODAL
+======================================== */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(0, 0, 0, 0.55);
+
+    backdrop-filter: blur(4px);
+
+    z-index: 2000;
+}
+
+.modal.aberto {
+    display: flex;
+}
+
+.modal-conteudo {
+    position: relative;
+
+    width: 100%;
+    max-width: 600px;
+
+    max-height: 92vh;
+
+    overflow-y: auto;
+
+    padding: 28px;
+
+    border-radius: 22px;
+
+    background: white;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.25);
+
+    animation: subir 0.25s ease;
+}
+
+@keyframes subir {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.fechar {
+    position: absolute;
+
+    top: 15px;
+    right: 15px;
+
+    width: 36px;
+    height: 36px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f2f2f2;
+
+    color: #555;
+
+    font-size: 20px;
+}
+
+.fechar:hover {
+    background: #ff6b35;
+
+    color: white;
+}
+
+
+/* ========================================
+   MODAL HEADER
+======================================== */
+
+.modal-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 25px;
+
+    padding-right: 40px;
+}
+
+.modal-header > span {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: #fff1eb;
+
+    font-size: 21px;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+}
+
+.modal-header p {
+    margin-top: 4px;
+
+    color: #999;
+
+    font-size: 12px;
+}
+
+
+/* ========================================
+   CAMPOS
+======================================== */
+
+.campo {
+    margin-bottom: 17px;
+}
+
+.campo label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #333;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.campo input,
+.campo textarea {
+    width: 100%;
+
+    padding: 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    font-size: 14px;
+}
+
+.campo input:focus,
+.campo textarea:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+.campo textarea {
+    min-height: 100px;
+
+    resize: vertical;
+}
+
+
+/* ========================================
+   LINHA
+======================================== */
+
+.linha {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 15px;
+}
+
+
+/* ========================================
+   PREÇO
+======================================== */
+
+.input-preco {
+    display: flex;
+
+    align-items: center;
+
+    overflow: hidden;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 11px;
+}
+
+.input-preco span {
+    padding-left: 13px;
+
+    color: #ff6b35;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.input-preco input {
+    border: none;
+}
+
+
+/* ========================================
+   UPLOAD
+======================================== */
+
+.btn-escolher-imagem {
+    width: 100%;
+
+    min-height: 75px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 13px;
+
+    border: 2px dashed #ddd7d1;
+
+    border-radius: 13px;
+
+    background: #fcfbfa;
+
+    cursor: pointer;
+}
+
+.btn-escolher-imagem:hover {
+    border-color: #ff6b35;
+
+    background: #fff7f3;
+}
+
+.upload-icone {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background: #ff6b35;
+
+    color: white;
+
+    font-size: 21px;
+}
+
+.upload-texto {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.upload-texto strong {
+    font-size: 13px;
+}
+
+.upload-texto small {
+    color: #999;
+
+    font-size: 10px;
+}
+
+.upload-seta {
+    font-size: 20px;
+
+    color: #888;
+}
+
+
+/* ========================================
+   PREVIEW
+======================================== */
+
+.preview {
+    width: 100%;
+    min-height: 170px;
+
+    margin-bottom: 20px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    overflow: hidden;
+
+    border: 2px dashed #ddd7d1;
+
+    border-radius: 12px;
+
+    background: #fcfbfa;
+
+    color: #aaa;
+
+    text-align: center;
+}
+
+.preview span {
+    font-size: 40px;
+}
+
+.preview p {
+    margin-top: 8px;
+
+    font-size: 12px;
+}
+
+.preview img {
+    width: 100%;
+    height: 250px;
+
+    object-fit: cover;
+}
+
+
+/* ========================================
+   BOTÕES FORM
+======================================== */
+
+.botoes-form {
+    display: flex;
+
+    gap: 10px;
+}
+
+.btn-cancelar,
+.btn-salvar {
+    flex: 1;
+
+    padding: 13px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.btn-cancelar {
+    background: #eeeeee;
+
+    color: #555;
+}
+
+.btn-salvar {
+    background: #ff6b35;
+
+    color: white;
+}
+
+.btn-salvar:hover {
+    background: #e95725;
+}
+
+
+/* ========================================
+   TOAST
+======================================== */
+
+.toast {
+    position: fixed;
+
+    left: 50%;
+
+    bottom: 25px;
+
+    transform:
+        translate(-50%, 100px);
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    z-index: 3000;
+
+    max-width: 90%;
+
+    padding: 13px 18px;
+
+    border-radius: 12px;
+
+    background: #222;
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.2);
+
+    transition: 0.3s;
+}
+
+.toast.mostrar {
+    transform:
+        translate(-50%, 0);
+
+    opacity: 1;
+}
+
+/* ========================================
+   DADOS DO PEDIDO
+======================================== */
+
+.dados-pedido {
+    margin-top: 20px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.dados-pedido h3 {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 16px;
+
+    color: #222;
+
+    font-size: 16px;
+}
+
+
+/* ========================================
+   ENDEREÇO
+======================================== */
+
+.dados-endereco {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.dados-endereco input {
+    width: 100%;
+
+    min-height: 46px;
+
+    padding: 0 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    background: #fafafa;
+
+    color: #222;
+
+    font-size: 13px;
+
+    transition: 0.2s;
+}
+
+.dados-endereco input:focus {
+    border-color: #ff6b35;
+
+    background: white;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+.dados-endereco input::placeholder {
+    color: #aaa;
+}
+
+
+/* ========================================
+   LINHA ENDEREÇO
+======================================== */
+
+.linha-endereco {
+    display: grid;
+
+    grid-template-columns:
+        1fr 110px;
+
+    gap: 10px;
+}
+
+
+/* ========================================
+   PAGAMENTO
+======================================== */
+
+.metodo-pagamento {
+    margin-top: 22px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.metodo-pagamento h3 {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+
+    font-size: 16px;
+}
+
+
+/* ========================================
+   OPÇÕES DE PAGAMENTO
+======================================== */
+
+.opcoes-pagamento {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 9px;
+}
+
+.opcao-pagamento {
+    min-height: 70px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    padding: 8px;
+
+    border: 2px solid #eeeeee;
+
+    border-radius: 13px;
+
+    background: #fafafa;
+
+    color: #666;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    transition: 0.2s;
+}
+
+.opcao-pagamento:hover {
+    border-color: #25d366;
+
+    background: #f2fff6;
+
+    transform: translateY(-2px);
+}
+
+.opcao-pagamento.ativo {
+    border-color: #25d366;
+
+    background: #eafff0;
+
+    color: #168c43;
+
+    box-shadow:
+        0 5px 14px
+        rgba(37, 211, 102, 0.12);
+}
+
+.opcao-pagamento .icone-pagamento {
+    font-size: 22px;
+}
+
+
+/* ========================================
+   PIX
+======================================== */
+
+.dados-pix {
+    margin-top: 14px;
+
+    padding: 14px;
+
+    border-radius: 13px;
+
+    background: #f5fff8;
+
+    border: 1px solid #d7f5e1;
+}
+
+.dados-pix p {
+    margin-bottom: 9px;
+
+    color: #666;
+
+    font-size: 12px;
+}
+
+.chave-pix {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.chave-pix input {
+    flex: 1;
+
+    min-width: 0;
+
+    height: 42px;
+
+    padding: 0 10px;
+
+    border: 1px solid #d8e8dd;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: white;
+
+    color: #333;
+
+    font-size: 12px;
+}
+
+.btn-copiar-pix {
+    height: 42px;
+
+    padding: 0 12px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background: #25d366;
+
+    color: white;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    transition: 0.2s;
+}
+
+.btn-copiar-pix:hover {
+    background: #20bd5a;
+}
+
+
+/* ========================================
+   CARTÃO
+======================================== */
+
+.opcao-maquininha {
+    margin-top: 14px;
+
+    padding: 14px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    border-radius: 12px;
+
+    background: #f8f8f8;
+
+    border: 1px solid #eeeeee;
+
+    color: #555;
+
+    font-size: 12px;
+}
+
+.opcao-maquininha input {
+    width: 18px;
+    height: 18px;
+
+    accent-color: #25d366;
+}
+
+
+/* ========================================
+   DINHEIRO
+======================================== */
+
+.opcao-troco {
+    margin-top: 14px;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    background: #fffaf0;
+
+    border: 1px solid #f3e4bd;
+}
+
+.opcao-troco label {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.opcao-troco input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+
+    accent-color: #ff6b35;
+}
+
+
+/* ========================================
+   CAMPO TROCO
+======================================== */
+
+.campo-troco {
+    margin-top: 13px;
+}
+
+.campo-troco label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.campo-troco input {
+    width: 100%;
+
+    height: 46px;
+
+    padding: 0 13px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: white;
+
+    font-size: 13px;
+}
+
+.campo-troco input:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+
+/* ========================================
+   SEÇÕES OCULTAS
+======================================== */
+
+.oculto {
+    display: none !important;
+}
+
+
+@media (max-width: 600px) {
+
+    .opcoes-pagamento {
+        gap: 7px;
+    }
+
+    .opcao-pagamento {
+        min-height: 65px;
+
+        font-size: 10px;
+    }
+
+    .linha-endereco {
+        grid-template-columns:
+            1fr 90px;
+    }
+
+    .chave-pix {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .btn-copiar-pix {
+        width: 100%;
+    }
+
+    .opcoes-pedido {
+        grid-template-columns: 1fr;
+    }
+
+    .opcao-pedido {
+        justify-content: center;
+
+        min-height: 52px;
+    }
+}
+
+/* ========================================
+   RESPONSIVO
+======================================== */
+
+@media (max-width: 768px) {
+
+    .header-conteudo {
+        width: 92%;
+    }
+
+    .container {
+        width: 92%;
+    }
+
+    .hero {
+        min-height: 250px;
+
+        padding: 35px 25px;
+    }
+
+    .hero h2 {
+        font-size: 34px;
+    }
+
+    .lista-pratos {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
             );
 
-        }
+        gap: 15px;
+    }
 
-
-        console.log(
-            "======================================"
-        );
-
-        console.log(
-            "BANCO PREPARADO COM SUCESSO!"
-        );
-
-        console.log(
-            "======================================"
-        );
-
-    } catch (error) {
-
-        console.error(
-            "ERRO AO PREPARAR BANCO:"
-        );
-
-        console.error(error);
-
+    .card-imagem {
+        height: 190px;
     }
 
 }
 
-prepararBanco();
 
-// ==========================================
-// PÁGINA PRINCIPAL
-// ==========================================
+@media (max-width: 600px) {
 
-app.get("/", (req, res) => {
+    .header-conteudo {
+        min-height: 68px;
+    }
 
-    res.sendFile(
-        path.join(__dirname, "index.html")
-    );
+    .logo-icone {
+        width: 40px;
+        height: 40px;
 
-});
+        font-size: 20px;
+    }
 
-// ==========================================
-// AUTENTICAÇÃO
-// ==========================================
+    .logo h1 {
+        font-size: 15px;
+    }
 
-function autenticarUsuario(
-    req,
-    res,
-    next
-) {
+    .logo span {
+        font-size: 10px;
+    }
 
-    try {
+    .btn-novo {
+        padding: 9px 11px;
 
-        const autorizacao =
-            req.headers.authorization;
+        font-size: 11px;
+    }
 
-        if (!autorizacao) {
+    .hero {
+        margin-top: 20px;
 
-            return res.status(401).json({
-                sucesso: false,
-                erro: "Usuário não autenticado."
-            });
+        padding: 28px 20px;
 
-        }
+        border-radius: 20px;
+    }
 
-        const partes =
-            autorizacao.split(" ");
+    .hero h2 {
+        font-size: 28px;
+    }
 
-        if (
-            partes.length !== 2 ||
-            partes[0] !== "Bearer"
-        ) {
+    .hero p {
+        font-size: 13px;
+    }
 
-            return res.status(401).json({
-                sucesso: false,
-                erro: "Token inválido."
-            });
+    .hero::after {
+        font-size: 90px;
+    }
 
-        }
+    .categorias {
+        flex-wrap: nowrap;
 
-        const token =
-            partes[1];
+        overflow-x: auto;
 
-        const usuario =
-            jwt.verify(
-                token,
-                JWT_SECRET
-            );
+        padding-bottom: 5px;
+    }
 
-        req.usuario =
-            usuario;
+    .categoria {
+        flex-shrink: 0;
+    }
 
-        next();
+    .lista-pratos {
+        grid-template-columns: 1fr;
+    }
 
-    } catch (error) {
+    .card-imagem {
+        height: 220px;
+    }
 
-        console.error(
-            "ERRO NA AUTENTICAÇÃO:",
-            error.message
-        );
+    .carrinho {
+        width: 100%;
+    }
 
-        return res.status(401).json({
-            sucesso: false,
-            erro: "Sessão inválida ou expirada."
-        });
+    .botao-carrinho {
+        right: 15px;
+        bottom: 15px;
 
+        min-height: 54px;
+
+        padding: 0 15px;
+
+        border-radius: 15px;
+    }
+
+    .linha {
+        grid-template-columns: 1fr;
+
+        gap: 0;
+    }
+
+    .modal {
+        padding: 10px;
+    }
+
+    .modal-conteudo {
+        max-height: 95vh;
+
+        padding: 20px 17px;
+
+        border-radius: 18px;
+    }
+
+    .botoes-form {
+        flex-direction: column;
+    }
+
+    .item-carrinho {
+        align-items: flex-start;
+    }
+
+}
+/* ========================================
+   DADOS DO PEDIDO
+======================================== */
+
+.dados-pedido {
+    padding: 18px 20px;
+
+    border-top: 1px solid #eeeeee;
+    border-bottom: 1px solid #eeeeee;
+
+    background: #fafafa;
+}
+
+.dados-pedido h3 {
+    margin-bottom: 12px;
+
+    color: #222;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+/* ========================================
+   OPÇÕES DE ENTREGA
+======================================== */
+
+.opcoes-pedido {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+
+    width: 100%;
+
+    margin-bottom: 18px;
+}
+
+.opcao-pedido {
+    min-height: 55px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 10px;
+
+    border: 1px solid #e5e5e5;
+
+    border-radius: 11px;
+
+    background: white;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.opcao-pedido:hover {
+    border-color: var(--cor-estabelecimento);
+
+    background: #fff8f5;
+}
+
+.opcao-pedido input {
+    width: 17px;
+    height: 17px;
+
+    margin: 0;
+
+    flex-shrink: 0;
+
+    accent-color: var(--cor-estabelecimento);
+
+    cursor: pointer;
+}
+
+/* ========================================
+   ENDEREÇO
+======================================== */
+
+#dadosEndereco {
+    margin-bottom: 18px;
+
+    padding: 15px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 13px;
+
+    background: white;
+}
+
+#dadosEndereco h3 {
+    margin-bottom: 12px;
+
+    color: #333;
+
+    font-size: 13px;
+}
+
+#dadosEndereco input {
+    width: 100%;
+
+    margin-bottom: 9px;
+
+    padding: 11px 12px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: white;
+
+    color: #222;
+
+    font-size: 12px;
+
+    transition: 0.2s;
+}
+
+#dadosEndereco input:last-child {
+    margin-bottom: 0;
+}
+
+#dadosEndereco input:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+
+/* ========================================
+   SELECT PAGAMENTO
+======================================== */
+
+#metodoPagamento {
+    width: 100%;
+
+    margin-bottom: 12px;
+
+    padding: 12px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    background: white;
+
+    color: #444;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+#metodoPagamento:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+
+/* ========================================
+   OPÇÕES EXTRAS
+======================================== */
+
+.opcao-extra {
+    margin-bottom: 12px;
+
+    padding: 14px;
+
+    border: 1px solid #eeeeee;
+
+    border-radius: 13px;
+
+    background: white;
+
+    animation: aparecerOpcao 0.2s ease;
+}
+
+@keyframes aparecerOpcao {
+
+    from {
+        opacity: 0;
+
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform: translateY(0);
     }
 
 }
 
-// ==========================================
-// TESTE DA API
-// ==========================================
+.opcao-extra h4 {
+    margin-bottom: 7px;
 
-app.get("/api", (req, res) => {
+    color: #333;
 
-    res.json({
+    font-size: 13px;
+}
 
-        sucesso: true,
+.opcao-extra p {
+    margin-bottom: 10px;
 
-        mensagem:
-            "API do restaurante funcionando!",
+    color: #888;
 
-        banco:
-            "PostgreSQL"
+    font-size: 11px;
 
-    });
+    line-height: 1.5;
+}
 
-});
 
-// ==========================================
-// CADASTRAR USUÁRIO
-// ==========================================
+/* ========================================
+   PIX
+======================================== */
 
-app.post(
-    "/usuarios",
-    async (req, res) => {
+.pix-info {
+    display: flex;
 
-        try {
+    flex-direction: column;
 
-            const {
-                nome,
-                email,
-                senha
-            } = req.body;
+    gap: 5px;
 
-            if (
-                !nome ||
-                !email ||
-                !senha
-            ) {
+    padding: 11px;
 
-                return res.status(400).json({
-                    sucesso: false,
-                    erro:
-                        "Nome, e-mail e senha são obrigatórios."
-                });
+    margin-bottom: 10px;
 
-            }
+    border-radius: 10px;
 
-            if (
-                senha.length < 6
-            ) {
+    background: #f5f5f5;
+}
 
-                return res.status(400).json({
-                    sucesso: false,
-                    erro:
-                        "A senha deve ter pelo menos 6 caracteres."
-                });
+.pix-info strong {
+    color: #555;
 
-            }
+    font-size: 11px;
+}
 
-            const emailLimpo =
-                email
-                    .trim()
-                    .toLowerCase();
+.pix-info span {
+    overflow-wrap: anywhere;
 
-            // ==================================
-            // VERIFICAR E-MAIL
-            // ==================================
+    color: #222;
 
-            const existente =
-                await pool.query(
-                    `
-                    SELECT id
-                    FROM usuarios
-                    WHERE email = $1
-                    `,
-                    [
-                        emailLimpo
-                    ]
-                );
+    font-size: 12px;
+    font-weight: 700;
+}
 
-            if (
-                existente.rows.length > 0
-            ) {
+.botao-copiar-pix {
+    width: 100%;
 
-                return res.status(409).json({
-                    sucesso: false,
-                    erro:
-                        "Este e-mail já está cadastrado."
-                });
+    padding: 11px;
 
-            }
+    border: none;
 
-            // ==================================
-            // CRIAR USUÁRIO
-            // ==================================
+    border-radius: 10px;
 
-            const usuario =
-                await pool.query(
-                    `
-                    INSERT INTO usuarios
-                    (
-                        nome,
-                        email,
-                        senha
-                    )
-                    VALUES
-                    (
-                        $1,
-                        $2,
-                        $3
-                    )
-                    RETURNING
-                        id,
-                        nome,
-                        email,
-                        criado_em
-                    `,
-                    [
-                        nome.trim(),
-                        emailLimpo,
-                        senha
-                    ]
-                );
+    background: #fff1eb;
 
-            const usuarioCriado =
-                usuario.rows[0];
+    color: #ff6b35;
 
-            // ==================================
-            // CRIAR ESTABELECIMENTO DO USUÁRIO
-            // ==================================
+    font-size: 12px;
+    font-weight: 800;
 
-            const estabelecimento =
-                await pool.query(
-                    `
-                    INSERT INTO estabelecimentos
-                    (
-                        nome,
-                        usuario_id,
-                        descricao,
-                        cor
-                    )
-                    VALUES
-                    (
-                        $1,
-                        $2,
-                        $3,
-                        $4
-                    )
-                    RETURNING *
-                    `,
-                    [
-                        nome.trim(),
-                        usuarioCriado.id,
-                        "Escolha seus pratos favoritos e monte seu pedido.",
-                        "#222222"
-                    ]
-                );
+    cursor: pointer;
 
-            res.status(201).json({
+    transition: 0.2s;
+}
 
-                sucesso: true,
+.botao-copiar-pix:hover {
+    background: #ff6b35;
 
-                mensagem:
-                    "Usuário cadastrado com sucesso!",
+    color: white;
+}
 
-                usuario:
-                    usuarioCriado,
 
-                estabelecimento:
-                    estabelecimento.rows[0]
+/* ========================================
+   CARTÃO / DINHEIRO
+======================================== */
 
-            });
+.opcao-extra .opcao-pedido {
+    margin: 0;
 
-        } catch (error) {
+    padding: 0;
 
-            console.error(
-                "ERRO AO CADASTRAR USUÁRIO:"
-            );
+    border: none;
 
-            console.error(error);
+    background: transparent;
+}
 
-            res.status(500).json({
+.opcao-extra .opcao-pedido:hover {
+    border: none;
 
-                sucesso: false,
+    background: transparent;
+}
 
-                erro:
-                    "Erro ao cadastrar usuário."
 
-            });
+/* ========================================
+   TROCO
+======================================== */
 
-        }
+#campoTroco {
+    margin-top: 10px;
+}
 
+#trocoPara {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    font-size: 12px;
+
+    background: white;
+}
+
+#trocoPara:focus {
+    border-color: #ff6b35;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+
+/* ========================================
+   COR PERSONALIZADA
+======================================== */
+
+:root {
+    --cor-estabelecimento: #ff6b35;
+}
+
+
+/* PRINCIPAIS ELEMENTOS */
+
+.btn-novo {
+    background: var(--cor-estabelecimento);
+}
+
+.btn-novo:hover {
+    background: var(--cor-estabelecimento);
+    filter: brightness(0.90);
+}
+
+.categoria.ativa {
+    background: var(--cor-estabelecimento);
+    border-color: var(--cor-estabelecimento);
+}
+
+.card-categoria {
+    color: var(--cor-estabelecimento);
+}
+
+.preco {
+    color: var(--cor-estabelecimento);
+}
+
+.btn-salvar {
+    background: var(--cor-estabelecimento);
+}
+
+.fechar:hover {
+    background: var(--cor-estabelecimento);
+}
+
+.botao-continuar {
+    background: var(--cor-estabelecimento);
+}
+
+/* TÍTULOS */
+
+.dados-pedido h3 {
+    margin-bottom: 9px;
+    font-size: 13px;
+}
+
+
+/* OPÇÕES DELIVERY / RETIRADA */
+
+.opcoes-pedido {
+    display: flex;
+
+    gap: 7px;
+
+    margin-bottom: 12px;
+}
+
+.opcao-pedido {
+    min-height: 42px;
+
+    flex: 1;
+
+    padding: 8px 6px;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    font-size: 11px;
+
+    border-radius: 9px;
+}
+
+.opcao-pedido input {
+    width: 15px;
+    height: 15px;
+}
+
+
+/* ENDEREÇO */
+
+#dadosEndereco {
+    margin-bottom: 12px;
+
+    padding: 10px;
+
+    border-radius: 10px;
+}
+
+#dadosEndereco h3 {
+    margin-bottom: 8px;
+}
+
+#dadosEndereco input {
+    margin-bottom: 7px;
+
+    padding: 9px 10px;
+
+    font-size: 11px;
+}
+
+
+/* PAGAMENTO */
+
+#metodoPagamento {
+    margin-bottom: 8px;
+
+    padding: 9px;
+
+    font-size: 11px;
+}
+
+
+/* OPÇÕES EXTRAS */
+
+.opcao-extra {
+    margin-bottom: 8px;
+
+    padding: 10px;
+
+    border-radius: 10px;
+}
+
+
+/* FOOTER */
+
+.carrinho-footer {
+    flex-shrink: 0;
+
+    padding: 12px 16px;
+}
+
+.linha-total {
+    margin-bottom: 10px;
+}
+
+.linha-total strong {
+    font-size: 19px;
+}
+
+.botao-whatsapp {
+    min-height: 45px;
+}
+
+.botao-limpar {
+    margin-top: 6px;
+
+    padding: 8px;
+}
+
+/* ========================================
+   NOME DO CLIENTE
+======================================== */
+
+.nome-cliente {
+    margin-bottom: 16px;
+}
+
+.nome-cliente h3 {
+    margin-bottom: 8px;
+}
+
+#nomeCliente {
+    width: 100%;
+
+    padding: 11px 12px;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: white;
+
+    color: #222;
+
+    font-size: 12px;
+
+    transition: 0.2s;
+}
+
+#nomeCliente:focus {
+    border-color: var(--cor-estabelecimento);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(255, 107, 53, 0.10);
+}
+
+#nomeCliente::placeholder {
+    color: #aaa;
+}
+/* ========================================
+   CARRINHO DO CLIENTE - CORREÇÃO
+======================================== */
+
+.carrinho {
+    position: fixed;
+    top: 0;
+    right: 0;
+
+    width: 430px;
+    max-width: 100%;
+
+    height: 100vh;
+    height: 100dvh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: white;
+
+    z-index: 1001;
+
+    overflow: hidden;
+
+    /* ESCONDIDO INICIALMENTE */
+    transform: translateX(100%);
+
+    transition: transform 0.3s ease;
+}
+
+.carrinho.aberto {
+    transform: translateX(0);
+}
+
+
+/* CABEÇALHO FIXO */
+
+.carrinho-header {
+    flex-shrink: 0;
+}
+
+
+/* ÁREA QUE ROLA */
+
+#listaCarrinho {
+    flex: 1;
+
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 15px;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* DADOS DO PEDIDO */
+
+#dadosPedido {
+    flex-shrink: 0;
+
+    width: calc(100% - 30px);
+
+    margin: 0 auto 15px;
+
+    max-height: 45vh;
+
+    overflow-y: auto;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+
+/* RODAPÉ FIXO */
+
+.carrinho-footer {
+    flex-shrink: 0;
+}
+
+
+/* ========================================
+   CELULAR
+======================================== */
+
+@media (max-width: 600px) {
+
+    .carrinho {
+        width: 100%;
+        max-width: 100%;
     }
-);
 
-// ==========================================
-// LOGIN
-// ==========================================
-
-app.post(
-    "/login",
-    async (req, res) => {
-
-        try {
-
-            const {
-                email,
-                senha
-            } = req.body;
-
-            if (
-                !email ||
-                !senha
-            ) {
-
-                return res.status(400).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "E-mail e senha são obrigatórios."
-
-                });
-
-            }
-
-            const emailLimpo =
-                email
-                    .trim()
-                    .toLowerCase();
-
-            const resultado =
-                await pool.query(
-                    `
-                    SELECT
-                        id,
-                        nome,
-                        email,
-                        senha
-                    FROM usuarios
-                    WHERE email = $1
-                    `,
-                    [
-                        emailLimpo
-                    ]
-                );
-
-            if (
-                resultado.rows.length === 0
-            ) {
-
-                return res.status(401).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "E-mail ou senha incorretos."
-
-                });
-
-            }
-
-            const usuario =
-                resultado.rows[0];
-
-            if (
-                usuario.senha !== senha
-            ) {
-
-                return res.status(401).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "E-mail ou senha incorretos."
-
-                });
-
-            }
-
-            // ==================================
-            // GARANTIR ESTABELECIMENTO
-            // ==================================
-
-            let estabelecimento =
-                await pool.query(
-                    `
-                    SELECT *
-                    FROM estabelecimentos
-                    WHERE usuario_id = $1
-                    ORDER BY id ASC
-                    LIMIT 1
-                    `,
-                    [
-                        usuario.id
-                    ]
-                );
-
-            // ==================================
-            // SE NÃO TIVER, CRIAR
-            // ==================================
-
-            if (
-                estabelecimento.rows.length === 0
-            ) {
-
-                estabelecimento =
-                    await pool.query(
-                        `
-                        INSERT INTO estabelecimentos
-                        (
-                            nome,
-                            usuario_id,
-                            descricao,
-                            cor
-                        )
-                        VALUES
-                        (
-                            $1,
-                            $2,
-                            $3,
-                            $4
-                        )
-                        RETURNING *
-                        `,
-                        [
-                            usuario.nome,
-                            usuario.id,
-                            "Escolha seus pratos favoritos e monte seu pedido.",
-                            "#222222"
-                        ]
-                    );
-
-            }
-
-            const estabelecimentoAtual =
-                estabelecimento.rows[0];
-
-            // ==================================
-            // TOKEN
-            // ==================================
-
-            const token =
-                jwt.sign(
-                    {
-                        id: usuario.id,
-                        nome: usuario.nome,
-                        email: usuario.email
-                    },
-                    JWT_SECRET,
-                    {
-                        expiresIn: "7d"
-                    }
-                );
-
-            res.json({
-
-                sucesso: true,
-
-                mensagem:
-                    "Login realizado com sucesso!",
-
-                token,
-
-                usuario: {
-
-                    id:
-                        usuario.id,
-
-                    nome:
-                        usuario.nome,
-
-                    email:
-                        usuario.email
-
-                },
-
-                estabelecimento: {
-
-                    id:
-                        estabelecimentoAtual.id,
-
-                    nome:
-                        estabelecimentoAtual.nome
-
-                }
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO FAZER LOGIN:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao fazer login."
-
-            });
-
-        }
-
+    #listaCarrinho {
+        padding: 12px;
     }
-);
 
-// ==========================================
-// LISTAR ESTABELECIMENTOS DO USUÁRIO
-// ==========================================
+    #dadosPedido {
+        width: calc(100% - 24px);
 
-app.get(
-    "/estabelecimentos",
-    autenticarUsuario,
-    async (req, res) => {
+        max-height: 45vh;
 
-        try {
-
-            const resultado =
-                await pool.query(
-                    `
-                    SELECT
-                        id,
-                        nome,
-                        descricao,
-                        logo,
-                        logo_pedido,
-                        imagem_fundo,
-                        cor,
-                        whatsapp,
-                        endereco,
-                        horario,
-                        criado_em
-                    FROM estabelecimentos
-                    WHERE usuario_id = $1
-                    ORDER BY id ASC
-                    `,
-                    [
-                        req.usuario.id
-                    ]
-                );
-
-            res.json(
-                resultado.rows
-            );
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO BUSCAR ESTABELECIMENTOS:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao buscar estabelecimentos."
-
-            });
-
-        }
-
+        margin-bottom: 12px;
     }
-);
 
-// ==========================================
-// CRIAR ESTABELECIMENTO
-// ==========================================
+}
 
-app.post(
-    "/estabelecimentos",
-    autenticarUsuario,
-    async (req, res) => {
+/* ========================================
+   APENAS CARRINHO ADMINISTRATIVO
+======================================== */
 
-        try {
+.carrinho-administrativo {
+    display: flex;
+    flex-direction: column;
 
-            const {
-                nome
-            } = req.body;
+    height: 100vh;
+    height: 100dvh;
 
-            if (
-                !nome ||
-                !nome.trim()
-            ) {
+    overflow: hidden;
+}
 
-                return res.status(400).json({
 
-                    sucesso: false,
+/* LISTA DOS ITENS COM ROLAGEM */
 
-                    erro:
-                        "Nome do estabelecimento é obrigatório."
+.carrinho-administrativo #listaCarrinho {
+    flex: 1;
 
-                });
+    min-height: 0;
 
-            }
+    overflow-y: auto;
+    overflow-x: hidden;
 
-            const resultado =
-                await pool.query(
-                    `
-                    INSERT INTO estabelecimentos
-                    (
-                        nome,
-                        usuario_id,
-                        descricao,
-                        cor
-                    )
-                    VALUES
-                    (
-                        $1,
-                        $2,
-                        $3,
-                        $4
-                    )
-                    RETURNING *
-                    `,
-                    [
-                        nome.trim(),
-                        req.usuario.id,
-                        "Escolha seus pratos favoritos e monte seu pedido.",
-                        "#222222"
-                    ]
-                );
+    -webkit-overflow-scrolling: touch;
+}
 
-            res.status(201).json({
 
-                sucesso: true,
+/* DADOS DO PEDIDO */
 
-                mensagem:
-                    "Estabelecimento criado com sucesso!",
+.carrinho-administrativo .dados-pedido {
+    flex-shrink: 0;
 
-                estabelecimento:
-                    resultado.rows[0]
+    max-height: 45vh;
 
-            });
+    overflow-y: auto;
+    overflow-x: hidden;
 
-        } catch (error) {
+    -webkit-overflow-scrolling: touch;
+}
 
-            console.error(
-                "ERRO AO CRIAR ESTABELECIMENTO:"
-            );
 
-            console.error(error);
+/* FOOTER FIXO */
 
-            res.status(500).json({
+.carrinho-administrativo .carrinho-footer {
+    flex-shrink: 0;
+}
 
-                sucesso: false,
 
-                erro:
-                    "Erro ao criar estabelecimento."
+/* CELULAR */
 
-            });
+@media (max-width: 600px) {
 
-        }
-
+    .carrinho-administrativo {
+        height: 100dvh;
     }
-);
 
-// ==========================================
-// EDITAR ESTABELECIMENTO
-// ==========================================
-
-app.put(
-    "/estabelecimentos/:id",
-    autenticarUsuario,
-    async (req, res) => {
-
-        try {
-
-            const {
-                id
-            } = req.params;
-
-            const {
-                nome
-            } = req.body;
-
-            if (
-                !nome ||
-                !nome.trim()
-            ) {
-
-                return res.status(400).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Nome do estabelecimento é obrigatório."
-
-                });
-
-            }
-
-            const resultado =
-                await pool.query(
-                    `
-                    UPDATE estabelecimentos
-
-                    SET nome = $1
-
-                    WHERE id = $2
-                    AND usuario_id = $3
-
-                    RETURNING *
-                    `,
-                    [
-                        nome.trim(),
-                        id,
-                        req.usuario.id
-                    ]
-                );
-
-            if (
-                resultado.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Estabelecimento não encontrado ou não pertence ao usuário."
-
-                });
-
-            }
-
-            res.json({
-
-                sucesso: true,
-
-                mensagem:
-                    "Estabelecimento atualizado com sucesso!",
-
-                estabelecimento:
-                    resultado.rows[0]
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO EDITAR ESTABELECIMENTO:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao editar estabelecimento."
-
-            });
-
-        }
-
+    .carrinho-administrativo #listaCarrinho {
+        padding: 12px;
     }
-);
 
-// ==========================================
-// EXCLUIR ESTABELECIMENTO
-// ==========================================
+}
+.acoes-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-app.delete(
-    "/estabelecimentos/:id",
-    autenticarUsuario,
-    async (req, res) => {
+.btn-configuracao {
+    width: 45px;
+    height: 45px;
 
-        try {
+    border: none;
+    border-radius: 10px;
 
-            const {
-                id
-            } = req.params;
+    background: #333;
+    color: white;
 
-            const resultado =
-                await pool.query(
-                    `
-                    DELETE FROM estabelecimentos
+    font-size: 22px;
 
-                    WHERE id = $1
-                    AND usuario_id = $2
+    cursor: pointer;
 
-                    RETURNING *
-                    `,
-                    [
-                        id,
-                        req.usuario.id
-                    ]
-                );
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-            if (
-                resultado.rows.length === 0
-            ) {
+    transition: 0.2s;
+}
 
-                return res.status(404).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Estabelecimento não encontrado ou não pertence ao usuário."
-
-                });
-
-            }
-
-            res.json({
-
-                sucesso: true,
-
-                mensagem:
-                    "Estabelecimento excluído com sucesso!",
-
-                estabelecimento:
-                    resultado.rows[0]
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO EXCLUIR ESTABELECIMENTO:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao excluir estabelecimento."
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// BUSCAR CONFIGURAÇÃO DO ESTABELECIMENTO
-// ADMIN
-// ==========================================
-
-app.get(
-    "/estabelecimentos/:id/configuracao",
-    autenticarUsuario,
-    async (req, res) => {
-
-        try {
-
-            const { id } = req.params;
-
-            const resultado =
-                await pool.query(
-                    `
-                    SELECT
-                        id,
-                        nome,
-                        descricao,
-                        logo,
-                        logo_pedido,
-                        imagem_fundo,
-                        cor,
-                        whatsapp,
-                        pix,
-                        endereco,
-                        horario
-
-                    FROM estabelecimentos
-
-                    WHERE id = $1
-                    AND usuario_id = $2
-                    `,
-                    [
-                        id,
-                        req.usuario.id
-                    ]
-                );
-
-            if (
-                resultado.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Estabelecimento não encontrado ou não pertence ao usuário."
-
-                });
-
-            }
-
-            res.json({
-
-                sucesso: true,
-
-                estabelecimento:
-                    resultado.rows[0]
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO BUSCAR CONFIGURAÇÃO:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// CONFIGURAÇÃO DO ESTABELECIMENTO
-// ADMIN
-// ==========================================
-
-app.put(
-    "/estabelecimentos/:id/configuracao",
-    autenticarUsuario,
-    async (req, res) => {
-
-        try {
-
-            const {
-                id
-            } = req.params;
-
-            const {
-                nome,
-                descricao,
-                logo,
-                logo_pedido,
-                imagem_fundo,
-                cor,
-                whatsapp,
-                pix,
-                endereco,
-                horario
-            } = req.body;
-
-            if (
-                !nome ||
-                !nome.trim()
-            ) {
-
-                return res.status(400).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "O nome do estabelecimento é obrigatório."
-
-                });
-
-            }
-
-            const resultado =
-    await pool.query(
-        `
-        UPDATE estabelecimentos
-
-        SET
-            nome = $1,
-            descricao = $2,
-            logo = $3,
-            logo_pedido = $4,
-            imagem_fundo = $5,
-            cor = $6,
-            whatsapp = $7,
-            pix = $8,
-            endereco = $9,
-            horario = $10
-
-        WHERE id = $11
-        AND usuario_id = $12
-
-        RETURNING
-            id,
-            nome,
-            descricao,
-            logo,
-            logo_pedido,
-            imagem_fundo,
-            cor,
-            whatsapp,
-            pix,
-            endereco,
-            horario
-        `,
-        [
-            nome.trim(),
-            descricao || "",
-            logo || "",
-            logo_pedido || "",
-            imagem_fundo || "",
-            cor || "#222222",
-            whatsapp || "",
-            pix || "",
-            endereco || "",
-            horario || "",
-            id,
-            req.usuario.id
-        ]
-    );
-
-            if (
-                resultado.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Estabelecimento não encontrado ou não pertence ao usuário."
-
-                });
-
-            }
-
-            res.json({
-
-                sucesso: true,
-
-                mensagem:
-                    "Configuração salva com sucesso!",
-
-                estabelecimento:
-                    resultado.rows[0]
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO SALVAR CONFIGURAÇÃO:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// CONFIGURAÇÃO PÚBLICA
-// NÃO PRECISA DE LOGIN
-// ==========================================
-
-app.get(
-    "/publico/estabelecimentos/:id",
-    async (req, res) => {
-
-        try {
-
-            const {
-                id
-            } = req.params;
-
-            const resultado =
-                await pool.query(
-                    `
-                    SELECT
-                        id,
-                        nome,
-                        descricao,
-                        logo,
-                        logo_pedido,
-                        imagem_fundo,
-                        cor,
-                        whatsapp,
-                        endereco,
-                        horario,
-                        pix
-
-                    FROM estabelecimentos
-
-                    WHERE id = $1
-                    `,
-                    [
-                        id
-                    ]
-                );
-
-            if (
-                resultado.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Estabelecimento não encontrado."
-
-                });
-
-            }
-
-            res.json({
-
-                sucesso: true,
-
-                estabelecimento:
-                    resultado.rows[0]
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO BUSCAR ESTABELECIMENTO PÚBLICO:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao carregar estabelecimento."
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// PRATOS DO ESTABELECIMENTO
-// PÚBLICO
-// ==========================================
-
-app.get(
-    "/estabelecimentos/:id/pratos",
-    async (req, res) => {
-
-        try {
-
-            const { id } = req.params;
-
-            const resultado = await pool.query(
-                `
-                SELECT
-                    id,
-                    nome,
-                    descricao,
-                    preco,
-                    categoria,
-                    imagem,
-                    estabelecimento_id
-
-                FROM pratos
-
-                WHERE estabelecimento_id = $1
-
-                ORDER BY id DESC
-                `,
-                [id]
-            );
-
-            res.json(resultado.rows);
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO BUSCAR PRATOS:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-                sucesso: false,
-                erro: error.message
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// CADASTRAR PRATO
-// ==========================================
-
-app.post(
-    "/pratos",
-    autenticarUsuario,
-    async (req, res) => {
-
-        try {
-
-            const {
-                nome,
-                descricao,
-                preco,
-                categoria,
-                imagem,
-                estabelecimento_id
-            } = req.body;
-
-            if (
-                !nome ||
-                preco === undefined ||
-                !estabelecimento_id
-            ) {
-
-                return res.status(400).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Nome, preço e estabelecimento são obrigatórios."
-
-                });
-
-            }
-
-            // ==================================
-            // VERIFICAR DONO
-            // ==================================
-
-            const estabelecimento =
-                await pool.query(
-                    `
-                    SELECT id
-                    FROM estabelecimentos
-
-                    WHERE id = $1
-                    AND usuario_id = $2
-                    `,
-                    [
-                        estabelecimento_id,
-                        req.usuario.id
-                    ]
-                );
-
-            if (
-                estabelecimento.rows.length === 0
-            ) {
-
-                return res.status(403).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Você não pode cadastrar pratos neste estabelecimento."
-
-                });
-
-            }
-
-            // ==================================
-            // CADASTRAR
-            // ==================================
-
-            const resultado =
-                await pool.query(
-                    `
-                    INSERT INTO pratos
-                    (
-                        nome,
-                        descricao,
-                        preco,
-                        categoria,
-                        imagem,
-                        estabelecimento_id
-                    )
-
-                    VALUES
-                    (
-                        $1,
-                        $2,
-                        $3,
-                        $4,
-                        $5,
-                        $6
-                    )
-
-                    RETURNING *
-                    `,
-                    [
-                        nome.trim(),
-                        descricao || "",
-                        preco,
-                        categoria || "Outros",
-                        imagem || "",
-                        estabelecimento_id
-                    ]
-                );
-
-            res.status(201).json({
-
-                sucesso: true,
-
-                mensagem:
-                    "Prato cadastrado com sucesso!",
-
-                prato:
-                    resultado.rows[0]
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO CADASTRAR PRATO:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao cadastrar prato."
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// EDITAR PRATO
-// ==========================================
-
-app.put(
-    "/pratos/:id",
-    autenticarUsuario,
-    async (req, res) => {
-
-        try {
-
-            const {
-                id
-            } = req.params;
-
-            const {
-                nome,
-                descricao,
-                preco,
-                categoria,
-                imagem
-            } = req.body;
-
-            // ==================================
-            // VERIFICAR DONO DO PRATO
-            // ==================================
-
-            const dono =
-                await pool.query(
-                    `
-                    SELECT p.id
-
-                    FROM pratos p
-
-                    INNER JOIN estabelecimentos e
-                        ON e.id = p.estabelecimento_id
-
-                    WHERE p.id = $1
-                    AND e.usuario_id = $2
-                    `,
-                    [
-                        id,
-                        req.usuario.id
-                    ]
-                );
-
-            if (
-                dono.rows.length === 0
-            ) {
-
-                return res.status(403).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Você não pode editar este prato."
-
-                });
-
-            }
-
-            const resultado =
-                await pool.query(
-                    `
-                    UPDATE pratos
-
-                    SET
-                        nome = $1,
-                        descricao = $2,
-                        preco = $3,
-                        categoria = $4,
-                        imagem = $5
-
-                    WHERE id = $6
-
-                    RETURNING *
-                    `,
-                    [
-                        nome,
-                        descricao || "",
-                        preco,
-                        categoria || "Outros",
-                        imagem || "",
-                        id
-                    ]
-                );
-
-            res.json({
-
-                sucesso: true,
-
-                mensagem:
-                    "Prato atualizado com sucesso!",
-
-                prato:
-                    resultado.rows[0]
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO EDITAR PRATO:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao editar prato."
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// EXCLUIR PRATO
-// ==========================================
-
-app.delete(
-    "/pratos/:id",
-    autenticarUsuario,
-    async (req, res) => {
-
-        try {
-
-            const {
-                id
-            } = req.params;
-
-            const resultado =
-                await pool.query(
-                    `
-                    DELETE FROM pratos p
-
-                    USING estabelecimentos e
-
-                    WHERE p.id = $1
-
-                    AND p.estabelecimento_id = e.id
-
-                    AND e.usuario_id = $2
-
-                    RETURNING p.*
-                    `,
-                    [
-                        id,
-                        req.usuario.id
-                    ]
-                );
-
-            if (
-                resultado.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Prato não encontrado ou não pertence ao usuário."
-
-                });
-
-            }
-
-            res.json({
-
-                sucesso: true,
-
-                mensagem:
-                    "Prato excluído com sucesso!"
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO EXCLUIR PRATO:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao excluir prato."
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// BUSCAR UM PRATO
-// ==========================================
-
-app.get(
-    "/pratos/:id",
-    async (req, res) => {
-
-        try {
-
-            const {
-                id
-            } = req.params;
-
-            const resultado =
-                await pool.query(
-                    `
-                    SELECT *
-                    FROM pratos
-                    WHERE id = $1
-                    `,
-                    [
-                        id
-                    ]
-                );
-
-            if (
-                resultado.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Prato não encontrado."
-
-                });
-
-            }
-
-            res.json(
-                resultado.rows[0]
-            );
-
-        } catch (error) {
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao buscar prato."
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// REDEFINIR SENHA
-// ==========================================
-
-app.post(
-    "/redefinir-senha",
-    async (req, res) => {
-
-        try {
-
-            const {
-                email,
-                novaSenha,
-                codigo
-            } = req.body;
-
-            if (
-                !email ||
-                !novaSenha ||
-                !codigo
-            ) {
-
-                return res.status(400).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "E-mail, nova senha e código são obrigatórios."
-
-                });
-
-            }
-
-            if (
-                codigo !==
-                process.env.RESET_PASSWORD_CODE
-            ) {
-
-                return res.status(401).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Código de recuperação inválido."
-
-                });
-
-            }
-
-            if (
-                novaSenha.length < 6
-            ) {
-
-                return res.status(400).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "A nova senha deve ter pelo menos 6 caracteres."
-
-                });
-
-            }
-
-            const emailLimpo =
-                email
-                    .trim()
-                    .toLowerCase();
-
-            const usuario =
-                await pool.query(
-                    `
-                    SELECT id
-                    FROM usuarios
-                    WHERE email = $1
-                    `,
-                    [
-                        emailLimpo
-                    ]
-                );
-
-            if (
-                usuario.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-
-                    sucesso: false,
-
-                    erro:
-                        "Usuário não encontrado."
-
-                });
-
-            }
-
-            await pool.query(
-                `
-                UPDATE usuarios
-
-                SET senha = $1
-
-                WHERE email = $2
-                `,
-                [
-                    novaSenha,
-                    emailLimpo
-                ]
-            );
-
-            res.json({
-
-                sucesso: true,
-
-                mensagem:
-                    "Senha redefinida com sucesso!"
-
-            });
-
-        } catch (error) {
-
-            console.error(
-                "ERRO AO REDEFINIR SENHA:"
-            );
-
-            console.error(error);
-
-            res.status(500).json({
-
-                sucesso: false,
-
-                erro:
-                    "Erro ao redefinir senha."
-
-            });
-
-        }
-
-    }
-);
-
-// ==========================================
-// INICIAR SERVIDOR
-// ==========================================
-
-app.listen(
-    PORT,
-    () => {
-
-        console.log(
-            `Servidor rodando na porta ${PORT}`
-        );
-
-    }
-);
+.btn-configuracao:hover {
+    transform: rotate(30deg);
+    opacity: 0.9;
+}
