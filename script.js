@@ -350,6 +350,58 @@ const chavePix =
 const nomeCliente =
     document.getElementById("nomeCliente");
 
+// ========================================
+// LEMBRAR NOME DO CLIENTE
+// ========================================
+
+const CHAVE_NOME_CLIENTE =
+    `nomeClienteRestaurante_${ESTABELECIMENTO_ID}`;
+
+
+// CARREGAR NOME SALVO
+function carregarNomeCliente() {
+
+    const nomeSalvo =
+        localStorage.getItem(CHAVE_NOME_CLIENTE);
+
+    if (nomeSalvo && nomeCliente) {
+
+        nomeCliente.value = nomeSalvo;
+
+    }
+}
+
+
+// SALVAR NOME ENQUANTO DIGITA
+if (nomeCliente) {
+
+    nomeCliente.addEventListener(
+        "input",
+        () => {
+
+            const nome =
+                nomeCliente.value.trim();
+
+            if (nome) {
+
+                localStorage.setItem(
+                    CHAVE_NOME_CLIENTE,
+                    nome
+                );
+
+            } else {
+
+                localStorage.removeItem(
+                    CHAVE_NOME_CLIENTE
+                );
+
+            }
+
+        }
+    );
+
+}
+
 // MODAL
 
 const modal = document.getElementById("modal");
@@ -2607,6 +2659,8 @@ atualizarTipoPedido();
 atualizarPagamento();
 
 atualizarTroco();
+
+carregarNomeCliente();
 
 carregarPratos();
 
