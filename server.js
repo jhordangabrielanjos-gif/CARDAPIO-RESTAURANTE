@@ -1289,7 +1289,7 @@ app.put(
 // ADMIN
 // ==========================================
 
-app.get(
+app.put(
     "/estabelecimentos/:id/configuracao",
     autenticarUsuario,
     async (req, res) => {
@@ -1300,10 +1300,57 @@ app.get(
                 id
             } = req.params;
 
+
+            const {
+                nome,
+                descricao,
+                logo,
+                imagemFundo,
+                cor,
+                whatsapp,
+                pix,
+                endereco,
+                horario
+            } = req.body;
+
+
+            if (
+                !nome ||
+                !nome.trim()
+            ) {
+
+                return res.status(400).json({
+
+                    sucesso: false,
+
+                    erro:
+                        "O nome do estabelecimento é obrigatório."
+
+                });
+
+            }
+
+
             const resultado =
                 await pool.query(
                     `
-                    SELECT
+                    UPDATE estabelecimentos
+
+                    SET
+                        nome = $1,
+                        descricao = $2,
+                        logo = $3,
+                        imagem_fundo = $4,
+                        cor = $5,
+                        whatsapp = $6,
+                        pix = $7,
+                        endereco = $8,
+                        horario = $9
+
+                    WHERE id = $10
+                    AND usuario_id = $11
+
+                    RETURNING
                         id,
                         nome,
                         descricao,
@@ -1311,20 +1358,25 @@ app.get(
                         imagem_fundo,
                         cor,
                         whatsapp,
+                        pix,
                         endereco,
-                        horario,
-                        pix
-
-                    FROM estabelecimentos
-
-                    WHERE id = $1
-                    AND usuario_id = $2
+                        horario
                     `,
                     [
+                        nome.trim(),
+                        descricao || "",
+                        logo || "",
+                        imagemFundo || "",
+                        cor || "#222222",
+                        whatsapp || "",
+                        pix || "",
+                        endereco || "",
+                        horario || "",
                         id,
                         req.usuario.id
                     ]
                 );
+
 
             if (
                 resultado.rows.length === 0
@@ -1335,15 +1387,19 @@ app.get(
                     sucesso: false,
 
                     erro:
-                        "Estabelecimento não encontrado."
+                        "Estabelecimento não encontrado ou não pertence ao usuário."
 
                 });
 
             }
 
+
             res.json({
 
                 sucesso: true,
+
+                mensagem:
+                    "Configuração salva com sucesso!",
 
                 estabelecimento:
                     resultado.rows[0]
@@ -1353,7 +1409,7 @@ app.get(
         } catch (error) {
 
             console.error(
-                "ERRO AO BUSCAR CONFIGURAÇÃO:"
+                "ERRO AO SALVAR CONFIGURAÇÃO:"
             );
 
             console.error(error);
@@ -1363,7 +1419,7 @@ app.get(
                 sucesso: false,
 
                 erro:
-                    "Erro ao buscar configuração."
+                    error.message
 
             });
 
