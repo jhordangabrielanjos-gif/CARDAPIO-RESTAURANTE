@@ -1002,9 +1002,26 @@ const imagemFundoPreview =
             }
 
 
-            const dados =
-                await resposta.json();
+            const tipo =
+    resposta.headers.get("content-type") || "";
 
+if (!tipo.includes("application/json")) {
+
+    const texto =
+        await resposta.text();
+
+    console.error(
+        "Resposta do servidor:",
+        texto
+    );
+
+    throw new Error(
+        `O servidor não retornou JSON. HTTP ${resposta.status}`
+    );
+}
+
+const dados =
+    await resposta.json();
 
             if (!resposta.ok) {
 
@@ -1171,8 +1188,26 @@ endereco.value =
                 );
 
 
-            const dados =
-                await resposta.json();
+            const tipo =
+    resposta.headers.get("content-type") || "";
+
+if (!tipo.includes("application/json")) {
+
+    const texto =
+        await resposta.text();
+
+    console.error(
+        "Resposta do servidor:",
+        texto
+    );
+
+    throw new Error(
+        `O servidor não retornou JSON. HTTP ${resposta.status}`
+    );
+}
+
+const dados =
+    await resposta.json();
 
 
             if (!resposta.ok) {
