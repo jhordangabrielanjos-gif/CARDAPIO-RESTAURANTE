@@ -346,7 +346,10 @@ const copiarPix =
 
 const chavePix =
     document.getElementById("chavePix");
-    
+
+const nomeCliente =
+    document.getElementById("nomeCliente");
+
 // MODAL
 
 const modal = document.getElementById("modal");
@@ -786,6 +789,24 @@ function enviarPedidoWhatsApp() {
     }
 
     // ========================================
+// NOME DO CLIENTE
+// ========================================
+
+const nomeClienteValor =
+    nomeCliente.value.trim();
+
+if (!nomeClienteValor) {
+
+    mostrarToast(
+        "Digite o nome do cliente."
+    );
+
+    nomeCliente.focus();
+
+    return;
+}
+
+    // ========================================
     // TIPO DO PEDIDO
     // ========================================
 
@@ -851,6 +872,8 @@ function enviarPedidoWhatsApp() {
     mensagem +=
         `🏪 *${document.getElementById("nomeEstabelecimento")?.textContent || "Restaurante"}*\n\n`;
 
+    mensagem +=
+        `👤 *Cliente: ${nomeClienteValor}*\n\n`;
 
     // ========================================
     // ITENS
