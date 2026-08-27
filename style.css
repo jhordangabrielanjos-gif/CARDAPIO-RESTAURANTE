@@ -1984,7 +1984,7 @@ body.sem-scroll {
         width: 100%;
     }
 
-        .opcoes-pedido {
+    .opcoes-pedido {
         grid-template-columns: 1fr;
     }
 
