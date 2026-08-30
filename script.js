@@ -65,6 +65,19 @@ async function carregarConfiguracaoEstabelecimento() {
         const estabelecimento =
             dados.estabelecimento;
 
+        if (estabelecimento.imagem_fundo) {
+
+    imagemFundoBase64 =
+        estabelecimento.imagem_fundo;
+
+    previewHero.src =
+        imagemFundoBase64;
+
+    previewHero.style.display =
+        "block";
+
+}    
+
 
         // ======================================
         // NOME
@@ -444,6 +457,42 @@ const textoBotao =
 const toast =
     document.getElementById("toast");
 
+const imagemHero =
+    document.getElementById("imagemHero");
+
+const previewHero =
+    document.getElementById("previewHero");
+
+let imagemFundoBase64 = "";
+
+
+imagemHero.addEventListener(
+    "change",
+    function () {
+
+        const arquivo = this.files[0];
+
+        if (!arquivo) return;
+
+        const leitor = new FileReader();
+
+        leitor.onload = function (evento) {
+
+            imagemFundoBase64 =
+                evento.target.result;
+
+            previewHero.src =
+                imagemFundoBase64;
+
+            previewHero.style.display =
+                "block";
+
+        };
+
+        leitor.readAsDataURL(arquivo);
+
+    }
+);    
 
 // ========================================
 // VERIFICAR ELEMENTOS
@@ -2071,7 +2120,10 @@ form.addEventListener(
         categoria.value.trim(),
 
     estabelecimento_id:
-        ESTABELECIMENTO_ID
+        ESTABELECIMENTO_ID,
+
+    imagem_fundo:
+        imagemFundoBase64,   
 
 };
 
