@@ -1,1205 +1,2064 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+const API_URL = "https://cardapio-restaurante-za9s.onrender.com";
 
-<head>
+// ==========================================
+// ESTABELECIMENTO ATUAL
+// ==========================================
 
-    <meta charset="UTF-8">
+const parametros = new URLSearchParams(
+    window.location.search
+);
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+const estabelecimentoId =
+    parametros.get("estabelecimento");
 
-    <title>Configuração do Cardápio</title>
+const ESTABELECIMENTO_ID =
+    Number(estabelecimentoId) || 1;
 
-    <style>
+console.log(
+    "Estabelecimento atual:",
+    ESTABELECIMENTO_ID
+);
 
-        * {
-            box-sizing: border-box;
+// WhatsApp padrão
+let WHATSAPP = "5579981021378";
+
+// ==========================================
+// CARREGAR PERSONALIZAÇÃO
+// ==========================================
+
+async function carregarConfiguracaoEstabelecimento() {
+
+    if (!estabelecimentoId) {
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+    `${API_URL}/publico/estabelecimentos/${estabelecimentoId}`
+);
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            color: #222;
+
+        const dados =
+            await resposta.json();
+
+
+        if (!dados.sucesso) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao carregar estabelecimento."
+            );
+
         }
 
-        header {
-            background: #222;
-            color: white;
-            padding: 25px;
-            text-align: center;
+
+        const estabelecimento =
+            dados.estabelecimento;
+
+
+        // ======================================
+        // IMAGEM DA HERO
+        // ======================================
+
+        const hero =
+            document.querySelector(".hero");
+
+        if (
+            hero &&
+            estabelecimento.imagem_hero
+        ) {
+
+            hero.style.backgroundImage =
+                `
+                linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.85),
+                    rgba(0, 0, 0, 0.45)
+                ),
+                url("${estabelecimento.imagem_hero}")
+                `;
+
+            hero.style.backgroundSize =
+                "cover";
+
+            hero.style.backgroundPosition =
+                "center";
+
         }
 
-        header h1 {
-            margin: 0 0 8px;
+
+        // ======================================
+        // NOME
+        // ======================================
+
+        const nome =
+            document.getElementById(
+                "nomeEstabelecimento"
+            );
+
+        if (nome) {
+
+            nome.textContent =
+                estabelecimento.nome ||
+                "Meu Restaurante";
+
         }
 
-        header p {
-            margin: 0;
-            opacity: 0.8;
+
+        // ======================================
+        // DESCRIÇÃO
+        // ======================================
+
+        const descricao =
+            document.getElementById(
+                "descricaoEstabelecimento"
+            );
+
+        if (descricao) {
+
+            descricao.textContent =
+                estabelecimento.descricao ||
+                "Escolha seus pratos favoritos e monte seu pedido.";
+
         }
 
-        .container {
-            width: 90%;
-            max-width: 850px;
-            margin: 30px auto;
+
+        // ======================================
+        // LOGO
+        // ======================================
+
+        const logo =
+            document.getElementById(
+                "logoEstabelecimento"
+            );
+
+        if (logo) {
+
+            if (estabelecimento.logo) {
+
+                logo.innerHTML = `
+                    <img
+                        src="${estabelecimento.logo}"
+                        alt="Logo"
+                        style="
+                            width:60px;
+                            height:60px;
+                            object-fit:cover;
+                            border-radius:50%;
+                        "
+                    >
+                `;
+
+            } else {
+
+                logo.textContent = "🍽️";
+
+            }
+
         }
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 14px;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-            margin-bottom: 20px;
+        // ======================================
+        // IMAGEM DO HERO
+        // ======================================
+
+        const heroEstabelecimento =
+            document.getElementById(
+                "heroEstabelecimento"
+            );
+
+        if (heroEstabelecimento && estabelecimento.imagem_capa) {
+
+            heroEstabelecimento.style.backgroundImage =
+                `url("${estabelecimento.imagem_capa}")`;
+
+            heroEstabelecimento.style.backgroundSize = "cover";
+            heroEstabelecimento.style.backgroundPosition = "center";
+            heroEstabelecimento.style.backgroundRepeat = "no-repeat";
+
         }
 
-        .card h2 {
-            margin-top: 0;
-            margin-bottom: 8px;
+        // ======================================
+        // COR
+        // ======================================
+
+        if (estabelecimento.cor) {
+
+            document.documentElement.style.setProperty(
+                "--cor-estabelecimento",
+                estabelecimento.cor
+            );
+
         }
 
-        .card p {
-            color: #666;
+
+        // ======================================
+        // INFORMAÇÕES
+        // ======================================
+
+        const informacoes =
+            document.getElementById(
+                "informacoesEstabelecimento"
+            );
+
+        if (informacoes) {
+
+            let html = "";
+
+
+            if (estabelecimento.endereco) {
+
+                html += `
+                    <div>
+                        📍 ${escaparHTML(
+                            estabelecimento.endereco
+                        )}
+                    </div>
+                `;
+
+            }
+
+
+            if (estabelecimento.horario) {
+
+                html += `
+                    <div>
+                        🕐 ${escaparHTML(
+                            estabelecimento.horario
+                        )}
+                    </div>
+                `;
+
+            }
+
+
+            informacoes.innerHTML = html;
+
         }
 
-        .campo {
-            margin-bottom: 20px;
+
+        // ======================================
+        // WHATSAPP
+        // ======================================
+
+        if (estabelecimento.whatsapp) {
+
+          WHATSAPP =
+    estabelecimento.whatsapp
+        .replace(/\D/g, "");  
+
         }
 
-        .campo label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
 
-        .campo input,
-        .campo textarea,
-        .campo select {
-            width: 100%;
-            padding: 13px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 15px;
-            outline: none;
-        }
+        // ======================================
+        // TÍTULO DA PÁGINA
+        // ======================================
 
-        .campo input:focus,
-        .campo textarea:focus,
-        .campo select:focus {
-            border-color: #222;
-        }
+        document.title =
+            estabelecimento.nome ||
+            "Cardápio";
 
-        .campo textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
 
-        .linha {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+        console.log(
+            "Estabelecimento carregado:",
+            estabelecimento
+        );
 
-        .logo-preview {
-            margin-top: 12px;
-            width: 120px;
-            height: 120px;
-            border-radius: 12px;
-            border: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            background: #f5f5f5;
-        }
 
-        .logo-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+    } catch (erro) {
 
-        .logo-preview span {
-            color: #888;
-            text-align: center;
-            padding: 10px;
-        }
+        console.error(
+            "Erro ao carregar estabelecimento:",
+            erro
+        );
 
-        .imagemfundo-preview {
-    margin-top: 12px;
+    }
 
-    width: 100%;
-    height: 180px;
-
-    border-radius: 12px;
-
-    border: 1px solid #ddd;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    overflow: hidden;
-
-    background: #f5f5f5;
 }
 
-.imagemfundo-preview img {
-    width: 100%;
-    height: 100%;
+// ========================================
+// SENHA ADMINISTRATIVA
+// ========================================
 
-    object-fit: cover;
+const SENHA_ADMIN = "1234";
+
+function verificarSenhaAdmin() {
+
+    const senha = prompt("🔐 Digite a senha administrativa:");
+
+    if (senha === null) {
+        return false;
+    }
+
+    if (senha !== SENHA_ADMIN) {
+
+        mostrarToast("❌ Senha incorreta!");
+
+        return false;
+    }
+
+    return true;
 }
 
-.imagemfundo-preview span {
-    color: #888;
+// ========================================
+// VARIÁVEIS
+// ========================================
 
-    text-align: center;
+let pratos = [];
+let categoriaAtual = "Todos";
+let pratoEditando = null;
+let imagemAtual = "";
 
-    padding: 10px;
+const CHAVE_CARRINHO =
+    `carrinhoRestaurante_${ESTABELECIMENTO_ID}`;
+
+let carrinho =
+    JSON.parse(
+        localStorage.getItem(CHAVE_CARRINHO)
+    ) || [];
+
+
+// ========================================
+// ELEMENTOS
+// ========================================
+
+const listaPratos = document.getElementById("listaPratos");
+const contador = document.getElementById("contador");
+const pesquisa = document.getElementById("pesquisa");
+const categorias = document.getElementById("categorias");
+
+// CARRINHO
+
+const abrirCarrinhoBtn = document.getElementById("abrirCarrinho");
+const fecharCarrinhoBtn = document.getElementById("fecharCarrinho");
+const overlayCarrinho = document.getElementById("overlayCarrinho");
+const carrinhoElemento = document.getElementById("carrinho");
+const listaCarrinho = document.getElementById("listaCarrinho");
+const contadorCarrinho = document.getElementById("contadorCarrinho");
+const totalCarrinho = document.getElementById("totalCarrinho");
+const finalizarPedido = document.getElementById("finalizarPedido");
+const limparCarrinhoBtn = document.getElementById("limparCarrinho");
+
+// ========================================
+// DADOS DO PEDIDO
+// ========================================
+
+const dadosEndereco =
+    document.getElementById("dadosEndereco");
+
+const enderecoCliente =
+    document.getElementById("enderecoCliente");
+
+const numeroCliente =
+    document.getElementById("numeroCliente");
+
+const bairroCliente =
+    document.getElementById("bairroCliente");
+
+const complementoCliente =
+    document.getElementById("complementoCliente");
+
+const metodoPagamento =
+    document.getElementById("metodoPagamento");
+
+const opcaoPix =
+    document.getElementById("opcaoPix");
+
+const opcaoCartao =
+    document.getElementById("opcaoCartao");
+
+const opcaoDinheiro =
+    document.getElementById("opcaoDinheiro");
+
+const levarMaquininha =
+    document.getElementById("levarMaquininha");
+
+const precisaTroco =
+    document.getElementById("precisaTroco");
+
+const campoTroco =
+    document.getElementById("campoTroco");
+
+const trocoPara =
+    document.getElementById("trocoPara");
+
+const copiarPix =
+    document.getElementById("copiarPix");
+
+const chavePix =
+    document.getElementById("chavePix");
+
+const nomeCliente =
+    document.getElementById("nomeCliente");
+
+// ========================================
+// LEMBRAR NOME DO CLIENTE
+// ========================================
+
+const CHAVE_NOME_CLIENTE =
+    `nomeClienteRestaurante_${ESTABELECIMENTO_ID}`;
+
+
+// CARREGAR NOME SALVO
+function carregarNomeCliente() {
+
+    const nomeSalvo =
+        localStorage.getItem(CHAVE_NOME_CLIENTE);
+
+    if (nomeSalvo && nomeCliente) {
+
+        nomeCliente.value = nomeSalvo;
+
+    }
 }
 
-        .cor-area {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
 
-        .cor-area input[type="color"] {
-            width: 60px;
-            height: 45px;
-            padding: 3px;
-            cursor: pointer;
-        }
+// SALVAR NOME ENQUANTO DIGITA
+if (nomeCliente) {
 
-        .botoes {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
+    nomeCliente.addEventListener(
+        "input",
+        () => {
 
-        button {
-            border: none;
-            padding: 13px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-        }
+            const nome =
+                nomeCliente.value.trim();
 
-        .salvar {
-            background: #222;
-            color: white;
-            flex: 1;
-        }
+            if (nome) {
 
-        .voltar {
-            background: #ddd;
-            color: #222;
-        }
+                localStorage.setItem(
+                    CHAVE_NOME_CLIENTE,
+                    nome
+                );
 
-        button:hover {
-            opacity: 0.9;
-        }
+            } else {
 
-        .mensagem {
-            display: none;
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+                localStorage.removeItem(
+                    CHAVE_NOME_CLIENTE
+                );
 
-        .sucesso {
-            display: block;
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .erro {
-            display: block;
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .carregando {
-            text-align: center;
-            padding: 30px;
-            color: #666;
-        }
-
-        .info {
-            background: #f1f1f1;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 600px) {
-
-            .linha {
-                grid-template-columns: 1fr;
-            }
-
-            .container {
-                width: 94%;
-            }
-
-            .card {
-                padding: 18px;
-            }
-
-            .botoes {
-                flex-direction: column;
-            }
-
-            .salvar,
-            .voltar {
-                width: 100%;
             }
 
         }
+    );
 
-    </style>
+}
 
-</head>
+// MODAL
 
+const modal = document.getElementById("modal");
+const fecharModalBtn = document.getElementById("fecharModal");
+const cancelarFormulario = document.getElementById("cancelarFormulario");
+const form = document.getElementById("formPrato");
 
-<body>
+const nome = document.getElementById("nome");
+const descricao = document.getElementById("descricao");
+const preco = document.getElementById("preco");
+const imagem = document.getElementById("imagem");
+const categoria = document.getElementById("categoria");
+const preview = document.getElementById("preview");
 
+const tituloFormulario =
+    document.getElementById("tituloFormulario");
 
-<header>
+const textoBotao =
+    document.getElementById("textoBotao");
 
-    <h1>⚙️ Configuração do Cardápio</h1>
+const toast = document.getElementById("toast");
 
-    <p>
-        Personalize as informações do seu estabelecimento
-    </p>
-
-</header>
-
-
-<main class="container">
-
-
-    <!-- ==========================================
-         MENSAGEM
-    =========================================== -->
-
-    <div
-        id="mensagem"
-        class="mensagem"
-    ></div>
+const hero =
+    document.querySelector(".hero");
 
 
-    <!-- ==========================================
-         ESCOLHER ESTABELECIMENTO
-    =========================================== -->
+// ========================================
+// VERIFICAR ELEMENTOS
+// ========================================
 
-    <div class="card">
+console.log("JavaScript carregado!");
 
-        <h2>🏪 Estabelecimento</h2>
+console.log("API:", API_URL);
 
-        <p>
-            Escolha qual estabelecimento deseja configurar.
-        </p>
+console.log("Carrinho:", abrirCarrinhoBtn);
 
-        <div class="campo">
-
-            <label for="estabelecimento">
-
-                Meu estabelecimento
-
-            </label>
-
-            <select
-                id="estabelecimento"
-            >
-
-                <option value="">
-                    Carregando estabelecimentos...
-                </option>
-
-            </select>
-
-        </div>
-
-    </div>
+console.log("Novo prato:", document.getElementById("abrirFormulario"));
 
 
-    <!-- ==========================================
-         CONFIGURAÇÕES
-    =========================================== -->
+// ========================================
+// FORMATAÇÃO
+// ========================================
 
-    <div
-        id="areaConfiguracao"
-        class="card"
-        style="display:none;"
-    >
+function formatarPreco(valor) {
 
-        <h2>🎨 Informações do cardápio</h2>
-
-        <p>
-            Essas informações serão usadas no cardápio deste estabelecimento.
-        </p>
-
-
-        <div class="info">
-
-            <strong>
-                💡 Dica:
-            </strong>
-
-            Você pode alterar essas informações quando quiser.
-
-        </div>
+    return Number(valor).toLocaleString(
+        "pt-BR",
+        {
+            style: "currency",
+            currency: "BRL"
+        }
+    );
+}
 
 
-        <!-- NOME -->
+// ========================================
+// SEGURANÇA HTML
+// ========================================
 
-        <div class="campo">
+function escaparHTML(texto) {
 
-            <label for="nome">
-
-                Nome do estabelecimento
-
-            </label>
-
-            <input
-                type="text"
-                id="nome"
-                placeholder="Ex: Lanchonete do Jhordan"
-                required
-            >
-
-        </div>
+    return String(texto ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 
-        <!-- DESCRIÇÃO -->
+// ========================================
+// TOAST
+// ========================================
 
-        <div class="campo">
+function mostrarToast(mensagem) {
 
-            <label for="descricao">
+    if (!toast) return;
 
-                Descrição
+    toast.textContent = mensagem;
 
-            </label>
+    toast.classList.add("mostrar");
 
-            <textarea
-                id="descricao"
-                placeholder="Ex: Os melhores hambúrgueres da cidade!"
-            ></textarea>
+    clearTimeout(mostrarToast.timer);
 
-        </div>
+    mostrarToast.timer = setTimeout(() => {
+
+        toast.classList.remove("mostrar");
+
+    }, 3000);
+}
 
 
-        <!-- LOGO -->
+// ========================================
+// ================= CARRINHO =============
+// ========================================
 
-        <div class="campo">
+// SALVAR
 
-            <label for="logo">
+function salvarCarrinho() {
 
-                🖼️ Logo
+    localStorage.setItem(
+        CHAVE_CARRINHO,
+        JSON.stringify(carrinho)
+    );
+}
 
-            </label>
 
-            <input
-                type="text"
-                id="logo"
-                placeholder="Cole aqui o link da imagem da logo"
-            >
+// CONTAGEM
 
-            <div
-                id="logoPreview"
-                class="logo-preview"
-            >
+function quantidadeTotalCarrinho() {
 
-                <span>
-                    A logo aparecerá aqui
-                </span>
+    return carrinho.reduce(
+        (total, item) => {
+
+            return total + Number(item.quantidade || 0);
+
+        },
+        0
+    );
+}
+
+
+// TOTAL
+
+function valorTotalCarrinho() {
+
+    return carrinho.reduce(
+        (total, item) => {
+
+            return total +
+                Number(item.preco || 0) *
+                Number(item.quantidade || 0);
+
+        },
+        0
+    );
+}
+
+
+// ========================================
+// ADICIONAR AO CARRINHO
+// ========================================
+
+function adicionarAoCarrinho(id) {
+
+    const prato = pratos.find(
+        item => Number(item.id) === Number(id)
+    );
+
+    if (!prato) {
+
+        mostrarToast("Prato não encontrado.");
+
+        return;
+    }
+
+
+    const existente = carrinho.find(
+        item => Number(item.id) === Number(id)
+    );
+
+
+    if (existente) {
+
+        existente.quantidade++;
+
+    } else {
+
+        carrinho.push({
+
+            id: prato.id,
+
+            nome: prato.nome,
+
+            preco: Number(prato.preco),
+
+            quantidade: 1
+
+        });
+    }
+
+
+    salvarCarrinho();
+
+    atualizarCarrinho();
+
+    mostrarToast(
+        `${prato.nome} foi adicionado ao pedido!`
+    );
+}
+
+
+// ========================================
+// AUMENTAR QUANTIDADE
+// ========================================
+
+function aumentarQuantidade(id) {
+
+    const item = carrinho.find(
+        produto => Number(produto.id) === Number(id)
+    );
+
+    if (!item) return;
+
+    item.quantidade++;
+
+    salvarCarrinho();
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// DIMINUIR QUANTIDADE
+// ========================================
+
+function diminuirQuantidade(id) {
+
+    const item = carrinho.find(
+        produto => Number(produto.id) === Number(id)
+    );
+
+    if (!item) return;
+
+    item.quantidade--;
+
+
+    if (item.quantidade <= 0) {
+
+        carrinho = carrinho.filter(
+            produto =>
+                Number(produto.id) !== Number(id)
+        );
+    }
+
+
+    salvarCarrinho();
+
+    atualizarCarrinho();
+}
+
+
+// ========================================
+// ATUALIZAR CARRINHO
+// ========================================
+
+function atualizarCarrinho() {
+
+    const quantidade = quantidadeTotalCarrinho();
+
+    const total = valorTotalCarrinho();
+
+
+    contadorCarrinho.textContent = quantidade;
+
+    totalCarrinho.textContent = formatarPreco(total);
+
+    finalizarPedido.disabled =
+        carrinho.length === 0;
+
+
+    if (carrinho.length === 0) {
+
+        listaCarrinho.innerHTML = `
+
+            <div class="carrinho-vazio">
+
+                <div class="icone-vazio">
+                    🛒
+                </div>
+
+                <h3>
+                    Seu carrinho está vazio
+                </h3>
+
+                <p>
+                    Adicione pratos para começar seu pedido.
+                </p>
+
+                <button
+                    class="botao-continuar"
+                    type="button"
+                    onclick="fecharCarrinho()"
+                >
+                    Ver cardápio
+                </button>
 
             </div>
 
-        </div>
+        `;
 
-<!-- IMAGEM DE FUNDO DO CARDÁPIO -->
+        return;
+    }
 
-<div class="campo">
 
-    <label for="imagemFundo">
+    listaCarrinho.innerHTML = carrinho
+        .map(item => {
 
-        🏞️ Imagem de fundo do cardápio
+            const subtotal =
+                Number(item.preco) *
+                Number(item.quantidade);
 
-    </label>
 
-    <input
-        type="text"
-        id="imagemFundo"
-        placeholder="Cole aqui o link da imagem de fundo"
-    >
+            return `
 
-    <div
-        id="imagemFundoPreview"
-        class="imagemfundo-preview"
-    >
+                <div class="item-carrinho">
 
-        <span>
-            A imagem de fundo aparecerá aqui
-        </span>
+                    <div class="item-info">
 
-    </div>
+                        <h3>
+                            ${escaparHTML(item.nome)}
+                        </h3>
 
-</div>
+                        <p>
+                            ${formatarPreco(item.preco)}
+                            cada
+                        </p>
 
-<!-- LOGO FAÇA SEU PEDIDO -->
+                    </div>
 
-<div class="campo">
 
-    <label for="logoPedido">
-        🛒 Logo do "Faça seu pedido"
-    </label>
+                    <div class="item-direita">
 
-    <input
-        type="text"
-        id="logoPedido"
-        placeholder="Cole aqui o link da imagem"
-    >
+                        <div class="controle-quantidade">
 
-    <div
-        id="logoPedidoPreview"
-        class="logo-preview"
-    >
-        <span>
-            A logo do "Faça seu pedido" aparecerá aqui
-        </span>
-    </div>
+                            <button
+                                type="button"
+                                onclick="diminuirQuantidade(${item.id})"
+                            >
+                                −
+                            </button>
 
-</div>
+                            <strong>
+                                ${item.quantidade}
+                            </strong>
 
-        <!-- COR -->
+                            <button
+                                type="button"
+                                onclick="aumentarQuantidade(${item.id})"
+                            >
+                                +
+                            </button>
 
-        <div class="campo">
+                        </div>
 
-            <label for="cor">
 
-                🎨 Cor principal
+                        <strong class="subtotal">
+                            ${formatarPreco(subtotal)}
+                        </strong>
 
-            </label>
+                    </div>
 
-            <div class="cor-area">
+                </div>
 
-                <input
-                    type="color"
-                    id="cor"
-                    value="#222222"
-                >
+            `;
 
-                <input
-                    type="text"
-                    id="corTexto"
-                    value="#222222"
-                    placeholder="#222222"
-                >
+        })
+        .join("");
+}
 
-            </div>
 
-        </div>
+// ========================================
+// ABRIR CARRINHO
+// ========================================
 
-        <div class="campo">
-    <label>Imagem de fundo do destaque</label>
+function abrirCarrinho() {
 
-    <input
-        type="file"
-        id="imagemHero"
-        accept="image/*"
-    >
+    carrinhoElemento.classList.add("aberto");
 
-    <img
-        id="previewHero"
-        style="
-            display: none;
-            width: 200px;
-            margin-top: 10px;
-            border-radius: 10px;
-        "
-    >
-</div>
+    overlayCarrinho.classList.add("aberto");
 
-        <!-- WHATSAPP -->
+    document.body.classList.add("sem-scroll");
 
-        <div class="campo">
+    atualizarCarrinho();
+}
 
-            <label for="whatsapp">
 
-                📱 WhatsApp
+// ========================================
+// FECHAR CARRINHO
+// ========================================
 
-            </label>
+function fecharCarrinho() {
 
-            <input
-                type="text"
-                id="whatsapp"
-                placeholder="Ex: 5579999999999"
-            >
+    carrinhoElemento.classList.remove("aberto");
 
-            <small>
-                Use o número com DDI e DDD.
-                Exemplo: 5579999999999
-            </small>
+    overlayCarrinho.classList.remove("aberto");
 
-        </div>
+    document.body.classList.remove("sem-scroll");
+}
 
-        <!-- PIX -->
 
-<div class="campo">
+// ========================================
+// LIMPAR CARRINHO
+// ========================================
 
-    <label for="pix">
+function limparCarrinho() {
 
-        💰 Chave PIX
+    if (carrinho.length === 0) {
 
-    </label>
+        mostrarToast("O carrinho já está vazio.");
 
-    <input
-        type="text"
-        id="pix"
-        placeholder="Digite sua chave PIX"
-    >
+        return;
+    }
 
-    <small>
-        Informe a chave PIX que seus clientes usarão para pagamento.
-    </small>
 
-</div>
-
-        <!-- ENDEREÇO -->
-
-        <div class="campo">
-
-            <label for="endereco">
-
-                📍 Endereço
-
-            </label>
-
-            <textarea
-                id="endereco"
-                placeholder="Ex: Avenida Brasil, 123 - Centro"
-            ></textarea>
-
-        </div>
-
-
-        <!-- HORÁRIO -->
-
-        <div class="campo">
-
-            <label for="horario">
-
-                🕐 Horário de funcionamento
-
-            </label>
-
-            <textarea
-                id="horario"
-                placeholder="Ex: Segunda a sábado: 18:00 às 23:00"
-            ></textarea>
-
-        </div>
-
-
-        <!-- BOTÕES -->
-
-        <div class="botoes">
-
-            <button
-                type="button"
-                class="voltar"
-                onclick="voltarPainel()"
-            >
-
-                ← Voltar
-
-            </button>
-
-
-            <button
-                type="button"
-                class="salvar"
-                id="botaoSalvar"
-                onclick="salvarConfiguracao()"
-            >
-
-                💾 Salvar configuração
-
-            </button>
-
-        </div>
-
-    </div>
-
-
-    <!-- ==========================================
-         SEM ESTABELECIMENTO
-    =========================================== -->
-
-    <div
-        id="semEstabelecimento"
-        class="card"
-        style="display:none; text-align:center;"
-    >
-
-        <h2>
-            🏪 Nenhum estabelecimento
-        </h2>
-
-        <p>
-            Você ainda não possui um estabelecimento cadastrado.
-        </p>
-
-        <button
-            class="salvar"
-            onclick="novoEstabelecimento()"
-        >
-
-            + Criar estabelecimento
-
-        </button>
-
-    </div>
-
-
-</main>
-
-
-<script>
-
-    // ==========================================
-    // API
-    // ==========================================
-
-    const API_URL =
-        "https://cardapio-restaurante-za9s.onrender.com";
-
-
-    // ==========================================
-    // ELEMENTOS
-    // ==========================================
-
-    const selectEstabelecimento =
-        document.getElementById(
-            "estabelecimento"
-        );
-
-    const areaConfiguracao =
-        document.getElementById(
-            "areaConfiguracao"
-        );
-
-    const semEstabelecimento =
-        document.getElementById(
-            "semEstabelecimento"
-        );
-
-    const mensagem =
-        document.getElementById(
-            "mensagem"
-        );
-
-    const nome =
-        document.getElementById(
-            "nome"
-        );
-
-    const descricao =
-        document.getElementById(
-            "descricao"
-        );
-
-    const logo =
-        document.getElementById(
-            "logo"
-        );
-
-    const cor =
-        document.getElementById(
-            "cor"
-        );
-
-    const corTexto =
-        document.getElementById(
-            "corTexto"
-        );
-
-    const whatsapp =
-        document.getElementById(
-            "whatsapp"
-        );
-
-const pix =
-    document.getElementById(
-        "pix"
+    const confirmar = confirm(
+        "Deseja realmente limpar seu pedido?"
     );
 
-    const endereco =
-        document.getElementById(
-            "endereco"
-        );
 
-    const horario =
-        document.getElementById(
-            "horario"
-        );
+    if (!confirmar) return;
 
-    const logoPreview =
-        document.getElementById(
-            "logoPreview"
-        );
 
-     const logoPedido =
-    document.getElementById("logoPedido");
+    carrinho = [];
 
-const logoPedidoPreview =
-    document.getElementById("logoPedidoPreview");   
+    salvarCarrinho();
 
-const imagemFundo =
-    document.getElementById(
-        "imagemFundo"
+    atualizarCarrinho();
+
+    mostrarToast("Pedido limpo.");
+}
+
+
+// ========================================
+// WHATSAPP
+// ========================================
+
+// ========================================
+// WHATSAPP - FINALIZAR PEDIDO
+// ========================================
+
+function enviarPedidoWhatsApp() {
+
+    if (carrinho.length === 0) {
+
+        mostrarToast("Seu pedido está vazio.");
+
+        return;
+    }
+
+    // ========================================
+// NOME DO CLIENTE
+// ========================================
+
+const nomeClienteValor =
+    nomeCliente.value.trim();
+
+if (!nomeClienteValor) {
+
+    mostrarToast(
+        "Digite o nome do cliente."
     );
 
-    const imagemHero =
-    document.getElementById("imagemHero");
+    nomeCliente.focus();
 
-const previewHero =
-    document.getElementById("previewHero");
+    return;
+}
 
-let imagemFundoBase64 = "";
+    // ========================================
+    // TIPO DO PEDIDO
+    // ========================================
 
-const imagemFundoPreview =
-    document.getElementById(
-        "imagemFundoPreview"
+    const tipoSelecionado =
+        document.querySelector(
+            'input[name="tipoPedido"]:checked'
+        );
+
+    const tipoPedido =
+        tipoSelecionado
+            ? tipoSelecionado.value
+            : "Delivery";
+
+
+    // ========================================
+    // PAGAMENTO
+    // ========================================
+
+    const pagamento =
+        metodoPagamento.value;
+
+
+    if (!pagamento) {
+
+        mostrarToast(
+            "Selecione a forma de pagamento."
+        );
+
+        return;
+    }
+
+
+    // ========================================
+    // VALIDAR DELIVERY
+    // ========================================
+
+    if (tipoPedido === "Delivery") {
+
+        if (
+            !enderecoCliente.value.trim() ||
+            !numeroCliente.value.trim() ||
+            !bairroCliente.value.trim()
+        ) {
+
+            mostrarToast(
+                "Preencha o endereço de entrega."
+            );
+
+            return;
+        }
+
+    }
+
+
+    // ========================================
+    // MONTAR MENSAGEM
+    // ========================================
+
+    let mensagem =
+        "🍽️ *NOVO PEDIDO*\n\n";
+
+
+    mensagem +=
+        `🏪 *${document.getElementById("nomeEstabelecimento")?.textContent || "Restaurante"}*\n\n`;
+
+    mensagem +=
+        `👤 *Cliente: ${nomeClienteValor}*\n\n`;
+
+    // ========================================
+    // ITENS
+    // ========================================
+
+    mensagem +=
+        "🛒 *ITENS DO PEDIDO*\n\n";
+
+
+    carrinho.forEach(item => {
+
+        const subtotal =
+            Number(item.preco) *
+            Number(item.quantidade);
+
+
+        mensagem +=
+            `🍴 *${item.nome}*\n`;
+
+        mensagem +=
+            `Quantidade: ${item.quantidade}\n`;
+
+        mensagem +=
+            `Valor: ${formatarPreco(subtotal)}\n\n`;
+
+    });
+
+
+    // ========================================
+    // TOTAL
+    // ========================================
+
+    const total =
+        valorTotalCarrinho();
+
+
+    mensagem +=
+        "━━━━━━━━━━━━━━━━━━\n";
+
+    mensagem +=
+        `💰 *TOTAL: ${formatarPreco(total)}*\n\n`;
+
+
+    // ========================================
+    // ENTREGA / RETIRADA
+    // ========================================
+
+    mensagem +=
+        "📦 *FORMA DE RECEBIMENTO*\n";
+
+    mensagem +=
+        `${tipoPedido}\n\n`;
+
+
+    if (tipoPedido === "Delivery") {
+
+        mensagem +=
+            "📍 *ENDEREÇO DE ENTREGA*\n";
+
+        mensagem +=
+            `Rua/Avenida: ${enderecoCliente.value.trim()}\n`;
+
+        mensagem +=
+            `Número: ${numeroCliente.value.trim()}\n`;
+
+        mensagem +=
+            `Bairro: ${bairroCliente.value.trim()}\n`;
+
+
+        if (complementoCliente.value.trim()) {
+
+            mensagem +=
+                `Complemento: ${complementoCliente.value.trim()}\n`;
+
+        }
+
+        mensagem += "\n";
+
+    }
+
+
+    // ========================================
+    // PAGAMENTO
+    // ========================================
+
+    mensagem +=
+        "💰 *FORMA DE PAGAMENTO*\n";
+
+    mensagem +=
+        `${pagamento}\n`;
+
+
+    // ========================================
+    // PIX
+    // ========================================
+
+    if (pagamento === "PIX") {
+
+        mensagem +=
+            "📱 Pagamento via PIX\n";
+
+        mensagem +=
+            "O pagamento será realizado via PIX.\n";
+
+    }
+
+
+    // ========================================
+    // CARTÃO
+    // ========================================
+
+    if (pagamento === "Cartão") {
+
+        if (levarMaquininha.checked) {
+
+            mensagem +=
+                "💳 Levar maquininha para pagamento.\n";
+
+        } else {
+
+            mensagem +=
+                "💳 Cliente pagará no estabelecimento.\n";
+
+        }
+
+    }
+
+
+    // ========================================
+    // DINHEIRO
+    // ========================================
+
+    if (pagamento === "Dinheiro") {
+
+        if (precisaTroco.checked) {
+
+            const valorTroco =
+                Number(trocoPara.value);
+
+
+            if (
+                !trocoPara.value ||
+                valorTroco <= 0
+            ) {
+
+                mostrarToast(
+                    "Informe o valor para o troco."
+                );
+
+                return;
+            }
+
+
+            mensagem +=
+                `💵 Precisa de troco para: ${formatarPreco(valorTroco)}\n`;
+
+        } else {
+
+            mensagem +=
+                "💵 Não precisa de troco.\n";
+
+        }
+
+    }
+
+
+    // ========================================
+    // FINAL
+    // ========================================
+
+    mensagem += "\n";
+
+    mensagem +=
+        "✅ *Aguardo a confirmação do pedido!* 😊";
+
+
+    // ========================================
+    // WHATSAPP
+    // ========================================
+
+    const url =
+        `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
+            mensagem
+        )}`;
+
+
+    window.open(
+        url,
+        "_blank"
+    );
+}
+
+// ========================================
+// TIPO DO PEDIDO
+// ========================================
+
+function atualizarTipoPedido() {
+
+    const tipoSelecionado =
+        document.querySelector(
+            'input[name="tipoPedido"]:checked'
+        );
+
+
+    if (!tipoSelecionado) {
+        return;
+    }
+
+
+    const tipo =
+        tipoSelecionado.value;
+
+
+    if (tipo === "Delivery") {
+
+        dadosEndereco.style.display =
+            "block";
+
+    } else {
+
+        dadosEndereco.style.display =
+            "none";
+
+
+        if (levarMaquininha) {
+
+            levarMaquininha.checked =
+                false;
+
+        }
+
+    }
+
+}
+
+
+// ========================================
+// FORMA DE PAGAMENTO
+// ========================================
+
+function atualizarPagamento() {
+
+    const pagamento =
+        metodoPagamento.value;
+
+
+    opcaoPix.style.display =
+        "none";
+
+    opcaoCartao.style.display =
+        "none";
+
+    opcaoDinheiro.style.display =
+        "none";
+
+
+    if (pagamento === "PIX") {
+
+        opcaoPix.style.display =
+            "block";
+
+    }
+
+
+    if (pagamento === "Cartão") {
+
+        opcaoCartao.style.display =
+            "block";
+
+    }
+
+
+    if (pagamento === "Dinheiro") {
+
+        opcaoDinheiro.style.display =
+            "block";
+
+    }
+
+}
+
+
+// ========================================
+// TROCO
+// ========================================
+
+function atualizarTroco() {
+
+    if (!precisaTroco) {
+        return;
+    }
+
+
+    campoTroco.style.display =
+        precisaTroco.checked
+            ? "block"
+            : "none";
+
+
+    if (!precisaTroco.checked) {
+
+        trocoPara.value = "";
+
+    }
+
+}
+
+// ========================================
+// EVENTOS DO CARRINHO
+// ========================================
+
+if (abrirCarrinhoBtn) {
+
+    abrirCarrinhoBtn.addEventListener(
+        "click",
+        abrirCarrinho
     );
 
-    const botaoSalvar =
-        document.getElementById(
-            "botaoSalvar"
+}
+
+if (fecharCarrinhoBtn) {
+
+    fecharCarrinhoBtn.addEventListener(
+        "click",
+        fecharCarrinho
+    );
+
+}
+
+if (overlayCarrinho) {
+
+    overlayCarrinho.addEventListener(
+        "click",
+        fecharCarrinho
+    );
+
+}
+
+if (limparCarrinhoBtn) {
+
+    limparCarrinhoBtn.addEventListener(
+        "click",
+        limparCarrinho
+    );
+
+}
+
+if (finalizarPedido) {
+
+    finalizarPedido.addEventListener(
+        "click",
+        enviarPedidoWhatsApp
+    );
+
+}
+
+// ========================================
+// EVENTOS DO TIPO DE PEDIDO
+// ========================================
+
+document
+    .querySelectorAll(
+        'input[name="tipoPedido"]'
+    )
+    .forEach(input => {
+
+        input.addEventListener(
+            "change",
+            atualizarTipoPedido
         );
 
-
-    // ==========================================
-    // TOKEN
-    // ==========================================
-
-    const token =
-        localStorage.getItem("token");
+    });
 
 
-    // ==========================================
-    // VERIFICAR LOGIN
-    // ==========================================
+// ========================================
+// EVENTO PAGAMENTO
+// ========================================
 
-    if (!token) {
+if (metodoPagamento) {
 
-        alert(
-            "Você precisa estar logado."
-        );
+    metodoPagamento.addEventListener(
+        "change",
+        atualizarPagamento
+    );
 
-        window.location.href =
-            "/login.html";
-
-    }
+}
 
 
-    // ==========================================
-    // HEADERS
-    // ==========================================
+// ========================================
+// EVENTO TROCO
+// ========================================
 
-    function headersAutenticacao() {
+if (precisaTroco) {
 
-        return {
+    precisaTroco.addEventListener(
+        "change",
+        atualizarTroco
+    );
 
-            "Content-Type":
-                "application/json",
-
-            "Authorization":
-                `Bearer ${token}`
-
-        };
-
-    }
+}
 
 
-    // ==========================================
-    // MOSTRAR MENSAGEM
-    // ==========================================
+// ========================================
+// COPIAR PIX
+// ========================================
 
-    function mostrarMensagem(
-        texto,
-        tipo
-    ) {
+copiarPix.addEventListener(
+    "click",
+    async () => {
 
-        mensagem.textContent =
-            texto;
-
-        mensagem.className =
-            "mensagem " + tipo;
-
-    }
+        const pix =
+            chavePix.textContent.trim();
 
 
-    // ==========================================
-    // LIMPAR MENSAGEM
-    // ==========================================
+        if (
+            !pix ||
+            pix === "COLOQUE_SUA_CHAVE_PIX_AQUI"
+        ) {
 
-    function limparMensagem() {
+            mostrarToast(
+                "Configure a chave PIX primeiro."
+            );
 
-        mensagem.textContent =
-            "";
+            return;
+        }
 
-        mensagem.className =
-            "mensagem";
-
-    }
-
-
-    // ==========================================
-    // CARREGAR ESTABELECIMENTOS
-    // ==========================================
-
-    async function carregarEstabelecimentos() {
 
         try {
 
-            const resposta =
-                await fetch(
-                    `${API_URL}/estabelecimentos`,
-                    {
-                        headers: {
-                            "Authorization":
-                                `Bearer ${token}`
-                        }
-                    }
-                );
+            await navigator.clipboard.writeText(
+                pix
+            );
 
 
-            if (
-                resposta.status === 401
-            ) {
+            mostrarToast(
+                "✅ Chave PIX copiada!"
+            );
 
-                localStorage.removeItem(
-                    "token"
-                );
+        } catch (erro) {
 
-                alert(
-                    "Sua sessão expirou. Faça login novamente."
-                );
-
-                window.location.href =
-                    "/login.html";
-
-                return;
-
-            }
+            console.error(
+                "Erro ao copiar PIX:",
+                erro
+            );
 
 
-            if (!resposta.ok) {
+            mostrarToast(
+                "Não foi possível copiar a chave PIX."
+            );
 
-                throw new Error(
-                    `Erro HTTP ${resposta.status}`
-                );
+        }
 
-            }
+    }
+);
 
-
-            const estabelecimentos =
-                await resposta.json();
-
-
-            selectEstabelecimento.innerHTML =
-                "";
+// ========================================
+// ================= PRATOS ===============
+// ========================================
 
 
-            if (
-                !Array.isArray(
-                    estabelecimentos
-                ) ||
-                estabelecimentos.length === 0
-            ) {
+// ========================================
+// CARREGAR PRATOS
+// ========================================
 
-                selectEstabelecimento.innerHTML = `
+async function carregarPratos() {
 
-                    <option value="">
-                        Nenhum estabelecimento cadastrado
-                    </option>
+    try {
 
-                `;
+        listaPratos.innerHTML = `
 
-                areaConfiguracao.style.display =
-                    "none";
+            <div class="loading">
 
-                semEstabelecimento.style.display =
-                    "block";
+                <div class="spinner"></div>
 
-                return;
+                <p>
+                    Carregando cardápio...
+                </p>
 
-            }
+            </div>
+
+        `;
 
 
-            semEstabelecimento.style.display =
-                "none";
+        const resposta = await fetch(
+            `${API_URL}/estabelecimentos/${ESTABELECIMENTO_ID}/pratos`
+        );
 
 
-            estabelecimentos.forEach(
-                estabelecimento => {
+        if (!resposta.ok) {
 
-                    const option =
-                        document.createElement(
-                            "option"
-                        );
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+        }
 
-                    option.value =
-                        estabelecimento.id;
 
-                    option.textContent =
-                        `🏪 ${estabelecimento.nome}`;
+        pratos = await resposta.json();
 
-                    selectEstabelecimento.appendChild(
-                        option
+
+        if (!Array.isArray(pratos)) {
+
+            throw new Error(
+                "A API não retornou uma lista de pratos."
+            );
+        }
+
+
+        criarCategorias();
+
+        mostrarPratos();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar pratos:",
+            erro
+        );
+
+
+        listaPratos.innerHTML = `
+
+            <div class="loading">
+
+                <div class="erro-icone">
+                    ⚠️
+                </div>
+
+                <h3>
+                    Não foi possível carregar o cardápio.
+                </h3>
+
+                <small>
+                    ${escaparHTML(erro.message)}
+                </small>
+
+            </div>
+
+        `;
+    }
+}
+
+
+// ========================================
+// CATEGORIAS
+// ========================================
+
+function criarCategorias() {
+
+    const nomes = [
+    "Todos",
+    "Hambúrgueres",
+    "Pizzas",
+    "Porções",
+    "Cachorros-quentes",
+    "Frangos",
+    "Carnes",
+    "Massas",
+    "Saladas",
+    "Pratos Executivos",
+    "Lanches",
+    "Sobremesas",
+    "Bebidas",
+    "Açaí",
+    "Cafés",
+    "Pastéis",
+    "Geladinhos"
+];
+
+
+    const icones = {
+
+        "Todos": "🍽️",
+
+        "Hambúrgueres": "🍔",
+
+        "Pizzas": "🍕",
+
+        "Porções": "🍟",
+
+        "Cachorros-quentes": "🌭",
+
+        "Frangos": "🍗",
+
+        "Carnes": "🥩",
+
+        "Massas": "🍝",
+
+        "Saladas": "🥗",
+
+        "Pratos Executivos": "🍛",
+
+        "Lanches": "🥪",
+
+        "Sobremesas": "🍰",
+
+        "Bebidas": "🥤",
+
+        "Açaí": "🍨",
+
+"Cafés": "☕",
+
+"Pastéis": "🥟",
+
+"Geladinhos": "🍧"
+
+    };
+
+
+    categorias.innerHTML =
+        nomes.map(nome => {
+
+            return `
+
+                <button
+                    class="categoria ${
+                        nome === categoriaAtual
+                            ? "ativa"
+                            : ""
+                    }"
+                    data-categoria="${escaparHTML(nome)}"
+                    type="button"
+                >
+
+                    ${icones[nome] || "🍽️"}
+                    ${escaparHTML(nome)}
+
+                </button>
+
+            `;
+
+        })
+        .join("");
+
+
+    categorias
+        .querySelectorAll(".categoria")
+        .forEach(botao => {
+
+            botao.addEventListener(
+                "click",
+                () => {
+
+                    categorias
+                        .querySelectorAll(".categoria")
+                        .forEach(item => {
+
+                            item.classList.remove(
+                                "ativa"
+                            );
+
+                        });
+
+
+                    botao.classList.add(
+                        "ativa"
                     );
+
+
+                    categoriaAtual =
+                        botao.dataset.categoria;
+
+
+                    mostrarPratos();
 
                 }
             );
 
-
-            areaConfiguracao.style.display =
-                "block";
-
-
-            // Carregar o primeiro
-
-            await carregarConfiguracao(
-                estabelecimentos[0].id
-            );
-
-
-        } catch (erro) {
-
-            console.error(erro);
-
-            mostrarMensagem(
-                "❌ Erro ao carregar estabelecimentos: " +
-                erro.message,
-                "erro"
-            );
-
-        }
-
-    }
-
-
-    // ==========================================
-    // TROCAR ESTABELECIMENTO
-    // ==========================================
-
-    selectEstabelecimento.addEventListener(
-        "change",
-        async function() {
-
-            const id =
-                this.value;
-
-            if (!id) {
-                return;
-            }
-
-            await carregarConfiguracao(
-                id
-            );
-
-        }
-    );
-
-
-    // ==========================================
-    // CARREGAR CONFIGURAÇÃO
-    // ==========================================
-
-    async function carregarConfiguracao(
-        id
-    ) {
-
-        limparMensagem();
-
-
-        try {
-
-            const resposta =
-                await fetch(
-                    `${API_URL}/estabelecimentos/${id}/configuracao`,
-                    {
-                        headers: {
-                            "Authorization":
-                                `Bearer ${token}`
-                        }
-                    }
-                );
-
-
-            if (
-                resposta.status === 401
-            ) {
-
-                localStorage.removeItem(
-                    "token"
-                );
-
-                window.location.href =
-                    "/login.html";
-
-                return;
-
-            }
-
-
-            const tipo =
-    resposta.headers.get("content-type") || "";
-
-if (!tipo.includes("application/json")) {
-
-    const texto =
-        await resposta.text();
-
-    console.error(
-        "Resposta do servidor:",
-        texto
-    );
-
-    throw new Error(
-        `O servidor não retornou JSON. HTTP ${resposta.status}`
-    );
+        });
 }
 
-const dados =
-    await resposta.json();
 
-            if (!resposta.ok) {
+// ========================================
+// MOSTRAR PRATOS
+// ========================================
 
-                throw new Error(
-                    dados.erro ||
-                    "Erro ao carregar configuração."
-                );
+function mostrarPratos() {
 
-            }
-
-
-            const estabelecimento =
-                dados.estabelecimento;
-
-            imagemFundoBase64 =
-    estabelecimento.imagem_hero || "";
-
-if (imagemFundoBase64) {
-
-    previewHero.src =
-        imagemFundoBase64;
-
-    previewHero.style.display =
-        "block";
-
-} else {
-
-    previewHero.src = "";
-
-    previewHero.style.display =
-        "none";
-
-} 
+    const busca =
+        pesquisa.value
+            .toLowerCase()
+            .trim();
 
 
-            // ==================================
-            // PREENCHER FORMULÁRIO
-            // ==================================
+    const filtrados =
+        pratos.filter(prato => {
 
-            nome.value =
-                estabelecimento.nome || "";
-
-            descricao.value =
-                estabelecimento.descricao || "";
-
-            logo.value =
-                estabelecimento.logo || "";
-
-            logoPedido.value =
-                estabelecimento.logo_pedido || "";
-
-            imagemFundo.value =
-                estabelecimento.imagem_fundo || "";
-
-            cor.value =
-                estabelecimento.cor ||
-                "#222222";
-
-            corTexto.value =
-                estabelecimento.cor ||
-                "#222222";
-
-            whatsapp.value =
-    estabelecimento.whatsapp || "";
-
-pix.value =
-    estabelecimento.pix || "";
-
-endereco.value =
-    estabelecimento.endereco || "";
-
-            horario.value =
-                estabelecimento.horario || "";
+            const categoriaOK =
+                categoriaAtual === "Todos" ||
+                prato.categoria === categoriaAtual;
 
 
-            atualizarPreviewLogo();
+            const buscaOK =
+                String(prato.nome || "")
+                    .toLowerCase()
+                    .includes(busca) ||
 
-            atualizarPreviewImagemFundo();
+                String(prato.descricao || "")
+                    .toLowerCase()
+                    .includes(busca);
 
-            atualizarPreviewLogoPedido();
+
+            return categoriaOK && buscaOK;
+
+        });
 
 
-        } catch (erro) {
+    contador.textContent =
+        `${filtrados.length} ${
+            filtrados.length === 1
+                ? "prato encontrado"
+                : "pratos encontrados"
+        }`;
 
-            console.error(erro);
 
-            mostrarMensagem(
-                "❌ " + erro.message,
-                "erro"
-            );
+    if (filtrados.length === 0) {
+
+        listaPratos.innerHTML = `
+
+            <div class="loading">
+
+                <div class="erro-icone">
+                    🍽️
+                </div>
+
+                <h3>
+                    Nenhum prato encontrado.
+                </h3>
+
+                <p>
+                    Tente pesquisar outro prato.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    listaPratos.innerHTML =
+        filtrados
+            .map(criarCard)
+            .join("");
+}
+
+
+// ========================================
+// CRIAR CARD
+// ========================================
+
+function criarCard(prato) {
+
+    const imagemHTML =
+        prato.imagem
+            ? `
+
+                <img
+                    src="${escaparHTML(prato.imagem)}"
+                    alt="${escaparHTML(prato.nome)}"
+                    loading="lazy"
+                >
+
+            `
+            : `
+
+                <div class="sem-imagem">
+                    🍽️
+                </div>
+
+            `;
+
+
+    return `
+
+        <article class="card">
+
+            <div class="card-imagem">
+
+                ${imagemHTML}
+
+                <span class="card-categoria">
+
+                    ${escaparHTML(
+                        prato.categoria
+                    )}
+
+                </span>
+
+            </div>
+
+
+            <div class="card-corpo">
+
+                <div class="card-topo">
+
+                    <h3>
+                        ${escaparHTML(
+                            prato.nome
+                        )}
+                    </h3>
+
+                    <span class="preco">
+
+                        ${formatarPreco(
+                            prato.preco
+                        )}
+
+                    </span>
+
+                </div>
+
+
+                <p class="descricao">
+
+                    ${escaparHTML(
+                        prato.descricao ||
+                        "Delicioso prato da casa."
+                    )}
+
+                </p>
+
+
+                <button
+                    class="btn-adicionar-pedido"
+                    type="button"
+                    onclick="adicionarAoCarrinho(${prato.id})"
+                >
+
+                    🛒 Adicionar ao pedido
+
+                </button>
+
+
+                <div class="acoes">
+
+                    <button
+                        class="btn-editar"
+                        type="button"
+                        onclick="editarPrato(${prato.id})"
+                    >
+
+                        ✏️ Editar
+
+                    </button>
+
+
+                    <button
+                        class="btn-excluir"
+                        type="button"
+                        onclick="excluirPrato(${prato.id})"
+                    >
+
+                        🗑️ Excluir
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </article>
+
+    `;
+}
+
+
+// ========================================
+// ================= MODAL ================
+// ========================================
+
+
+// ========================================
+// ABRIR FORMULÁRIO
+// ========================================
+
+function abrirFormulario() {
+
+    limparFormulario();
+
+
+    modal.classList.add("aberto");
+
+    document.body.classList.add(
+        "sem-scroll"
+    );
+
+
+    setTimeout(() => {
+
+        nome.focus();
+
+    }, 100);
+}
+
+
+// ========================================
+// FECHAR FORMULÁRIO
+// ========================================
+
+function fecharFormulario() {
+
+    modal.classList.remove(
+        "aberto"
+    );
+
+    document.body.classList.remove(
+        "sem-scroll"
+    );
+
+    limparFormulario();
+}
+
+
+// ========================================
+// LIMPAR FORMULÁRIO
+// ========================================
+
+function limparFormulario() {
+
+    form.reset();
+
+    pratoEditando = null;
+
+    imagemAtual = "";
+
+
+    tituloFormulario.textContent =
+        "Novo prato";
+
+
+    textoBotao.textContent =
+        "Cadastrar prato";
+
+
+    preview.innerHTML = `
+
+        <span>
+            🖼️
+        </span>
+
+        <p>
+            A imagem aparecerá aqui
+        </p>
+
+    `;
+}
+
+
+// ========================================
+// EVENTO NOVO PRATO
+// ========================================
+
+const abrirFormularioBtn =
+    document.getElementById(
+        "abrirFormulario"
+    );
+
+
+abrirFormularioBtn.addEventListener(
+    "click",
+    () => {
+
+        if (!verificarSenhaAdmin()) {
+            return;
+        }
+
+        abrirFormulario();
+    }
+);
+
+
+fecharModalBtn.addEventListener(
+    "click",
+    fecharFormulario
+);
+
+
+cancelarFormulario.addEventListener(
+    "click",
+    fecharFormulario
+);
+
+
+// ========================================
+// FECHAR MODAL CLICANDO FORA
+// ========================================
+
+modal.addEventListener(
+    "click",
+    evento => {
+
+        if (
+            evento.target === modal
+        ) {
+
+            fecharFormulario();
 
         }
 
     }
+);
 
-imagemHero.addEventListener(
+
+// ========================================
+// IMAGEM
+// ========================================
+
+imagem.addEventListener(
     "change",
-    function () {
+    evento => {
 
         const arquivo =
-            this.files[0];
+            evento.target.files[0];
 
-        if (!arquivo) return;
+
+        if (!arquivo) {
+
+            return;
+        }
+
+
+        if (
+            arquivo.size >
+            5 * 1024 * 1024
+        ) {
+
+            imagem.value = "";
+
+            mostrarToast(
+                "A imagem deve ter no máximo 5 MB."
+            );
+
+            return;
+        }
+
+
+        if (
+            !arquivo.type.startsWith(
+                "image/"
+            )
+        ) {
+
+            imagem.value = "";
+
+            mostrarToast(
+                "Escolha uma imagem válida."
+            );
+
+            return;
+        }
+
 
         const leitor =
             new FileReader();
 
+
         leitor.onload =
-            function (evento) {
+            eventoLeitura => {
 
-                imagemFundoBase64 =
-                    evento.target.result;
+                imagemAtual =
+                    eventoLeitura.target.result;
 
-                previewHero.src =
-                    imagemFundoBase64;
 
-                previewHero.style.display =
-                    "block";
+                mostrarPreview(
+                    imagemAtual
+                );
 
             };
+
+
+        leitor.onerror =
+            () => {
+
+                mostrarToast(
+                    "Erro ao carregar imagem."
+                );
+
+            };
+
 
         leitor.readAsDataURL(
             arquivo
@@ -1208,143 +2067,164 @@ imagemHero.addEventListener(
     }
 );
 
-    // ==========================================
-    // SALVAR CONFIGURAÇÃO
-    // ==========================================
 
-    async function salvarConfiguracao() {
+// ========================================
+// PREVIEW
+// ========================================
 
-        limparMensagem();
+function mostrarPreview(src) {
+
+    preview.innerHTML = `
+
+        <img
+            src="${escaparHTML(src)}"
+            alt="Preview da imagem"
+        >
+
+    `;
+}
 
 
-        const id =
-            selectEstabelecimento.value;
+// ========================================
+// CADASTRAR / EDITAR
+// ========================================
+
+form.addEventListener(
+    "submit",
+    async evento => {
+
+        evento.preventDefault();
 
 
-        if (!id) {
+        const precoNumerico =
+            Number(preco.value);
 
-            mostrarMensagem(
-                "❌ Selecione um estabelecimento.",
-                "erro"
+
+        if (
+            !nome.value.trim() ||
+            !categoria.value.trim() ||
+            !preco.value ||
+            precoNumerico < 0
+        ) {
+
+            mostrarToast(
+                "Preencha corretamente os campos obrigatórios."
             );
 
             return;
-
         }
 
+        const dados = {
 
-        if (!nome.value.trim()) {
+    nome:
+        nome.value.trim(),
 
-            mostrarMensagem(
-                "❌ Digite o nome do estabelecimento.",
-                "erro"
-            );
+    descricao:
+        descricao.value.trim(),
 
-            nome.focus();
+    preco:
+        precoNumerico,
 
-            return;
+    imagem:
+        imagemAtual || "",
 
-        }
+    categoria:
+        categoria.value.trim(),
 
+    estabelecimento_id:
+        ESTABELECIMENTO_ID,
+ 
 
-        botaoSalvar.disabled =
-            true;
-
-        botaoSalvar.textContent =
-            "⏳ Salvando...";
+};
 
 
         try {
 
-            const resposta =
-                await fetch(
-                    `${API_URL}/estabelecimentos/${id}/configuracao`,
-                    {
+            textoBotao.textContent =
+                "Salvando...";
 
-                        method: "PUT",
 
-                        headers:
-                            headersAutenticacao(),
+            let resposta;
 
-                        body:
-                            JSON.stringify({
 
-                                nome:
-                                    nome.value.trim(),
+            if (pratoEditando) {
 
-                                descricao:
-                                    descricao.value.trim(),
+                resposta = await fetch(
+    `${API_URL}/pratos/${pratoEditando}`,
+    {
+        method: "PUT",
 
-                                logo:
-                                    logo.value.trim(),
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                `Bearer ${localStorage.getItem("token")}`
+        },
 
-                                logo_pedido:
-                                    logoPedido.value.trim(),    
+        body: JSON.stringify(dados)
+    }
+);
 
-                                 imagem_fundo:
-                                    imagemFundo.value.trim(),
-                                    
-                                imagem_hero:
-                                    imagemFundoBase64,  
+            } else {
 
-                                cor:
-                                    corTexto.value.trim() ||
-                                    "#222222",
+                resposta = await fetch(
+    `${API_URL}/pratos`,
+    {
+        method: "POST",
 
-                                whatsapp:
-                                    whatsapp.value.trim(),
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization":
+                `Bearer ${localStorage.getItem("token")}`
+        },
 
-                                pix:
-                                    pix.value.trim(),
+        body: JSON.stringify(dados)
+    }
+);
 
-                                endereco:
-                                    endereco.value.trim(),
-
-                                horario:
-                                    horario.value.trim()
-
-                            })
-
-                    }
-                );
+            }
 
 
             const tipo =
-    resposta.headers.get("content-type") || "";
+                resposta.headers.get(
+                    "content-type"
+                ) || "";
 
-if (!tipo.includes("application/json")) {
 
-    const texto =
-        await resposta.text();
+            if (
+                !tipo.includes(
+                    "application/json"
+                )
+            ) {
 
-    console.error(
-        "Resposta do servidor:",
-        texto
-    );
+                throw new Error(
+                    "O servidor não retornou JSON."
+                );
+            }
 
-    throw new Error(
-        `O servidor não retornou JSON. HTTP ${resposta.status}`
-    );
-}
 
-const dados =
-    await resposta.json();
+            const resultado =
+                await resposta.json();
 
 
             if (!resposta.ok) {
 
                 throw new Error(
-                    dados.erro ||
-                    "Erro ao salvar configuração."
+                    resultado.erro ||
+                    "Erro ao salvar prato."
                 );
-
             }
 
 
-            mostrarMensagem(
-                "✅ Configuração salva com sucesso!",
-                "sucesso"
+            fecharFormulario();
+
+
+            mostrarToast(
+                resultado.mensagem ||
+                "Prato salvo com sucesso!"
             );
+
+
+            await carregarPratos();
 
 
         } catch (erro) {
@@ -1354,208 +2234,515 @@ const dados =
                 erro
             );
 
-            mostrarMensagem(
-                "❌ " + erro.message,
-                "erro"
+
+            textoBotao.textContent =
+                pratoEditando
+                    ? "Salvar alterações"
+                    : "Cadastrar prato";
+
+
+            mostrarToast(
+                erro.message
             );
 
-        } finally {
-
-            botaoSalvar.disabled =
-                false;
-
-            botaoSalvar.textContent =
-                "💾 Salvar configuração";
-
         }
 
     }
+);
 
 
-    // ==========================================
-    // PREVIEW DA LOGO
-    // ==========================================
+// ========================================
+// EDITAR PRATO
+// ========================================
 
-    function atualizarPreviewLogo() {
+function editarPrato(id) {
 
-        const url =
-            logo.value.trim();
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+ 
+
+    const prato =
+        pratos.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
 
 
-        if (!url) {
+    if (!prato) {
 
-            logoPreview.innerHTML = `
+        mostrarToast(
+            "Prato não encontrado."
+        );
 
-                <span>
-                    A logo aparecerá aqui
-                </span>
+        return;
+    }
 
-            `;
+
+    pratoEditando =
+        prato.id;
+
+
+    imagemAtual =
+        prato.imagem || "";
+
+
+    nome.value =
+        prato.nome || "";
+
+
+    descricao.value =
+        prato.descricao || "";
+
+
+    preco.value =
+        prato.preco || "";
+
+
+    categoria.value =
+        prato.categoria || "";
+
+
+    tituloFormulario.textContent =
+        "Editar prato";
+
+
+    textoBotao.textContent =
+        "Salvar alterações";
+
+
+    if (imagemAtual) {
+
+        mostrarPreview(
+            imagemAtual
+        );
+
+    } else {
+
+        preview.innerHTML = `
+
+            <span>
+                🖼️
+            </span>
+
+            <p>
+                A imagem aparecerá aqui
+            </p>
+
+        `;
+    }
+
+
+    modal.classList.add(
+        "aberto"
+    );
+
+
+    document.body.classList.add(
+        "sem-scroll"
+    );
+}
+
+
+// ========================================
+// EXCLUIR PRATO
+// ========================================
+
+async function excluirPrato(id) {
+
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+
+    const prato =
+        pratos.find(
+            item =>
+                Number(item.id) ===
+                Number(id)
+        );
+
+    if (!prato) {
+
+        mostrarToast(
+            "Prato não encontrado."
+        );
+
+        return;
+    }
+
+    const confirmar =
+        confirm(
+            `Deseja excluir "${prato.nome}"?`
+        );
+
+    if (!confirmar) {
+        return;
+    }
+
+    
+    try {
+
+    const resposta = await fetch(
+        `${API_URL}/pratos/${id}`,
+        {
+            method: "DELETE",
+
+            headers: {
+                "Authorization":
+                    `Bearer ${localStorage.getItem("token")}`
+            }
+        }
+    );
+
+    const tipo =
+        resposta.headers.get(
+            "content-type"
+        ) || "";
+
+        if (
+            !tipo.includes(
+                "application/json"
+            )
+        ) {
+
+            throw new Error(
+                "O servidor não retornou JSON."
+            );
+        }
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado.erro ||
+                "Erro ao excluir prato."
+            );
+        }
+
+
+        carrinho =
+            carrinho.filter(
+                item =>
+                    Number(item.id) !==
+                    Number(id)
+            );
+
+
+        salvarCarrinho();
+
+        atualizarCarrinho();
+
+
+        mostrarToast(
+            resultado.mensagem ||
+            "Prato excluído com sucesso!"
+        );
+
+
+        await carregarPratos();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao excluir:",
+            erro
+        );
+
+
+        mostrarToast(
+            erro.message
+        );
+    }
+}
+
+
+// ========================================
+// PESQUISA
+// ========================================
+
+pesquisa.addEventListener(
+    "input",
+    mostrarPratos
+);
+
+
+// ========================================
+// TECLA ESC
+// ========================================
+
+document.addEventListener(
+    "keydown",
+    evento => {
+
+        if (
+            evento.key !== "Escape"
+        ) {
 
             return;
+        }
+
+
+        if (
+            carrinhoElemento.classList.contains(
+                "aberto"
+            )
+        ) {
+
+            fecharCarrinho();
 
         }
 
 
-        logoPreview.innerHTML = `
+        if (
+            modal.classList.contains(
+                "aberto"
+            )
+        ) {
 
-            <img
-                src="${url}"
-                alt="Logo"
-                onerror="this.parentElement.innerHTML =
-                    '<span>❌ Não foi possível carregar a imagem</span>'"
-            >
-
-        `;
-
-    }
-
-    function atualizarPreviewImagemFundo() {
-
-    const url =
-        imagemFundo.value.trim();
-
-
-    if (!url) {
-
-        imagemFundoPreview.innerHTML = `
-
-            <span>
-                A imagem de fundo aparecerá aqui
-            </span>
-
-        `;
-
-        return;
-
-    }
-
-
-    imagemFundoPreview.innerHTML = `
-
-        <img
-            src="${url}"
-            alt="Imagem de fundo do cardápio"
-            onerror="this.parentElement.innerHTML =
-                '<span>❌ Não foi possível carregar a imagem</span>'"
-        >
-
-    `;
-
-}
-
-    logo.addEventListener(
-        "input",
-        atualizarPreviewLogo
-    );
-
-    imagemFundo.addEventListener(
-    "input",
-    atualizarPreviewImagemFundo
-);
-
-function atualizarPreviewLogoPedido() {
-
-    const url =
-        logoPedido.value.trim();
-
-    if (!url) {
-
-        logoPedidoPreview.innerHTML = `
-            <span>
-                A logo do "Faça seu pedido" aparecerá aqui
-            </span>
-        `;
-
-        return;
-    }
-
-    logoPedidoPreview.innerHTML = `
-        <img
-            src="${url}"
-            alt="Logo Faça seu pedido"
-            onerror="this.parentElement.innerHTML =
-                '<span>❌ Não foi possível carregar a imagem</span>'"
-        >
-    `;
-}
-
-logoPedido.addEventListener(
-    "input",
-    atualizarPreviewLogoPedido
-);
-
-    // ==========================================
-    // SINCRONIZAR COR
-    // ==========================================
-
-    cor.addEventListener(
-        "input",
-        function() {
-
-            corTexto.value =
-                cor.value;
+            fecharFormulario();
 
         }
+
+    }
+);
+
+// ======================================
+// EXCLUIR ESTABELECIMENTO
+// ======================================
+
+async function excluirEstabelecimento(id) {
+
+    const senha = prompt(
+        "🔐 Digite a senha administrativa:"
+    );
+
+    if (senha === null) {
+        return;
+    }
+
+    if (senha !== "1234") {
+
+        alert("❌ Senha incorreta!");
+
+        return;
+    }
+
+
+    const estabelecimento =
+        document.querySelector(
+            `[onclick*="abrirCardapio(${id})"]`
+        );
+
+
+    const confirmar = confirm(
+        "⚠️ Tem certeza que deseja excluir este estabelecimento?\n\n" +
+        "Todos os pratos vinculados a ele também serão excluídos."
     );
 
 
-    corTexto.addEventListener(
-        "input",
-        function() {
-
-            const valor =
-                corTexto.value.trim();
+    if (!confirmar) {
+        return;
+    }
 
 
-            if (
-                /^#[0-9A-Fa-f]{6}$/.test(
-                    valor
-                )
-            ) {
+    try {
 
-                cor.value =
-                    valor;
+        const resposta =
+            await fetch(
+                `${API_URL}/estabelecimentos/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
 
+
+        const tipo =
+            resposta.headers.get(
+                "content-type"
+            ) || "";
+
+
+        if (!tipo.includes("application/json")) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                dados.erro ||
+                "Erro ao excluir estabelecimento."
+            );
+
+        }
+
+
+        alert(
+            "✅ Estabelecimento excluído com sucesso!"
+        );
+
+
+        carregarEstabelecimentos();
+
+
+    } catch (erro) {
+
+        console.error(erro);
+
+        alert(
+            "❌ " + erro.message
+        );
+
+    }
+
+}
+// ========================================
+// EDITAR ESTABELECIMENTO
+// ========================================
+
+async function editarEstabelecimento(id, nomeAtual) {
+
+    if (!verificarSenhaAdmin()) {
+        return;
+    }
+
+    const novoNome = prompt(
+        "✏️ Digite o novo nome da lanchonete:",
+        nomeAtual
+    );
+
+    if (novoNome === null) {
+        return;
+    }
+
+    if (!novoNome.trim()) {
+
+        mostrarToast(
+            "❌ O nome não pode ficar vazio."
+        );
+
+        return;
+    }
+
+    try {
+
+        const resposta = await fetch(
+            `${API_URL}/estabelecimentos/${id}`,
+            {
+                method: "PUT",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    nome: novoNome.trim()
+                })
             }
+        );
+
+
+        const tipo =
+            resposta.headers.get("content-type") || "";
+
+
+        if (!tipo.includes("application/json")) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
 
         }
-    );
 
 
-    // ==========================================
-    // NOVO ESTABELECIMENTO
-    // ==========================================
+        const resultado =
+            await resposta.json();
 
-    function novoEstabelecimento() {
 
-        window.location.href =
-            "/admin-estabelecimento.html";
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado.erro ||
+                "Erro ao editar estabelecimento."
+            );
+
+        }
+
+
+        mostrarToast(
+            "✅ Lanchonete atualizada com sucesso!"
+        );
+
+
+        // Atualizar o nome na tela
+        const elemento =
+            document.querySelector(
+                `[data-estabelecimento-id="${id}"]`
+            );
+
+
+        if (elemento) {
+
+            elemento.textContent =
+                resultado.estabelecimento.nome;
+
+        }
+
+
+        // Recarregar a lista caso a função exista
+        if (
+            typeof carregarEstabelecimentos ===
+            "function"
+        ) {
+
+            await carregarEstabelecimentos();
+
+        }
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao editar estabelecimento:",
+            erro
+        );
+
+
+        mostrarToast(
+            "❌ " + erro.message
+        );
 
     }
+}
 
+// ========================================
+// INICIAR
+// ========================================
 
-    // ==========================================
-    // VOLTAR
-    // ==========================================
+atualizarCarrinho();
 
-    function voltarPainel() {
+atualizarTipoPedido();
 
-        window.location.href =
-            "/painel.html";
+atualizarPagamento();
 
-    }
+atualizarTroco();
 
+carregarNomeCliente();
 
-    // ==========================================
-    // INICIAR
-    // ==========================================
+carregarPratos();
 
-    carregarEstabelecimentos();
-
-</script>
-
-
-</body>
-
-</html>
+carregarConfiguracaoEstabelecimento();
