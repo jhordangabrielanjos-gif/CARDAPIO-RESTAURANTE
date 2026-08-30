@@ -772,7 +772,7 @@ const imagemFundo =
 const previewHero =
     document.getElementById("previewHero");
 
-let imagemHeroUrl = "";
+let imagemFundoBase64 = "";
 
 const imagemFundoPreview =
     document.getElementById(
@@ -1094,10 +1094,10 @@ const dados =
             const estabelecimento =
                 dados.estabelecimento;
 
-             if (estabelecimento.imagem_fundo) {
+            imagemFundoBase64 =
+    estabelecimento.imagem_hero || "";
 
-    imagemFundoBase64 =
-        estabelecimento.imagem_fundo;
+if (imagemFundoBase64) {
 
     previewHero.src =
         imagemFundoBase64;
@@ -1105,7 +1105,14 @@ const dados =
     previewHero.style.display =
         "block";
 
-}   
+} else {
+
+    previewHero.src = "";
+
+    previewHero.style.display =
+        "none";
+
+} 
 
 
             // ==================================
@@ -1168,18 +1175,38 @@ endereco.value =
 
     }
 
-imagemHero.addEventListener("change", function () {
+imagemHero.addEventListener(
+    "change",
+    function () {
 
-    const arquivo = this.files[0];
+        const arquivo =
+            this.files[0];
 
-    if (!arquivo) return;
+        if (!arquivo) return;
 
-    previewHero.src =
-        URL.createObjectURL(arquivo);
+        const leitor =
+            new FileReader();
 
-    previewHero.style.display = "block";
+        leitor.onload =
+            function (evento) {
 
-});
+                imagemFundoBase64 =
+                    evento.target.result;
+
+                previewHero.src =
+                    imagemFundoBase64;
+
+                previewHero.style.display =
+                    "block";
+
+            };
+
+        leitor.readAsDataURL(
+            arquivo
+        );
+
+    }
+);
 
     // ==========================================
     // SALVAR CONFIGURAÇÃO
@@ -1255,7 +1282,10 @@ imagemHero.addEventListener("change", function () {
                                     logoPedido.value.trim(),    
 
                                  imagem_fundo:
-                                    imagemFundo.value.trim(),  
+                                    imagemFundo.value.trim(),
+                                    
+                                imagem_hero:
+                                    imagemFundoBase64,  
 
                                 cor:
                                     corTexto.value.trim() ||
