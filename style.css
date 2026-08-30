@@ -197,7 +197,6 @@ body.sem-scroll {
 }
 
 .hero::after {
-    content: "🍔";
 
     position: absolute;
 
