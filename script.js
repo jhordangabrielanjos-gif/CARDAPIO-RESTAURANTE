@@ -472,21 +472,27 @@ const tituloFormulario =
 const textoBotao =
     document.getElementById("textoBotao");
 
-const toast =
-    document.getElementById("toast");
+const toast = document.getElementById("toast");
 
-const imagemHero =
-    document.getElementById("imagemHero");
+const hero =
+    document.querySelector(".hero");
 
-const previewHero =
-    document.getElementById("previewHero");
+if (hero && estabelecimento.imagem_hero) {
 
-let imagemFundoBase64 = "";
+    hero.style.backgroundImage = `
+        linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.85),
+            rgba(0, 0, 0, 0.45)
+        ),
+        url("${estabelecimento.imagem_hero}")
+    `;
 
+}
 
-imagemHero.addEventListener(
-    "change",
-    function () {
+if (imagem) {
+
+    imagem.addEventListener("change", function () {
 
         const arquivo = this.files[0];
 
@@ -509,8 +515,9 @@ imagemHero.addEventListener(
 
         leitor.readAsDataURL(arquivo);
 
-    }
-);    
+    });
+
+}    
 
 // ========================================
 // VERIFICAR ELEMENTOS
