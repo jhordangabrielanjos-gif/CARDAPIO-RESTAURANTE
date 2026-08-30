@@ -65,18 +65,36 @@ async function carregarConfiguracaoEstabelecimento() {
         const estabelecimento =
             dados.estabelecimento;
 
-        if (estabelecimento.imagem_fundo) {
 
-    imagemFundoBase64 =
-        estabelecimento.imagem_fundo;
+        // ======================================
+        // IMAGEM DA HERO
+        // ======================================
 
-    previewHero.src =
-        imagemFundoBase64;
+        const hero =
+            document.querySelector(".hero");
 
-    previewHero.style.display =
-        "block";
+        if (
+            hero &&
+            estabelecimento.imagem_hero
+        ) {
 
-}    
+            hero.style.backgroundImage =
+                `
+                linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.85),
+                    rgba(0, 0, 0, 0.45)
+                ),
+                url("${estabelecimento.imagem_hero}")
+                `;
+
+            hero.style.backgroundSize =
+                "cover";
+
+            hero.style.backgroundPosition =
+                "center";
+
+        }
 
 
         // ======================================
@@ -150,24 +168,24 @@ async function carregarConfiguracaoEstabelecimento() {
         }
 
         // ======================================
-// IMAGEM DO HERO
-// ======================================
+        // IMAGEM DO HERO
+        // ======================================
 
-const hero =
-    document.getElementById(
-        "heroEstabelecimento"
-    );
+        const heroEstabelecimento =
+            document.getElementById(
+                "heroEstabelecimento"
+            );
 
-if (hero && estabelecimento.imagem_capa) {
+        if (heroEstabelecimento && estabelecimento.imagem_capa) {
 
-    hero.style.backgroundImage =
-        `url("${estabelecimento.imagem_capa}")`;
+            heroEstabelecimento.style.backgroundImage =
+                `url("${estabelecimento.imagem_capa}")`;
 
-    hero.style.backgroundSize = "cover";
-    hero.style.backgroundPosition = "center";
-    hero.style.backgroundRepeat = "no-repeat";
+            heroEstabelecimento.style.backgroundSize = "cover";
+            heroEstabelecimento.style.backgroundPosition = "center";
+            heroEstabelecimento.style.backgroundRepeat = "no-repeat";
 
-}
+        }
 
         // ======================================
         // COR
