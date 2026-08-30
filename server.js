@@ -146,6 +146,11 @@ async function prepararBanco() {
     ADD COLUMN IF NOT EXISTS imagem_fundo TEXT
 `);
 
+await pool.query(`
+    ALTER TABLE estabelecimentos
+    ADD COLUMN IF NOT EXISTS imagem_hero TEXT
+`);
+
         await pool.query(`
             ALTER TABLE estabelecimentos
             ADD COLUMN IF NOT EXISTS cor VARCHAR(20)
@@ -1170,6 +1175,7 @@ app.get(
                         logo,
                         logo_pedido,
                         imagem_fundo,
+                        imagem_hero,
                         cor,
                         whatsapp,
                         pix,
@@ -1255,6 +1261,7 @@ app.put(
                 logo,
                 logo_pedido,
                 imagem_fundo,
+                imagem_hero,
                 cor,
                 whatsapp,
                 pix,
@@ -1284,19 +1291,20 @@ app.put(
         UPDATE estabelecimentos
 
         SET
-            nome = $1,
-            descricao = $2,
-            logo = $3,
-            logo_pedido = $4,
-            imagem_fundo = $5,
-            cor = $6,
-            whatsapp = $7,
-            pix = $8,
-            endereco = $9,
-            horario = $10
+    nome = $1,
+    descricao = $2,
+    logo = $3,
+    logo_pedido = $4,
+    imagem_fundo = $5,
+    imagem_hero = $6,
+    cor = $7,
+    whatsapp = $8,
+    pix = $9,
+    endereco = $10,
+    horario = $11
 
-        WHERE id = $11
-        AND usuario_id = $12
+WHERE id = $12
+AND usuario_id = $13
 
         RETURNING
             id,
@@ -1305,6 +1313,7 @@ app.put(
             logo,
             logo_pedido,
             imagem_fundo,
+            imagem_hero,
             cor,
             whatsapp,
             pix,
@@ -1317,6 +1326,7 @@ app.put(
             logo || "",
             logo_pedido || "",
             imagem_fundo || "",
+            imagem_hero || "",
             cor || "#222222",
             whatsapp || "",
             pix || "",
@@ -1401,6 +1411,7 @@ app.get(
                         logo,
                         logo_pedido,
                         imagem_fundo,
+                        imagem_hero,
                         cor,
                         whatsapp,
                         endereco,
