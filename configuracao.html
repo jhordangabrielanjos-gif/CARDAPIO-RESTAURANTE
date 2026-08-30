@@ -506,6 +506,25 @@
 
         </div>
 
+        <div class="campo">
+    <label>Imagem de fundo do destaque</label>
+
+    <input
+        type="file"
+        id="imagemHero"
+        accept="image/*"
+    >
+
+    <img
+        id="previewHero"
+        style="
+            display: none;
+            width: 200px;
+            margin-top: 10px;
+            border-radius: 10px;
+        "
+    >
+</div>
 
         <!-- WHATSAPP -->
 
@@ -746,6 +765,14 @@ const imagemFundo =
     document.getElementById(
         "imagemFundo"
     );
+
+    const imagemHero =
+    document.getElementById("imagemHero");
+
+const previewHero =
+    document.getElementById("previewHero");
+
+let imagemHeroUrl = "";
 
 const imagemFundoPreview =
     document.getElementById(
@@ -1067,6 +1094,19 @@ const dados =
             const estabelecimento =
                 dados.estabelecimento;
 
+             if (estabelecimento.imagem_fundo) {
+
+    imagemFundoBase64 =
+        estabelecimento.imagem_fundo;
+
+    previewHero.src =
+        imagemFundoBase64;
+
+    previewHero.style.display =
+        "block";
+
+}   
+
 
             // ==================================
             // PREENCHER FORMULÁRIO
@@ -1128,6 +1168,18 @@ endereco.value =
 
     }
 
+imagemHero.addEventListener("change", function () {
+
+    const arquivo = this.files[0];
+
+    if (!arquivo) return;
+
+    previewHero.src =
+        URL.createObjectURL(arquivo);
+
+    previewHero.style.display = "block";
+
+});
 
     // ==========================================
     // SALVAR CONFIGURAÇÃO
